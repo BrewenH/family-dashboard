@@ -1,10 +1,9 @@
 package com.brewen.familydashboard.task.controller;
 
+import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.service.TaskService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +20,10 @@ public class TaskController {
     @GetMapping
     public List<Task> getAllTasks() {
         return taskService.getAllTasks();
+    }
+
+    @PostMapping
+    public Task createTask(@RequestBody TaskRequest taskRequest) {
+        return taskService.createTask(taskRequest);
     }
 }
