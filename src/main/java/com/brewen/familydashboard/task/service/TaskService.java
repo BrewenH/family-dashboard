@@ -40,4 +40,13 @@ public class TaskService {
 
         return taskRepository.save(task);
     }
+
+    public boolean deleteTaskById(Long id) {
+        if (!taskRepository.existsById(id)) {
+            return false;
+        }
+
+        taskRepository.deleteById(id);
+        return true;
+    }
 }
