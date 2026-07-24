@@ -1,6 +1,7 @@
 package com.brewen.familydashboard.task.controller;
 
 import com.brewen.familydashboard.task.dto.TaskRequest;
+import com.brewen.familydashboard.task.dto.TaskStatusRequest;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.service.TaskService;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,22 @@ public class TaskController {
         return task
                 .map(ResponseEntity::ok)
                 .orElseGet(()->ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Task> updateTaskStatus(
+            @PathVariable("id") Long id,
+            @RequestBody TaskStatusRequest taskStatusRequest
+    ) {
+        if (taskStatusRequest.getStatus() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Optional<Task> updatedTask = taskService.updateTaskStatus(id, taskStatusRequest.getStatus());
+
+        return updatedTask
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping

@@ -2,6 +2,7 @@ package com.brewen.familydashboard.task.service;
 
 import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.model.Task;
+import com.brewen.familydashboard.task.model.TaskStatus;
 import com.brewen.familydashboard.task.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,14 @@ public class TaskService {
 
     public Optional<Task> getTaskById(Long id) {
         return taskRepository.findById(id);
+    }
+
+    public Optional<Task> updateTaskStatus(Long id, TaskStatus status) {
+        return taskRepository.findById(id)
+                .map(task -> {
+                    task.setStatus(status);
+                    return taskRepository.save(task);
+                });
     }
 
     public Task createTask(TaskRequest taskRequest) {
