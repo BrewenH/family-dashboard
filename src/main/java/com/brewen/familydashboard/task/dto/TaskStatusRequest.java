@@ -6,14 +6,12 @@ public class TaskStatusRequest {
 
     private TaskStatus status;
 
-    public TaskStatusRequest() {
-    }
-
     public TaskStatus getStatus() {
         return status;
     }
 
-    public TaskStatusRequest(TaskStatus status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 }
+
