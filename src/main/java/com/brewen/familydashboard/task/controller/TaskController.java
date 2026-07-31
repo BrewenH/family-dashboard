@@ -23,8 +23,11 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasks(@RequestParam(required = false)TaskStatus status) {
-        return taskService.getTasks(status);
+    public List<Task> getTasks(
+            @RequestParam(required = false)TaskStatus status,
+            @RequestParam(defaultValue = "false") boolean sortByPriority
+    ) {
+        return taskService.getTasks(status, sortByPriority);
     }
 
     @GetMapping("/{id}")

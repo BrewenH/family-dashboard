@@ -20,11 +20,39 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<Task> getTasks(TaskStatus status) {
+    public List<Task> getTasks(TaskStatus status, boolean sortByPriority) {
+        List<Task> tasks;
+
         if (status == null) {
-        return taskRepository.findAll();
+            tasks = taskRepository.findAll();
+        }else {
+            tasks = taskRepository.findByStatus(status);
         }
-        return taskRepository.findByStatus(status);
+
+        if (!sortByPriority) {
+            return tasks;
+        }
+
+        return tasks.stream()
+                .sorted((firstTask, secondTask) ->
+                        Integer.compare(
+                                getPriorityWeight(secondTask),
+                                getPriorityWeight(firstTask)
+                        )
+                )
+                .toList();
+    }
+
+    private int getPriorityWeight(Task task) {
+        if (task.getPriority() == null) {
+            return 0;
+        }
+
+        return switch (task.getPriority()) {
+            case LOW -> 1;
+            case MEDIUM -> 2;
+            case HIGH -> 3;
+        };
     }
 
     public Optional<Task> getTaskById(Long id) {
