@@ -20,8 +20,11 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<Task> getAllTasks() {
+    public List<Task> getTasks(TaskStatus status) {
+        if (status == null) {
         return taskRepository.findAll();
+        }
+        return taskRepository.findByStatus(status);
     }
 
     public Optional<Task> getTaskById(Long id) {

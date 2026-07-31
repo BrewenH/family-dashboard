@@ -3,6 +3,7 @@ package com.brewen.familydashboard.task.controller;
 import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.dto.TaskStatusRequest;
 import com.brewen.familydashboard.task.model.Task;
+import com.brewen.familydashboard.task.model.TaskStatus;
 import com.brewen.familydashboard.task.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public List<Task> getTasks(@RequestParam(required = false)TaskStatus status) {
+        return taskService.getTasks(status);
     }
 
     @GetMapping("/{id}")
