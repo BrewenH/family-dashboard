@@ -4,6 +4,7 @@ import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.dto.TaskStatusRequest;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +52,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task createTask(@RequestBody TaskRequest taskRequest) {
+    public Task createTask(@Valid @RequestBody TaskRequest taskRequest) {
         return taskService.createTask(taskRequest);
     }
 
