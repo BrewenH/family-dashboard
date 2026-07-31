@@ -6,7 +6,6 @@ import com.brewen.familydashboard.task.model.TaskStatus;
 import com.brewen.familydashboard.task.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,7 +75,6 @@ public class TaskService {
         task.setAssignedTo(taskRequest.getAssignedTo());
         task.setStatus(taskRequest.getStatus());
         task.setPriority(taskRequest.getPriority());
-        task.setCreatedAt(LocalDateTime.now());
 
         return taskRepository.save(task);
     }
