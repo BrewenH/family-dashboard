@@ -34,8 +34,18 @@ public class Task {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime updatedAt;
+
     @PrePersist
-    public void initializeCreatAt() {
-        this.createdAt = LocalDateTime.now();
+    public void initializeTimestamps() {
+        LocalDateTime now = LocalDateTime.now();
+
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void updateTimestamps() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
