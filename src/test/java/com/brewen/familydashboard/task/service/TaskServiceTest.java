@@ -1,5 +1,6 @@
 package com.brewen.familydashboard.task.service;
 
+import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskPriority;
 import com.brewen.familydashboard.task.model.TaskStatus;
@@ -13,10 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
@@ -108,6 +108,104 @@ class TaskServiceTest {
         assertTrue(result.isEmpty());
 
         verify(taskRepository).findById(999L);
+    }
+
+    @Test
+    void shouldCreateTask() {
+        TaskRequest request = new TaskRequest();
+
+        request.setTitle("Faire les courses");
+        request.setDescription("Acheter du lait");
+        request.setAssignedTo("Brewen");
+        request.setStatus(TaskStatus.TODO);
+        request.setPriority(TaskPriority.MEDIUM);
+
+        Task savedTask = createTask(
+                1L,
+                "Faire les courses",
+                TaskStatus.TODO,
+                TaskPriority.MEDIUM
+        );
+
+        when(taskRepository.save(any(Task.class))).thenReturn(savedTask);
+
+        Task result = taskService.createTask(request);
+
+        assertEquals(1L, result.getId());
+        assertEquals("Faire les courses", result.getTitle());
+        assertEquals(TaskStatus.TODO, result.getStatus());
+        assertEquals(TaskPriority.MEDIUM, result.getPriority());
+
+        verify(taskRepository).save(any(Task.class));
+    }
+
+    @Test
+    void shouldDeleteTaskWhenIdExists() {
+        when(taskRepository.existsById(1L))
+                .thenReturn(true);
+
+        boolean result = taskService.deleteTaskById(1L);
+
+        assertTrue(result);
+
+        verify(taskRepository).existsById(1L);
+        verify(taskRepository).deleteById(1L);
+    }
+
+    @Test
+    void shouldNotDeleteTaskWhenIdDoesNotExist() {
+        when(taskRepository.existsById(999L))
+                .thenReturn(false);
+
+        boolean result = taskService.deleteTaskById(999L);
+
+        assertFalse(result);
+
+        verify(taskRepository).existsById(999L);
+        verify(taskRepository, never()).deleteById(999L);
+    }
+
+    @Test
+    void shouldUpdateTaskStatusWhenTaskExists() {
+        Task task = createTask(
+                1L,
+                "Faire les courses",
+                TaskStatus.TODO,
+                TaskPriority.MEDIUM
+        );
+
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+
+        when(taskRepository.save(task))
+                .thenReturn(task);
+
+        Optional<Task> result = taskService.updateTaskStatus(
+                1L,
+                TaskStatus.IN_PROGRESS
+        );
+
+        assertTrue(result.isPresent());
+        assertEquals(TaskStatus.IN_PROGRESS, result.get().getStatus());
+
+        verify(taskRepository).findById(1L);
+        verify(taskRepository).save(task);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenUpdatingStatusOfMissingTask() {
+        when(taskRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        Optional<Task> result = taskService.updateTaskStatus(
+                999L,
+                TaskStatus.DONE
+        );
+
+        assertTrue(result.isEmpty());
+
+        verify(taskRepository).findById(999L);
+        verify(taskRepository, never()).save(any(Task.class));
     }
 
     private Task createTask(
