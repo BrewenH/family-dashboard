@@ -208,6 +208,150 @@ class TaskServiceTest {
         verify(taskRepository, never()).save(any(Task.class));
     }
 
+    @Test
+    void shouldSortTasksFromHighestToLowestPriority() {
+        Task lowTask = createTask(
+                1L,
+                "Tâche faible",
+                TaskStatus.TODO,
+                TaskPriority.LOW
+        );
+
+        Task highTask = createTask(
+                2L,
+                "Tâche urgente",
+                TaskStatus.TODO,
+                TaskPriority.HIGH
+        );
+
+        Task mediumTask = createTask(
+                3L,
+                "Tâche moyenne",
+                TaskStatus.TODO,
+                TaskPriority.MEDIUM
+        );
+
+        when(taskRepository.findAll())
+                .thenReturn(List.of(lowTask, highTask, mediumTask));
+
+        List<Task> result = taskService.getTasks(null, true);
+
+        assertEquals(TaskPriority.HIGH, result.get(0).getPriority());
+        assertEquals(TaskPriority.MEDIUM, result.get(1).getPriority());
+        assertEquals(TaskPriority.LOW, result.get(2).getPriority());
+
+        verify(taskRepository).findAll();
+    }
+
+    @Test
+    void shouldKeepRepositoryOrderWhenPrioritySortingIsDisabled() {
+        Task lowTask = createTask(
+                1L,
+                "Tâche faible",
+                TaskStatus.TODO,
+                TaskPriority.LOW
+        );
+
+        Task highTask = createTask(
+                2L,
+                "Tâche urgente",
+                TaskStatus.TODO,
+                TaskPriority.HIGH
+        );
+
+        List<Task> repositoryTasks = List.of(lowTask, highTask);
+
+        when(taskRepository.findAll())
+                .thenReturn(repositoryTasks);
+
+        List<Task> result = taskService.getTasks(null, false);
+
+        assertEquals(repositoryTasks, result);
+        assertEquals(TaskPriority.LOW, result.get(0).getPriority());
+        assertEquals(TaskPriority.HIGH, result.get(1).getPriority());
+
+        verify(taskRepository).findAll();
+    }
+
+    @Test
+    void shouldFilterByStatusAndSortByPriority() {
+        Task lowTodoTask = createTask(
+                1L,
+                "TODO faible",
+                TaskStatus.TODO,
+                TaskPriority.LOW
+        );
+
+        Task highTodoTask = createTask(
+                2L,
+                "TODO urgente",
+                TaskStatus.TODO,
+                TaskPriority.HIGH
+        );
+
+        Task mediumTodoTask = createTask(
+                3L,
+                "TODO moyenne",
+                TaskStatus.TODO,
+                TaskPriority.MEDIUM
+        );
+
+        when(taskRepository.findByStatus(TaskStatus.TODO))
+                .thenReturn(List.of(
+                        lowTodoTask,
+                        highTodoTask,
+                        mediumTodoTask
+                ));
+
+        List<Task> result = taskService.getTasks(TaskStatus.TODO, true);
+
+        assertEquals(3, result.size());
+        assertEquals(TaskPriority.HIGH, result.get(0).getPriority());
+        assertEquals(TaskPriority.MEDIUM, result.get(1).getPriority());
+        assertEquals(TaskPriority.LOW, result.get(2).getPriority());
+
+        verify(taskRepository).findByStatus(TaskStatus.TODO);
+    }
+
+    @Test
+    void shouldPlaceTaskWithoutPriorityLast() {
+        Task taskWithoutPriority = createTask(
+                1L,
+                "Tâche sans priorité",
+                TaskStatus.TODO,
+                null
+        );
+
+        Task mediumTask = createTask(
+                2L,
+                "Tâche moyenne",
+                TaskStatus.TODO,
+                TaskPriority.MEDIUM
+        );
+
+        Task highTask = createTask(
+                3L,
+                "Tâche urgente",
+                TaskStatus.TODO,
+                TaskPriority.HIGH
+        );
+
+        when(taskRepository.findAll())
+                .thenReturn(List.of(
+                        taskWithoutPriority,
+                        mediumTask,
+                        highTask
+                ));
+
+        List<Task> result = taskService.getTasks(null, true);
+
+        assertEquals(TaskPriority.HIGH, result.get(0).getPriority());
+        assertEquals(TaskPriority.MEDIUM, result.get(1).getPriority());
+        assertNull(result.get(2).getPriority());
+
+        verify(taskRepository).findAll();
+    }
+
     private Task createTask(
             Long id,
             String title,
