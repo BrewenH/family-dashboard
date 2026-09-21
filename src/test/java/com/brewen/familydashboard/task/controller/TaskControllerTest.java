@@ -25,6 +25,7 @@ import com.brewen.familydashboard.task.dto.TaskRequest;
 import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -117,5 +118,26 @@ class TaskControllerTest {
         assertEquals("Brewen", capturedRequest.getAssignedTo());
         assertEquals(TaskStatus.TODO, capturedRequest.getStatus());
         assertEquals(TaskPriority.MEDIUM, capturedRequest.getPriority());
+    }
+    @Test
+    void shouldReturnTaskWhenIdExists() throws Exception {
+        Task task = new Task();
+
+        task.setId(1L);
+        task.setTitle("Sortir les poubelles");
+        task.setStatus(TaskStatus.TODO);
+        task.setPriority(TaskPriority.HIGH);
+
+        when(taskService.getTaskById(1L))
+                .thenReturn(Optional.of(task));
+
+        mockMvc.perform(get("/api/tasks/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("Sortir les poubelles"))
+                .andExpect(jsonPath("$.status").value("TODO"))
+                .andExpect(jsonPath("$.priority").value("HIGH"));
+
+        verify(taskService).getTaskById(1L);
     }
 }

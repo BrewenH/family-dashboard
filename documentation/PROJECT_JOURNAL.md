@@ -767,3 +767,93 @@ Le ticket suivant sera :
 
 ```text
 FD-023 - Tester GET /api/tasks/{id} avec MockMvc
+---
+
+## FD-023 - Tester GET /api/tasks/{id} avec MockMvc
+
+### Branche
+
+`feature/task-controller-get-by-id-tests`
+
+### Objectif
+
+Tester avec MockMvc la récupération d’une tâche existante par son identifiant.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Réalisé
+
+- Ajout du test MockMvc de `GET /api/tasks/{id}`.
+- Simulation de `TaskService.getTaskById()`.
+- Retour d’une tâche existante dans un `Optional`.
+- Vérification du statut HTTP retourné.
+- Vérification du contenu JSON de la tâche.
+- Vérification de l’identifiant transmis au service.
+
+### Résultat TDD
+
+- RED : aucune réponse n’était configurée pour le service simulé. Le controller retournait `404 Not Found`, alors que le test attendait `200 OK`.
+- GREEN : configuration de `TaskService.getTaskById(1L)` pour retourner une tâche existante dans un `Optional`.
+- REFACTOR : ajout de la vérification de l’appel au service avec l’identifiant attendu. Aucune modification du code de production n’était nécessaire.
+
+### Comportement testé
+
+```http
+GET /api/tasks/1
+```
+
+Lorsque la tâche existe, le test vérifie que le controller :
+
+- retourne `200 OK` ;
+- retourne la tâche au format JSON ;
+- retourne l’identifiant attendu ;
+- retourne le titre attendu ;
+- retourne le statut attendu ;
+- retourne la priorité attendue ;
+- appelle `TaskService.getTaskById(1L)`.
+
+### Test ajouté
+
+`shouldReturnTaskWhenIdExists`
+
+### Tests
+
+- [x] Test MockMvc individuel réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation de `Optional.of(task)` pour simuler une tâche existante.
+- Vérification du contrat HTTP actuel du controller.
+- Vérification de l’appel au service avec `verify`.
+- Aucune modification de `TaskController` nécessaire.
+- Le cas `404 Not Found` sera sécurisé dans un test séparé afin de conserver des tests courts et ciblés.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskController GET by ID unit test`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-023.
+
+Le ticket suivant sera :
+
+```text
+FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
+```
+
+Le cas `GET /api/tasks/{id}` avec un identifiant inexistant reste également à inscrire ou traiter dans la couverture des erreurs du controller.
