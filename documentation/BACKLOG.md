@@ -90,10 +90,10 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 - [x] FD-018 - Ajouter les tests unitaires de lecture du TaskService
 - [x] FD-019 - Ajouter les tests unitaires d’écriture du TaskService
 - [x] FD-020 - Ajouter les tests unitaires du tri par priorité
+- [x] FD-021 - Ajouter les premiers tests du TaskController avec MockMvc
 
 ### Prochaines étapes recommandées
 
-- [ ] FD-021 - Ajouter les premiers tests du TaskController avec MockMvc
 - [ ] FD-022 - Tester POST /api/tasks avec MockMvc
 - [ ] FD-023 - Tester GET /api/tasks/{id} avec MockMvc
 - [ ] FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc

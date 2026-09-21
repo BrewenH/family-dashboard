@@ -579,3 +579,100 @@ Si un changement d’ordinateur intervient avant la fin d’un ticket :
 Une seule branche distante doit représenter un ticket actif.
 
 Le second environnement récupère cette branche et poursuit le travail au lieu de créer une implémentation parallèle.
+
+---
+
+## FD-021 - Premiers tests du TaskController avec MockMvc
+
+### Branche
+
+`feature/task-controller-get-tests`
+
+### Objectif
+
+Tester la couche web du module Task avec MockMvc, en commençant par `GET /api/tasks`.
+
+### Phase TDD actuelle
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### État actuel
+
+Le premier test MockMvc de `TaskController` fonctionne correctement.
+
+Le test vérifie que `GET /api/tasks` :
+
+- retourne un statut HTTP `200 OK` ;
+- retourne une liste au format JSON ;
+- contient les informations attendues pour une tâche ;
+- appelle `TaskService` avec un statut absent et le tri désactivé.
+
+Le `TaskService` est remplacé dans le contexte MVC par un mock Spring grâce à `@MockitoBean`.
+
+### Résultat TDD
+
+- RED : le test échouait parce que `TaskService` était absent du contexte chargé par `@WebMvcTest`.
+- GREEN : ajout d’un `TaskService` simulé avec `@MockitoBean`, configuration de sa réponse et vérification du JSON retourné.
+- REFACTOR : aucune modification du code de production n’était nécessaire. Le test reste ciblé sur la responsabilité du controller.
+
+### Test ajouté
+
+`shouldReturnAllTasks`
+
+### Comportement testé
+
+```http
+GET /api/tasks
+```
+
+Résultat attendu :
+
+```text
+200 OK
+```
+
+Le tableau JSON retourné contient une tâche avec :
+
+```text
+id
+title
+status
+priority
+```
+
+### Tests
+
+- [x] Test `shouldReturnAllTasks` réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Fichiers concernés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Résultat final
+
+Le premier test MockMvc du `TaskController` est terminé.
+
+Le test vérifie que `GET /api/tasks` :
+
+- retourne `200 OK` ;
+- retourne un tableau JSON ;
+- contient les données attendues ;
+- appelle `TaskService` avec les paramètres attendus.
+
+Aucune modification du code de production n’a été nécessaire.
+
+### Commit prévu
+
+`Add TaskController GET unit test`
+
+### Prochaine étape
+
+Créer la Pull Request de FD-021, merger dans `main`, puis poursuivre avec les tests MockMvc de création d’une tâche.
