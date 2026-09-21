@@ -68,6 +68,7 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 - [ ] Ajouter éventuellement un filtre par date d’échéance
 - [ ] Ajouter éventuellement un filtre par priorité
 - [ ] Étudier une pagination lorsque le volume de tâches augmentera
+- [ ] Tester GET /api/tasks/{id} avec un identifiant inexistant
 
 ---
 
@@ -95,7 +96,7 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 ### Prochaines étapes recommandées
 
 - [x] FD-022 - Tester POST /api/tasks avec MockMvc
-- [ ] FD-023 - Tester GET /api/tasks/{id} avec MockMvc
+- [x] FD-023 - Tester GET /api/tasks/{id} avec MockMvc
 - [ ] FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
 - [ ] FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
 - [ ] FD-026 - Ajouter les tests d’intégration de TaskRepository
