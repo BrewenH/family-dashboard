@@ -14,12 +14,10 @@ import java.util.List;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.http.MediaType;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.brewen.familydashboard.task.dto.TaskRequest;
 import org.mockito.ArgumentCaptor;
@@ -139,5 +137,16 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.priority").value("HIGH"));
 
         verify(taskService).getTaskById(1L);
+    }
+
+    @Test
+    void shouldDeleteTaskWhenIdExists() throws Exception {
+        when(taskService.deleteTaskById(1L))
+                .thenReturn(true);
+
+        mockMvc.perform(delete("/api/tasks/{id}", 1L))
+                .andExpect(status().isNoContent());
+
+        verify(taskService).deleteTaskById(1L);
     }
 }
