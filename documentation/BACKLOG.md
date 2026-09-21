@@ -358,7 +358,9 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 - [ ] DOC-005 - Documenter le lancement local
 - [ ] DOC-006 - Documenter Swagger
 - [ ] DOC-007 - Documenter le workflow Git et TDD
-- [ ] DOC-008 - Documenter le transfert vers un autre Copilot
+- [x] DOC-008 - Documenter le transfert vers un autre Copilot
+- [x] DOC-009 - Définir le workflow de synchronisation entre plusieurs ordinateurs
+- [x] DOC-010 - Rendre obligatoire la mise à jour du journal et du backlog à chaque ticket
 
 ---
 
