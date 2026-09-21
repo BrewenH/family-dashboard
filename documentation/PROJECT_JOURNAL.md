@@ -676,3 +676,94 @@ Aucune modification du code de production n’a été nécessaire.
 ### Prochaine étape
 
 Créer la Pull Request de FD-021, merger dans `main`, puis poursuivre avec les tests MockMvc de création d’une tâche.
+
+---
+
+## FD-022 - Tester POST /api/tasks avec MockMvc
+
+### Branche
+
+`feature/task-controller-post-tests`
+
+### Objectif
+
+Tester avec MockMvc la création d’une tâche via `POST /api/tasks`.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Réalisé
+
+- Ajout du test MockMvc de `POST /api/tasks`.
+- Envoi d’un `TaskRequest` valide au format JSON.
+- Simulation de `TaskService.createTask()` avec `@MockitoBean`.
+- Vérification du statut HTTP retourné.
+- Vérification du contenu JSON de la tâche créée.
+- Capture du `TaskRequest` transmis au service avec `ArgumentCaptor`.
+- Vérification de tous les champs reçus par le service.
+
+### Résultat TDD
+
+- RED : le service simulé ne retournait aucune tâche et les assertions JSON échouaient pour la raison attendue.
+- GREEN : configuration de `TaskService.createTask()` pour retourner une tâche créée.
+- REFACTOR : ajout d’un `ArgumentCaptor` pour vérifier précisément le `TaskRequest` transmis au service, sans modifier le code de production.
+
+### Comportement testé
+
+```http
+POST /api/tasks
+```
+
+Le test vérifie que le controller :
+
+- accepte un JSON valide ;
+- retourne `200 OK` ;
+- retourne la tâche créée au format JSON ;
+- transmet correctement le titre ;
+- transmet correctement la description ;
+- transmet correctement la date d’échéance ;
+- transmet correctement la personne assignée ;
+- transmet correctement le statut ;
+- transmet correctement la priorité.
+
+### Test ajouté
+
+`shouldCreateTask`
+
+### Tests
+
+- [x] Test MockMvc de création réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Conservation du comportement HTTP actuel avec `200 OK`.
+- Utilisation d’un corps JSON sous forme de text block Java.
+- Utilisation de `@MockitoBean` pour remplacer `TaskService`.
+- Utilisation de `ArgumentCaptor<TaskRequest>` pour contrôler la désérialisation et l’appel au service.
+- Aucune modification du code de production nécessaire.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskController POST unit test`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-022.
+
+Le ticket suivant sera :
+
+```text
+FD-023 - Tester GET /api/tasks/{id} avec MockMvc

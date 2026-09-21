@@ -94,7 +94,7 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 
 ### Prochaines étapes recommandées
 
-- [ ] FD-022 - Tester POST /api/tasks avec MockMvc
+- [x] FD-022 - Tester POST /api/tasks avec MockMvc
 - [ ] FD-023 - Tester GET /api/tasks/{id} avec MockMvc
 - [ ] FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
 - [ ] FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
