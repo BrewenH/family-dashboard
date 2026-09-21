@@ -857,3 +857,87 @@ FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
 ```
 
 Le cas `GET /api/tasks/{id}` avec un identifiant inexistant reste également à inscrire ou traiter dans la couverture des erreurs du controller.
+
+---
+
+## FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
+
+### Branche
+
+`feature/task-controller-delete-tests`
+
+### Objectif
+
+Tester avec MockMvc la suppression réussie d’une tâche existante via `DELETE /api/tasks/{id}`.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Réalisé
+
+- Ajout du test MockMvc de `DELETE /api/tasks/{id}`.
+- Simulation de `TaskService.deleteTaskById()`.
+- Vérification du statut HTTP de suppression.
+- Vérification de l’identifiant transmis au service.
+- Validation de l’absence de contenu dans la réponse.
+
+### Résultat TDD
+
+- RED : sans configuration du mock, `TaskService.deleteTaskById(1L)` retournait `false` et le controller répondait `404 Not Found`, alors que le test attendait `204 No Content`.
+- GREEN : configuration du service simulé pour retourner `true`, permettant au controller de répondre `204 No Content`.
+- REFACTOR : ajout de la vérification de l’appel au service avec l’identifiant attendu. Aucune modification du code de production nécessaire.
+
+### Comportement testé
+
+```http
+DELETE /api/tasks/1
+```
+
+Lorsque la tâche existe, le test vérifie que le controller :
+
+- appelle `TaskService.deleteTaskById(1L)` ;
+- retourne `204 No Content` ;
+- ne retourne aucun contenu dans la réponse.
+
+### Test ajouté
+
+`shouldDeleteTaskWhenIdExists`
+
+### Tests
+
+- [x] Test MockMvc individuel réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Conservation du contrat HTTP actuel avec `204 No Content` pour une suppression réussie.
+- Simulation du résultat métier avec `TaskService.deleteTaskById()`.
+- Vérification de l’appel au service avec `verify`.
+- Aucune modification de `TaskController` nécessaire.
+- Le cas d’une tâche inexistante sera couvert séparément pour conserver un test ciblé.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskController DELETE unit test`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-024.
+
+Le ticket suivant sera :
+
+```text
+FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
+```
