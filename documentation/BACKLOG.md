@@ -100,7 +100,7 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 - [x] FD-023 - Tester GET /api/tasks/{id} avec MockMvc
 - [x] FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
 - [x] FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
-- [ ] FD-026 - Ajouter les tests d’intégration de TaskRepository
+- [x] FD-026 - Ajouter les tests d’intégration de TaskRepository
 - [ ] FD-027 - Tester le cycle de vie JPA de Task
 
 ### Dette technique liée aux tests
