@@ -1043,3 +1043,112 @@ La prochaine phase de tests concernera les cas d’erreur du controller, notamme
 - suppression d’une tâche inexistante ;
 - modification du statut d’une tâche inexistante ;
 - requêtes de création invalides.
+
+---
+
+## FD-026 - Ajouter les tests d’intégration de TaskRepository
+
+### Branche
+
+`feature/task-repository-integration-tests`
+
+### Objectif
+
+Tester l’intégration entre `TaskRepository`, Hibernate, l’entité `Task` et la base H2 de test.
+
+### Approche de test
+
+Les méthodes du repository existaient déjà.
+
+Les tests ajoutés sont donc des tests de caractérisation permettant de vérifier le comportement réel de la couche JPA sans utiliser Mockito.
+
+### Réalisé
+
+- Création de `TaskRepositoryTest`.
+- Utilisation de `@DataJpaTest`.
+- Utilisation du vrai `TaskRepository`.
+- Utilisation d’Hibernate et d’une base H2 de test.
+- Test de la sauvegarde d’une tâche.
+- Vérification de la génération automatique de l’identifiant.
+- Test de la récupération avec `findById()`.
+- Test de la méthode dérivée `findByStatus()`.
+- Ajout d’une méthode utilitaire pour créer les tâches de test.
+- Refactorisation des données de test afin de réduire la duplication.
+
+### Résultats des tests de caractérisation
+
+#### Sauvegarde et récupération par identifiant
+
+Le test `shouldSaveAndFindTaskById` passe.
+
+Il confirme que :
+
+- une tâche peut être enregistrée ;
+- un identifiant est généré ;
+- la tâche peut être retrouvée avec `findById()` ;
+- le statut est correctement persisté ;
+- la priorité est correctement persistée.
+
+#### Recherche par statut
+
+Le test `shouldFindTasksByStatus` passe.
+
+Il confirme que :
+
+- plusieurs tâches peuvent être enregistrées ;
+- `findByStatus(TaskStatus.TODO)` filtre les données persistées ;
+- seules les tâches possédant le statut demandé sont retournées ;
+- aucune requête JPQL personnalisée n’est nécessaire.
+
+### Tests
+
+- [x] Test `shouldSaveAndFindTaskById` réussi.
+- [x] Test `shouldFindTasksByStatus` réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation de `@DataJpaTest` pour limiter le contexte aux composants JPA.
+- Utilisation de la base H2 de test.
+- Aucun mock Mockito utilisé pour le repository.
+- Conservation de la méthode dérivée Spring Data JPA `findByStatus()`.
+- Aucune modification du code de production nécessaire.
+- Les données créées par chaque test restent isolées par le contexte transactionnel de test.
+
+### Refactorisation
+
+Une méthode utilitaire privée `createTask()` a été ajoutée dans la classe de test afin de :
+
+- réduire la duplication ;
+- rendre les scénarios plus lisibles ;
+- centraliser la préparation minimale des entités de test.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/repository/TaskRepositoryTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskRepository integration tests`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-026.
+
+Le ticket suivant sera :
+
+```text
+FD-027 - Tester le cycle de vie JPA de Task
+```
+
+FD-027 devra notamment vérifier :
+
+- l’initialisation automatique de `createdAt` ;
+- l’initialisation automatique de `updatedAt` ;
+- la modification automatique de `updatedAt` lors d’une mise à jour ;
+- la conservation de `createdAt` lors d’une mise à jour.
