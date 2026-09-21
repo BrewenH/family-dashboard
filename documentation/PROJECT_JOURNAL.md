@@ -941,3 +941,105 @@ Le ticket suivant sera :
 ```text
 FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
 ```
+---
+
+## FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
+
+### Branche
+
+`feature/task-controller-status-tests`
+
+### Objectif
+
+Tester avec MockMvc la modification du statut d’une tâche existante via `PATCH /api/tasks/{id}/status`.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Réalisé
+
+- Ajout du test MockMvc de `PATCH /api/tasks/{id}/status`.
+- Envoi du nouveau statut au format JSON.
+- Simulation de `TaskService.updateTaskStatus()`.
+- Retour d’une tâche mise à jour dans un `Optional`.
+- Vérification du statut HTTP retourné.
+- Vérification du contenu JSON de la tâche mise à jour.
+- Vérification de l’identifiant et du statut transmis au service.
+
+### Résultat TDD
+
+- RED : le service simulé ne retournait aucune tâche mise à jour et le controller répondait `404 Not Found`, alors que le test attendait `200 OK`.
+- GREEN : configuration de `TaskService.updateTaskStatus()` pour retourner une tâche avec le statut `IN_PROGRESS`.
+- REFACTOR : ajout de la vérification de l’appel au service avec l’identifiant et le statut attendus. Aucune modification du code de production n’était nécessaire.
+
+### Comportement testé
+
+```http
+PATCH /api/tasks/1/status
+```
+
+Corps de la requête :
+
+```json
+{
+  "status": "IN_PROGRESS"
+}
+```
+
+Lorsque la tâche existe, le test vérifie que le controller :
+
+- accepte le JSON envoyé ;
+- convertit correctement la valeur vers `TaskStatus.IN_PROGRESS` ;
+- appelle `TaskService.updateTaskStatus(1L, TaskStatus.IN_PROGRESS)` ;
+- retourne `200 OK` ;
+- retourne la tâche mise à jour au format JSON ;
+- retourne l’identifiant attendu ;
+- retourne le titre attendu ;
+- retourne le statut `IN_PROGRESS` ;
+- retourne la priorité attendue.
+
+### Test ajouté
+
+`shouldUpdateTaskStatusWhenTaskExists`
+
+### Tests
+
+- [x] Test MockMvc individuel réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Conservation du contrat HTTP actuel avec `200 OK`.
+- Utilisation d’un corps JSON sous forme de text block Java.
+- Simulation de la tâche mise à jour avec `Optional.of(updatedTask)`.
+- Vérification de la conversion du statut JSON vers l’enum Java.
+- Vérification de l’appel au service avec `verify`.
+- Aucune modification de `TaskController` nécessaire.
+- Le cas d’une tâche inexistante sera couvert séparément.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskController status update unit test`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-025.
+
+La prochaine phase de tests concernera les cas d’erreur du controller, notamment :
+
+- récupération d’une tâche inexistante ;
+- suppression d’une tâche inexistante ;
+- modification du statut d’une tâche inexistante ;
+- requêtes de création invalides.

@@ -149,4 +149,39 @@ class TaskControllerTest {
 
         verify(taskService).deleteTaskById(1L);
     }
+
+    @Test
+    void shouldUpdateTaskStatusWhenTaskExists() throws Exception {
+        String requestBody = """
+            {
+              "status": "IN_PROGRESS"
+            }
+            """;
+
+        Task updatedTask = new Task();
+
+        updatedTask.setId(1L);
+        updatedTask.setTitle("Faire les courses");
+        updatedTask.setStatus(TaskStatus.IN_PROGRESS);
+        updatedTask.setPriority(TaskPriority.MEDIUM);
+
+        when(taskService.updateTaskStatus(
+                1L,
+                TaskStatus.IN_PROGRESS
+        )).thenReturn(Optional.of(updatedTask));
+
+        mockMvc.perform(patch("/api/tasks/{id}/status", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("Faire les courses"))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$.priority").value("MEDIUM"));
+
+        verify(taskService).updateTaskStatus(
+                1L,
+                TaskStatus.IN_PROGRESS
+        );
+    }
 }
