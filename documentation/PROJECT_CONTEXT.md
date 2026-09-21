@@ -486,3 +486,147 @@ Rôle des fichiers :
 2. Mettre à jour le statut du ticket dans `BACKLOG.md`.
 3. Vérifier si une décision durable doit être ajoutée dans `PROJECT_CONTEXT.md`.
 4. Inclure ces modifications documentaires dans le commit du ticket lorsque cela reste cohérent.
+
+## 13. Travail depuis plusieurs ordinateurs et plusieurs Copilot
+
+Le projet est développé alternativement depuis :
+
+- un ordinateur professionnel ;
+- un ordinateur personnel ;
+- une conversation Copilot professionnelle ;
+- une conversation Copilot personnelle.
+
+Les conversations Copilot ne constituent pas la mémoire officielle du projet.
+
+La source de vérité est composée de :
+
+```text
+GitHub
+├── code source
+└── documentation
+    ├── PROJECT_CONTEXT.md
+    ├── PROJECT_JOURNAL.md
+    └── BACKLOG.md
+```
+
+### Rôle de chaque fichier
+
+- `PROJECT_CONTEXT.md` contient les règles durables, l’architecture et les décisions permanentes.
+- `PROJECT_JOURNAL.md` contient l’historique chronologique et l’état précis des tickets.
+- `BACKLOG.md` contient les tickets terminés, en cours et futurs.
+
+### Règle obligatoire de synchronisation
+
+À chaque changement significatif du projet, Copilot doit déterminer quels documents doivent être mis à jour.
+
+À la fin de chaque ticket :
+
+1. Mettre à jour `PROJECT_JOURNAL.md`.
+2. Passer le ticket de `[~]` à `[x]` dans `BACKLOG.md`.
+3. Vérifier si `PROJECT_CONTEXT.md` doit être mis à jour.
+4. Inclure les fichiers documentaires concernés dans le commit.
+5. Pousser la branche sur GitHub.
+6. Merger la Pull Request avant de reprendre le ticket suivant sur un autre ordinateur.
+
+### Démarrage d’un ticket
+
+Lorsqu’un ticket commence, son statut dans `BACKLOG.md` passe de :
+
+```markdown
+- [ ] Ticket à faire
+```
+
+à :
+
+```markdown
+- [~] Ticket en cours
+```
+
+Une entrée temporaire peut être ajoutée dans `PROJECT_JOURNAL.md` si le développement risque de continuer sur un autre ordinateur.
+
+### Changement d’ordinateur en cours de ticket
+
+Avant de quitter un ordinateur :
+
+1. Exécuter les tests disponibles.
+2. Mettre à jour l’entrée temporaire du journal.
+3. Indiquer la branche active.
+4. Indiquer la phase TDD actuelle.
+5. Indiquer les fichiers modifiés.
+6. Indiquer le test en échec ou la prochaine action exacte.
+7. Faire un commit intermédiaire cohérent.
+8. Pousser la branche sur GitHub.
+
+Format d’une entrée temporaire :
+
+```markdown
+## Ticket en cours : FD-XXX
+
+### Branche
+
+`feature/nom-de-branche`
+
+### Phase TDD actuelle
+
+- [x] RED
+- [ ] GREEN
+- [ ] REFACTOR
+
+### Réalisé
+
+- ...
+
+### État actuel
+
+- ...
+
+### Tests
+
+- ...
+
+### Fichiers modifiés
+
+- ...
+
+### Prochaine action exacte
+
+- ...
+```
+
+Un commit contenant volontairement un test rouge peut être poussé sur une branche feature pour permettre la reprise sur un autre ordinateur.
+
+Il ne doit jamais être mergé dans `main` tant que la suite de tests n’est pas verte.
+
+### Reprise sur un autre ordinateur
+
+Avant de continuer :
+
+1. Faire `Fetch` dans IntelliJ.
+2. Récupérer `main` ou la branche feature active.
+3. Faire `Checkout`.
+4. Faire `Update`.
+5. Lire `PROJECT_CONTEXT.md`.
+6. Lire la dernière entrée de `PROJECT_JOURNAL.md`.
+7. Vérifier le ticket `[~]` dans `BACKLOG.md`.
+8. Continuer à partir de la phase TDD et de la prochaine action indiquées.
+
+### Règle concernant les branches
+
+Un ticket actif correspond à une seule branche distante.
+
+Il ne faut pas créer deux implémentations concurrentes du même ticket sur les deux ordinateurs.
+
+Si le ticket a commencé sur un ordinateur, l’autre ordinateur doit récupérer et continuer la même branche.
+
+### Responsabilité de Copilot
+
+Pour chaque ticket, Copilot doit fournir :
+
+- la modification à effectuer dans `BACKLOG.md` au démarrage ;
+- une entrée temporaire de journal si le ticket est interrompu ;
+- l’entrée définitive du journal à la fin ;
+- la mise à jour finale du backlog ;
+- la mise à jour éventuelle du contexte permanent ;
+- la liste des fichiers documentaires à inclure dans le commit ;
+- le message exact du commit ;
+- l’état nécessaire pour reprendre depuis l’autre ordinateur.

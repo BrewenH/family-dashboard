@@ -523,3 +523,59 @@ Ajouter les tests du TaskController avec MockMvc
 ```
 
 Cette étape devra suivre la démarche TDD pour les comportements qui ne sont pas encore couverts.
+
+---
+
+## Décision d’organisation : continuité entre plusieurs ordinateurs
+
+### Contexte
+
+Le projet Family Dashboard est développé alternativement depuis un ordinateur professionnel et un ordinateur personnel.
+
+Chaque environnement peut utiliser une conversation Copilot différente.
+
+### Décision prise
+
+Le dépôt GitHub et les fichiers Markdown du dossier `documentation` deviennent la mémoire officielle du projet.
+
+Les conversations Copilot sont utilisées comme assistants, mais elles ne doivent pas être la seule source de contexte.
+
+### Documents concernés
+
+```text
+documentation/
+├── PROJECT_CONTEXT.md
+├── PROJECT_JOURNAL.md
+└── BACKLOG.md
+```
+
+### Workflow retenu
+
+À chaque ticket :
+
+- passer le ticket à `[~]` lors de son démarrage ;
+- développer selon le cycle TDD ;
+- mettre à jour le journal ;
+- mettre à jour le backlog ;
+- mettre à jour le contexte si une décision durable apparaît ;
+- inclure les modifications documentaires dans le commit ;
+- pousser la branche sur GitHub ;
+- merger la Pull Request avant de reprendre sur un autre ordinateur.
+
+### Reprise en cours de ticket
+
+Si un changement d’ordinateur intervient avant la fin d’un ticket :
+
+- conserver la même branche distante ;
+- documenter la phase TDD actuelle ;
+- indiquer le test en cours ;
+- indiquer les fichiers modifiés ;
+- indiquer la prochaine action exacte ;
+- pousser un commit intermédiaire sur la branche feature ;
+- ne pas merger un état rouge dans `main`.
+
+### Règle durable
+
+Une seule branche distante doit représenter un ticket actif.
+
+Le second environnement récupère cette branche et poursuit le travail au lieu de créer une implémentation parallèle.
