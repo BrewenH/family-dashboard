@@ -2,7 +2,7 @@
 
 Ce fichier présente les tickets terminés, les prochaines étapes et les idées produit du projet.
 
-Les tickets doivent être traités progressivement, un par un, avec la démarche TDD pour les nouvelles fonctionnalités.
+Les tickets doivent être traités progressivement, un par un, avec une démarche TDD pour les nouvelles fonctionnalités.
 
 ---
 
@@ -42,18 +42,34 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 
 ---
 
-## Module Task : validation et erreurs
+## Module Task : validation et gestion des erreurs
 
 - [x] FD-012 - Ajouter les validations sur TaskRequest
 - [x] FD-013 - Ajouter une gestion globale des erreurs de validation
+- [ ] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
+- [ ] FD-033 - Créer TaskNotFoundException
+- [ ] FD-034 - Centraliser les erreurs de tâche inexistante
+- [ ] FD-035 - Gérer les statuts invalides dans les paramètres
+- [ ] FD-036 - Gérer les JSON mal formés
+- [ ] FD-037 - Ajouter un format d’erreur commun
 
-### Améliorations restantes
+### Cas à couvrir dans FD-032
 
-- [ ] Centraliser les erreurs de tâche inexistante
-- [ ] Créer une exception TaskNotFoundException
-- [ ] Gérer proprement un statut invalide dans les paramètres
-- [ ] Gérer proprement les JSON mal formés
-- [ ] Ajouter un format d’erreur commun avec timestamp, status et path
+- [ ] Tester GET /api/tasks/{id} avec un identifiant inexistant
+- [ ] Tester DELETE /api/tasks/{id} avec un identifiant inexistant
+- [ ] Tester PATCH /api/tasks/{id}/status avec un identifiant inexistant
+
+### Format d’erreur futur envisagé
+
+Le format d’erreur commun pourra contenir :
+
+```text
+timestamp
+status
+error
+message
+path
+```
 
 ---
 
@@ -68,8 +84,8 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 - [ ] Ajouter éventuellement un filtre par date d’échéance
 - [ ] Ajouter éventuellement un filtre par priorité
 - [ ] Étudier une pagination lorsque le volume de tâches augmentera
-- [ ] Tester GET /api/tasks/{id} avec un identifiant inexistant
-- [ ] Tester DELETE /api/tasks/{id} avec un identifiant inexistant
+- [ ] Étudier un tri par date d’échéance
+- [ ] Étudier la combinaison de plusieurs filtres
 
 ---
 
@@ -78,28 +94,41 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 - [x] FD-016 - Initialiser automatiquement createdAt avec @PrePersist
 - [x] FD-017 - Initialiser automatiquement updatedAt avec @PreUpdate
 
-### Améliorations restantes
+### Tests d’intégration
 
 - [x] Tester createdAt avec un test d’intégration JPA
 - [x] Tester updatedAt avec un test d’intégration JPA
+- [x] Vérifier que createdAt reste inchangé après une modification
+- [x] Vérifier que updatedAt est actualisé après une modification
+- [x] Supprimer l’utilisation de Thread.sleep() dans les tests temporels
+
+### Améliorations restantes
+
 - [ ] Étudier une classe AuditableEntity commune
-- [ ] Ajouter plus tard l’auteur d’une création ou d’une modification
+- [ ] Ajouter plus tard l’auteur d’une création
+- [ ] Ajouter plus tard l’auteur d’une modification
+- [ ] Étudier une Clock injectable si la gestion du temps devient plus complexe
 
 ---
 
 ## Module Task : tests automatisés
 
+### Tests unitaires du service
+
 - [x] FD-018 - Ajouter les tests unitaires de lecture du TaskService
 - [x] FD-019 - Ajouter les tests unitaires d’écriture du TaskService
 - [x] FD-020 - Ajouter les tests unitaires du tri par priorité
-- [x] FD-021 - Ajouter les premiers tests du TaskController avec MockMvc
 
-### Prochaines étapes recommandées
+### Tests MockMvc du controller
 
+- [x] FD-021 - Ajouter le premier test du TaskController avec MockMvc
 - [x] FD-022 - Tester POST /api/tasks avec MockMvc
 - [x] FD-023 - Tester GET /api/tasks/{id} avec MockMvc
 - [x] FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
 - [x] FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
+
+### Tests d’intégration JPA
+
 - [x] FD-026 - Ajouter les tests d’intégration de TaskRepository
 - [x] FD-027 - Tester le cycle de vie JPA de Task
 
@@ -109,16 +138,50 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 - [ ] Supprimer le warning d’auto-attachement Mockito
 - [ ] Vérifier la compatibilité des tests avec les futures versions du JDK
 - [ ] Définir une stratégie de tests pour la future intégration continue
+- [ ] Étudier la génération d’un rapport de couverture
+- [ ] Définir un niveau minimal de couverture pertinent
+- [ ] Vérifier l’isolation de tous les tests d’intégration
 
 ---
 
 ## Module Task : DTO de réponse et mapping
 
-- [ ] Créer TaskResponse
-- [ ] Créer un mapper entre Task et TaskResponse
-- [ ] Ne plus retourner directement l’entité Task depuis le controller
-- [ ] Vérifier les données réellement exposées par l’API
-- [ ] Adapter les tests du service et du controller
+Cette phase doit permettre de ne plus exposer directement l’entité JPA `Task` dans les réponses HTTP.
+
+- [ ] FD-028 - Créer TaskResponse
+- [ ] FD-029 - Créer un mapper entre Task et TaskResponse
+- [ ] FD-030 - Retourner TaskResponse depuis TaskController
+- [ ] FD-031 - Adapter les tests à TaskResponse
+
+### Objectifs de FD-028
+
+- Définir les données exposées par l’API.
+- Créer un DTO de réponse indépendant de l’entité JPA.
+- Éviter d’exposer accidentellement de futurs champs internes.
+- Préparer l’évolution de l’API sans couplage direct avec la base.
+
+### Objectifs de FD-029
+
+- Convertir une entité `Task` vers un `TaskResponse`.
+- Centraliser la logique de mapping.
+- Ajouter les tests unitaires du mapper.
+- Éviter la duplication dans le controller et le service.
+
+### Objectifs de FD-030
+
+- Retourner `TaskResponse` pour la liste des tâches.
+- Retourner `TaskResponse` pour la récupération par identifiant.
+- Retourner `TaskResponse` après une création.
+- Retourner `TaskResponse` après une modification du statut.
+- Ne plus retourner directement `Task` depuis le controller.
+
+### Objectifs de FD-031
+
+- Adapter les tests du controller.
+- Adapter les tests du service si nécessaire.
+- Vérifier le JSON réellement exposé.
+- Vérifier que les champs internes ne sont pas exposés.
+- Exécuter la suite Maven complète.
 
 ---
 
@@ -145,13 +208,17 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 - [ ] FM-012 - Ajouter la gestion des erreurs
 - [ ] FM-013 - Ajouter les tests unitaires
 - [ ] FM-014 - Ajouter les tests du controller
+- [ ] FM-015 - Ajouter les tests d’intégration
 
 ### Évolution du module Task
 
 - [ ] Remplacer progressivement le champ texte assignedTo
 - [ ] Relier une tâche à un FamilyMember
 - [ ] Prévoir la migration des données existantes
-- [ ] Adapter les DTO et les tests
+- [ ] Adapter TaskRequest
+- [ ] Adapter TaskResponse
+- [ ] Adapter le mapper Task
+- [ ] Adapter les tests
 
 ---
 
@@ -238,7 +305,10 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 - [ ] Supprimer un événement
 - [ ] Filtrer les événements par date
 - [ ] Ajouter les validations
-- [ ] Ajouter les tests automatisés
+- [ ] Ajouter la gestion des erreurs
+- [ ] Ajouter les tests unitaires
+- [ ] Ajouter les tests du controller
+- [ ] Ajouter les tests d’intégration
 
 ---
 
@@ -264,6 +334,8 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 - [ ] Supprimer un article
 - [ ] Marquer un article comme acheté
 - [ ] Consulter la liste de courses
+- [ ] Ajouter les validations
+- [ ] Ajouter la gestion des erreurs
 - [ ] Ajouter les tests
 
 ---
@@ -318,12 +390,12 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 - [ ] Créer le widget des tâches
 - [ ] Créer le widget des événements
 - [ ] Créer le widget météo
-- [ ] Créer le widget wishlist
+- [ ] Créer le widget Wishlist
 - [ ] Ajouter un mode sombre
 - [ ] Adapter l’interface à un écran mural
 - [ ] Vérifier l’accessibilité
 
-### Intégration API
+### Intégration API Task
 
 - [ ] Créer TaskService côté Angular
 - [ ] Afficher les tâches
@@ -331,6 +403,17 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 - [ ] Modifier un statut
 - [ ] Supprimer une tâche
 - [ ] Ajouter la gestion des erreurs
+- [ ] Ajouter les tests frontend
+
+### Intégration API FamilyMember et Wishlist
+
+- [ ] Créer FamilyMemberService côté Angular
+- [ ] Afficher les membres
+- [ ] Créer WishlistService côté Angular
+- [ ] Afficher la wishlist d’un membre
+- [ ] Ajouter un souhait
+- [ ] Modifier un souhait
+- [ ] Supprimer un souhait
 - [ ] Ajouter les tests frontend
 
 ---
@@ -371,12 +454,12 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 Ordre immédiat :
 
 ```text
-1. Terminer et merger la documentation permanente.
-2. Vérifier que FD-020 est bien intégré dans main.
-3. Ajouter les premiers tests du TaskController avec MockMvc.
-4. Compléter progressivement les tests du controller.
-5. Ajouter les tests d’intégration JPA.
-6. Créer TaskResponse et le mapper.
+1. Créer TaskResponse.
+2. Créer le mapper entre Task et TaskResponse.
+3. Retourner TaskResponse depuis TaskController.
+4. Adapter les tests existants au nouveau format de réponse.
+5. Tester les réponses 404 du TaskController.
+6. Centraliser les erreurs métier avec TaskNotFoundException.
 7. Concevoir FamilyMember.
 8. Développer le MVP Wishlist.
 9. Reprendre FamilyEvent et le Dashboard global.
@@ -385,10 +468,22 @@ Ordre immédiat :
 
 ---
 
+## État actuel du projet
+
+```text
+Dernier ticket terminé : FD-027
+Ticket en cours : aucun
+Prochain ticket : FD-028
+Branche de référence : main
+Documentation : à jour
+```
+
+---
+
 ## Ticket suivant recommandé
 
 ```text
-FD-021 - Ajouter les premiers tests du TaskController avec MockMvc
+FD-028 - Créer TaskResponse
 ```
 
 Ce ticket doit respecter la démarche TDD.
@@ -396,5 +491,5 @@ Ce ticket doit respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Tester GET /api/tasks avec MockMvc.
+Définir et tester le DTO retourné par l’API afin de ne plus exposer directement l’entité JPA Task.
 ```
