@@ -80,8 +80,8 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 
 ### Améliorations restantes
 
-- [ ] Tester createdAt avec un test d’intégration JPA
-- [ ] Tester updatedAt avec un test d’intégration JPA
+- [x] Tester createdAt avec un test d’intégration JPA
+- [x] Tester updatedAt avec un test d’intégration JPA
 - [ ] Étudier une classe AuditableEntity commune
 - [ ] Ajouter plus tard l’auteur d’une création ou d’une modification
 
@@ -101,7 +101,7 @@ Les tickets doivent être traités progressivement, un par un, avec la démarche
 - [x] FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
 - [x] FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
 - [x] FD-026 - Ajouter les tests d’intégration de TaskRepository
-- [ ] FD-027 - Tester le cycle de vie JPA de Task
+- [x] FD-027 - Tester le cycle de vie JPA de Task
 
 ### Dette technique liée aux tests
 
