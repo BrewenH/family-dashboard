@@ -1152,3 +1152,111 @@ FD-027 devra notamment vérifier :
 - l’initialisation automatique de `updatedAt` ;
 - la modification automatique de `updatedAt` lors d’une mise à jour ;
 - la conservation de `createdAt` lors d’une mise à jour.
+
+---
+
+## FD-027 - Tester le cycle de vie JPA de Task
+
+### Branche
+
+`feature/task-lifecycle-integration-tests`
+
+### Objectif
+
+Tester les callbacks JPA de l’entité `Task` avec Hibernate et une base H2 de test.
+
+### Approche de test
+
+Les callbacks `@PrePersist` et `@PreUpdate` existaient déjà.
+
+Les tests ajoutés sont donc des tests de caractérisation exécutés avec la vraie couche JPA.
+
+### Réalisé
+
+- Création de `TaskLifecycleTest`.
+- Utilisation de `@DataJpaTest`.
+- Utilisation du vrai `TaskRepository`.
+- Utilisation d’Hibernate et d’une base H2 de test.
+- Test de l’initialisation automatique de `createdAt`.
+- Test de l’initialisation automatique de `updatedAt`.
+- Vérification de l’égalité initiale des deux timestamps.
+- Modification d’une tâche persistée.
+- Vérification de la conservation de `createdAt`.
+- Vérification de l’actualisation de `updatedAt`.
+- Utilisation de `saveAndFlush()` pour déclencher les callbacks JPA pendant les tests.
+
+### Résultats des tests de caractérisation
+
+#### Création d’une tâche
+
+Le test `shouldInitializeTimestampsWhenTaskIsCreated` passe.
+
+Il confirme que :
+
+- `createdAt` est nul avant la persistance ;
+- `updatedAt` est nul avant la persistance ;
+- `@PrePersist` initialise automatiquement les deux timestamps ;
+- `createdAt` et `updatedAt` ont exactement la même valeur lors de la création.
+
+#### Modification d’une tâche
+
+Le test `shouldUpdateOnlyUpdatedAtWhenTaskIsModified` passe.
+
+Il confirme que :
+
+- une modification réelle déclenche `@PreUpdate` ;
+- `createdAt` conserve sa valeur initiale ;
+- `updatedAt` prend une valeur plus récente ;
+- le callback ne nécessite aucune intervention du service.
+
+### Tests ajoutés
+
+- `shouldInitializeTimestampsWhenTaskIsCreated`
+- `shouldUpdateOnlyUpdatedAtWhenTaskIsModified`
+
+### Tests
+
+- [x] Test de création et d’initialisation des timestamps réussi.
+- [x] Test de modification des timestamps réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation de `@DataJpaTest` pour charger uniquement la couche JPA.
+- Utilisation de la base H2 de test.
+- Utilisation de `saveAndFlush()` pour forcer la synchronisation avec la base.
+- Aucun mock Mockito utilisé.
+- Les responsabilités des timestamps restent dans l’entité `Task`.
+- Aucune modification du code de production nécessaire.
+- Une ancienne valeur contrôlée est affectée à `updatedAt` avant la modification.
+- Le test vérifie que `@PreUpdate` remplace cette valeur lors du `flush`.
+- Aucun délai artificiel avec `Thread.sleep()` n’est utilisé.
+
+### Qualité du test temporel
+
+Le test ne dépend d’aucune attente temporelle.
+
+Une valeur antérieure contrôlée est utilisée pour vérifier que le callback `@PreUpdate` actualise correctement `updatedAt`.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/model/TaskLifecycleTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add Task lifecycle integration tests`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-027.
+
+Les prochaines étapes du module Task devront être choisies depuis le backlog à jour, notamment :
+
+- les tests des réponses `404` du controller ;
+- la création de `TaskResponse` et du mapper ;
+- la centralisation des erreurs métier.
