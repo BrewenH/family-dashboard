@@ -1369,3 +1369,62 @@ Le ticket suivant sera :
 ```text
 FD-029 - Créer un mapper entre Task et TaskResponse
 ```
+
+---
+
+## FD-029 - Créer un mapper entre Task et TaskResponse
+
+### Branche
+
+`feature/task-mapper`
+
+### Objectif
+
+Créer un mapper chargé de convertir une entité JPA `Task` en DTO `TaskResponse`.
+
+### Problème résolu
+
+`TaskResponse` existait depuis FD-028, mais aucune conversion centralisée ne permettait encore de le construire à partir d’une entité `Task`.
+
+Sans mapper, cette conversion aurait dû être répétée dans le service ou le controller.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Résultat TDD
+
+- RED : `TaskMapperTest` ne compilait pas car le type `TaskMapper` n’existait pas.
+- GREEN : création d’un mapper manuel minimal avec la méthode statique `toResponse(Task)`.
+- REFACTOR : vérification de la responsabilité unique du mapper, de l’ordre des propriétés et de l’absence de logique métier.
+
+### Réalisé
+
+- Création de `TaskMapperTest`.
+- Définition du contrat de mapping avant l’implémentation.
+- Création de `TaskMapper`.
+- Ajout de la méthode statique `toResponse(Task)`.
+- Conversion des neuf propriétés de `Task`.
+- Vérification de toutes les propriétés du `TaskResponse` obtenu.
+- Ajout d’un constructeur privé empêchant l’instanciation de la classe utilitaire.
+- Exécution de toute la suite Maven.
+
+### Mapping réalisé
+
+```text
+Task.id          → TaskResponse.id
+Task.title       → TaskResponse.title
+Task.description → TaskResponse.description
+Task.dueDate     → TaskResponse.dueDate
+Task.assignedTo  → TaskResponse.assignedTo
+Task.status      → TaskResponse.status
+Task.priority    → TaskResponse.priority
+Task.createdAt   → TaskResponse.createdAt
+Task.updatedAt   → TaskResponse.updatedAt
+```
+
+### Test ajouté
+
+`shouldMapTaskToTaskResponse
