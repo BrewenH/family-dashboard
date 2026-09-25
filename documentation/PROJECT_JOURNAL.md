@@ -1260,3 +1260,112 @@ Les prochaines étapes du module Task devront être choisies depuis le backlog �
 - les tests des réponses `404` du controller ;
 - la création de `TaskResponse` et du mapper ;
 - la centralisation des erreurs métier.
+
+---
+
+## FD-028 - Créer TaskResponse
+
+### Branche
+
+`feature/task-response`
+
+### Objectif
+
+Créer un DTO de réponse indépendant de l’entité JPA `Task`.
+
+### Pourquoi ce DTO est nécessaire
+
+Le controller retourne actuellement directement l’entité `Task`.
+
+Cela couple le format public de l’API avec le modèle de persistance.
+
+`TaskResponse` définit explicitement les informations exposées par l’API et prépare la suppression de ce couplage.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Résultat TDD
+
+- RED : `TaskResponseTest` ne compilait pas car le type `TaskResponse` n’existait pas.
+- GREEN : création du record `TaskResponse` avec les neuf composants exigés par le test.
+- REFACTOR : vérification de l’ordre des composants, des types, des imports et de la simplicité du DTO. Aucune logique supplémentaire n’était nécessaire.
+
+### Réalisé
+
+- Création de `TaskResponseTest`.
+- Définition du contrat de `TaskResponse` avant son implémentation.
+- Création du record `TaskResponse`.
+- Ajout des neuf composants attendus.
+- Vérification des accesseurs générés par le record.
+- Vérification de la conservation des types métier.
+- Validation de l’immutabilité du DTO.
+- Exécution de toute la suite Maven.
+
+### Structure de TaskResponse
+
+```text
+Long id
+String title
+String description
+LocalDate dueDate
+String assignedTo
+TaskStatus status
+TaskPriority priority
+LocalDateTime createdAt
+LocalDateTime updatedAt
+```
+
+### Test ajouté
+
+`shouldExposeTaskResponseData`
+
+### Tests
+
+- [x] Test `shouldExposeTaskResponseData` réussi.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation d’un record Java pour représenter le DTO de réponse.
+- Le DTO est immutable.
+- Aucun setter n’est disponible.
+- Aucune annotation Lombok n’est nécessaire.
+- `TaskResponse` n’est pas une entité JPA.
+- Les enums `TaskStatus` et `TaskPriority` restent exposés avec leurs types métier.
+- Les timestamps restent présents dans le contrat actuel de réponse.
+- Aucun mapper n’est ajouté dans FD-028.
+- Aucune modification du controller ou du service n’est réalisée dans FD-028.
+
+### Hors périmètre confirmé
+
+- Le mapping entre `Task` et `TaskResponse`.
+- Le retour de `TaskResponse` dans le controller.
+- L’adaptation des tests du service et du controller.
+- La modification du format JSON actuel.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/task/dto/TaskResponse.java`
+- `src/test/java/com/brewen/familydashboard/task/dto/TaskResponseTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskResponse DTO`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-028.
+
+Le ticket suivant sera :
+
+```text
+FD-029 - Créer un mapper entre Task et TaskResponse
+```

@@ -148,7 +148,7 @@ path
 
 Cette phase doit permettre de ne plus exposer directement l’entité JPA `Task` dans les réponses HTTP.
 
-- [ ] FD-028 - Créer TaskResponse
+- [x] FD-028 - Créer TaskResponse
 - [ ] FD-029 - Créer un mapper entre Task et TaskResponse
 - [ ] FD-030 - Retourner TaskResponse depuis TaskController
 - [ ] FD-031 - Adapter les tests à TaskResponse
@@ -471,25 +471,9 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-027
+Dernier ticket terminé : FD-028
 Ticket en cours : aucun
-Prochain ticket : FD-028
-Branche de référence : main
+Prochain ticket : FD-029
+Branche de référence : feature/task-response
 Documentation : à jour
-```
-
----
-
-## Ticket suivant recommandé
-
-```text
-FD-028 - Créer TaskResponse
-```
-
-Ce ticket doit respecter la démarche TDD.
-
-Premier objectif envisagé :
-
-```text
-Définir et tester le DTO retourné par l’API afin de ne plus exposer directement l’entité JPA Task.
 ```
