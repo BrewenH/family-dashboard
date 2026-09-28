@@ -312,6 +312,56 @@ DELETE /api/tasks/{id}
 PATCH /api/tasks/{id}/status
 ```
 
+### DTO de réponse et mapping
+
+Le module Task utilise désormais un DTO de réponse indépendant de l’entité JPA.
+
+```text
+Task
+→ TaskMapper
+→ TaskResponse
+→ réponse HTTP JSON
+```
+
+`TaskResponse` est un record Java immutable contenant :
+
+```text
+id
+title
+description
+dueDate
+assignedTo
+status
+priority
+createdAt
+updatedAt
+```
+
+`TaskMapper` assure la conversion entre l’entité `Task` et le DTO `TaskResponse`.
+
+Les endpoints suivants ne retournent plus directement l’entité JPA :
+
+```http
+GET /api/tasks
+GET /api/tasks/{id}
+POST /api/tasks
+PATCH /api/tasks/{id}/status
+```
+
+L’endpoint DELETE continue de retourner `ResponseEntity<Void>` :
+
+```http
+DELETE /api/tasks/{id}
+```
+
+Règle durable :
+
+- le controller ne doit pas exposer directement les entités JPA ;
+- le service peut continuer à manipuler les entités métier ;
+- le mapping vers les DTO de réponse est réalisé à la limite de la couche web ;
+- les nouvelles propriétés internes d’une entité ne doivent pas être automatiquement exposées par l’API ;
+- toute évolution de `TaskResponse` doit être sécurisée par des tests.
+
 ### Fonctionnalités disponibles
 
 - Création d’une tâche.
@@ -359,9 +409,6 @@ Les tests du `TaskService` couvrent notamment :
 
 ### Limites actuelles
 
-- Les réponses retournent encore directement l’entité `Task`.
-- Il n’existe pas encore de `TaskResponse`.
-- Il n’existe pas encore de mapper.
 - Les controllers ne sont pas encore testés avec MockMvc.
 - Les callbacks JPA ne sont pas encore couverts par des tests d’intégration.
 - Les erreurs métier comme `Task not found` ne sont pas encore centralisées.

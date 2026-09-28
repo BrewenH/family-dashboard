@@ -1428,3 +1428,215 @@ Task.updatedAt   → TaskResponse.updatedAt
 ### Test ajouté
 
 `shouldMapTaskToTaskResponse
+
+---
+
+## FD-030 - Retourner TaskResponse depuis TaskController
+
+### Branche
+
+`feature/task-controller-response`
+
+### Objectif
+
+Modifier `TaskController` afin qu’il retourne des DTO `TaskResponse` au lieu d’exposer directement les entités JPA `Task`.
+
+### Situation initiale
+
+Les éléments suivants existaient déjà :
+
+- `TaskResponse` définissait le contrat de réponse de l’API ;
+- `TaskMapper.toResponse(Task)` permettait de convertir une entité vers le DTO ;
+- `TaskController` retournait encore directement les entités `Task`.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Progression réalisée
+
+- [x] Migrer `GET /api/tasks`
+- [x] Migrer `GET /api/tasks/{id}`
+- [x] Migrer `POST /api/tasks`
+- [x] Migrer `PATCH /api/tasks/{id}/status`
+- [x] Vérifier que DELETE reste inchangé
+- [x] Exécuter toute la suite Maven
+
+### Résultat TDD
+
+#### GET /api/tasks
+
+- RED : le test exigeait `ResponseEntity<List<TaskResponse>>`, alors que le controller retournait encore `ResponseEntity<List<Task>>`.
+- GREEN : conversion de chaque tâche avec `TaskMapper.toResponse()` en utilisant un stream.
+- REFACTOR : vérification de la lisibilité du mapping et conservation du contrat JSON existant.
+
+#### GET /api/tasks/{id}
+
+- RED : le test exigeait `ResponseEntity<TaskResponse>`, alors que le controller retournait encore `ResponseEntity<Task>`.
+- GREEN : conversion de l’entité contenue dans l’`Optional` avec `TaskMapper.toResponse()`.
+- REFACTOR : conservation du traitement `404 Not Found` et simplification de la chaîne avec `Optional.map()`.
+
+#### POST /api/tasks
+
+- RED : le test exigeait `ResponseEntity<TaskResponse>`, alors que le controller retournait encore `ResponseEntity<Task>`.
+- GREEN : conversion de la tâche créée avec `TaskMapper.toResponse()`.
+- REFACTOR : séparation claire entre la création métier et la construction de la réponse HTTP.
+
+#### PATCH /api/tasks/{id}/status
+
+- RED : le test exigeait `ResponseEntity<TaskResponse>`, alors que le controller retournait encore `ResponseEntity<Task>`.
+- GREEN : conversion de la tâche mise à jour avec `TaskMapper.toResponse()`.
+- REFACTOR : conservation du traitement `404 Not Found` et de la chaîne utilisant `Optional`.
+
+### Réalisé
+
+- Modification du type de retour de `GET /api/tasks`.
+- Conversion de la liste de tâches vers une liste de `TaskResponse`.
+- Modification du type de retour de `GET /api/tasks/{id}`.
+- Conversion de la tâche récupérée vers `TaskResponse`.
+- Modification du type de retour de `POST /api/tasks`.
+- Conversion de la tâche créée vers `TaskResponse`.
+- Modification du type de retour de `PATCH /api/tasks/{id}/status`.
+- Conversion de la tâche mise à jour vers `TaskResponse`.
+- Conservation de `DELETE /api/tasks/{id}` avec `ResponseEntity<Void>`.
+- Ajout de tests directs vérifiant les types Java retournés.
+- Conservation des tests MockMvc vérifiant le contrat HTTP et JSON.
+- Exécution de toute la suite Maven.
+
+### Flux de la liste des tâches
+
+```text
+TaskService
+→ List<Task>
+→ Stream<Task>
+→ TaskMapper.toResponse()
+→ Stream<TaskResponse>
+→ List<TaskResponse>
+→ ResponseEntity<List<TaskResponse>>
+```
+
+### Flux de récupération par identifiant
+
+```text
+TaskService.getTaskById()
+→ Optional<Task>
+→ TaskMapper.toResponse()
+→ Optional<TaskResponse>
+→ ResponseEntity<TaskResponse>
+```
+
+### Flux de création
+
+```text
+TaskRequest
+→ TaskService.createTask()
+→ Task
+→ TaskMapper.toResponse()
+→ TaskResponse
+→ ResponseEntity<TaskResponse>
+```
+
+### Flux de modification du statut
+
+```text
+TaskStatusRequest
+→ TaskService.updateTaskStatus()
+→ Optional<Task>
+→ TaskMapper.toResponse()
+→ Optional<TaskResponse>
+→ ResponseEntity<TaskResponse>
+```
+
+### Tests ajoutés
+
+- `shouldReturnTaskResponsesWhenGettingAllTasks`
+- `shouldReturnTaskResponseWhenGettingTaskById`
+- `shouldReturnTaskResponseWhenCreatingTask`
+- `shouldReturnTaskResponseWhenUpdatingTaskStatus`
+
+### Tests existants conservés
+
+- Test MockMvc de récupération de toutes les tâches.
+- Test MockMvc de récupération par identifiant.
+- Test MockMvc de création.
+- Test MockMvc de modification du statut.
+- Test MockMvc de suppression.
+
+### Tests
+
+- [x] Tests directs du controller réussis.
+- [x] Tests MockMvc du controller réussis.
+- [x] Tests unitaires du service réussis.
+- [x] Tests du mapper réussis.
+- [x] Tests d’intégration JPA réussis.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- `TaskController` ne retourne plus directement l’entité JPA `Task`.
+- Les conversions sont centralisées dans `TaskMapper`.
+- `TaskService` continue à manipuler les entités métier.
+- Le mapping vers les DTO est réalisé à la limite de la couche web.
+- Le contrat JSON existant est conservé.
+- Les réponses `404 Not Found` sont conservées.
+- L’endpoint DELETE reste inchangé car il retourne `ResponseEntity<Void>`.
+- Aucun mapping inverse n’est ajouté.
+- Aucun mapping de `TaskRequest` vers `Task` n’est ajouté.
+- Aucun ajout de MapStruct n’est nécessaire pour cette migration.
+
+### Endpoints retournant désormais TaskResponse
+
+```http
+GET /api/tasks
+GET /api/tasks/{id}
+POST /api/tasks
+PATCH /api/tasks/{id}/status
+```
+
+### Endpoint inchangé
+
+```http
+DELETE /api/tasks/{id}
+```
+
+L’endpoint DELETE retourne :
+
+```text
+204 No Content
+```
+
+et ne nécessite aucun DTO de réponse.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/task/controller/TaskController.java`
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Return TaskResponse from TaskController`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-030.
+
+Le ticket suivant sera :
+
+```text
+FD-031 - Adapter les tests à TaskResponse
+```
+
+FD-031 devra compléter la sécurisation du contrat public en vérifiant notamment :
+
+- tous les champs exposés par `TaskResponse` ;
+- les timestamps dans les réponses ;
+- l’absence de champs internes non prévus ;
+- la cohérence des tests après la migration vers le DTO.

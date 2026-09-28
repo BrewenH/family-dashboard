@@ -150,7 +150,7 @@ Cette phase doit permettre de ne plus exposer directement l’entité JPA `Task`
 
 - [x] FD-028 - Créer TaskResponse
 - [x] FD-029 - Créer un mapper entre Task et TaskResponse
-- [ ] FD-030 - Retourner TaskResponse depuis TaskController
+- [x] FD-030 - Retourner TaskResponse depuis TaskController
 - [ ] FD-031 - Adapter les tests à TaskResponse
 
 ### Objectifs de FD-028
@@ -471,17 +471,17 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-029
+Dernier ticket terminé : FD-030
 Ticket en cours : aucun
-Prochain ticket : FD-030
-Branche de référence : feature/task-mapper
+Prochain ticket : FD-031
+Branche de référence : feature/task-controller-response
 Documentation : à jour
 ```
 
 ## Ticket suivant recommandé
 
 ```text
-FD-030 - Retourner TaskResponse depuis TaskController
+FD-031 - Adapter les tests à TaskResponse
 ```
 
 Ce ticket devra respecter la démarche TDD.
@@ -489,6 +489,5 @@ Ce ticket devra respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Utiliser TaskMapper afin que les endpoints du TaskController ne retournent plus directement l’entité JPA Task.
+Compléter les tests afin de vérifier précisément le contrat JSON exposé par TaskResponse et l’absence de champs internes non prévus.
 ```
-``
