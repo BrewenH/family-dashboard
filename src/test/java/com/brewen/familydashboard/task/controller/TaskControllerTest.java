@@ -1,5 +1,7 @@
 package com.brewen.familydashboard.task.controller;
 
+import com.brewen.familydashboard.task.dto.TaskResponse;
+import com.brewen.familydashboard.task.dto.TaskStatusRequest;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskPriority;
 import com.brewen.familydashboard.task.model.TaskStatus;
@@ -7,11 +9,13 @@ import com.brewen.familydashboard.task.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -25,7 +29,6 @@ import org.mockito.ArgumentCaptor;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(TaskController.class)
@@ -33,6 +36,9 @@ class TaskControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TaskController taskController;
 
     @MockitoBean
     private TaskService taskService;
@@ -178,6 +184,144 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.title").value("Faire les courses"))
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
                 .andExpect(jsonPath("$.priority").value("MEDIUM"));
+
+        verify(taskService).updateTaskStatus(
+                1L,
+                TaskStatus.IN_PROGRESS
+        );
+    }
+
+    @Test
+    void shouldReturnTaskResponsesWhenGettingAllTasks() {
+        Task task = new Task();
+
+        task.setId(1L);
+        task.setTitle("Faire les courses");
+        task.setStatus(TaskStatus.TODO);
+        task.setPriority(TaskPriority.MEDIUM);
+
+        when(taskService.getTasks(null, false))
+                .thenReturn(List.of(task));
+
+        ResponseEntity<List<TaskResponse>> result =
+                taskController.getTasks(null, false);
+
+        List<TaskResponse> responseBody = result.getBody();
+
+        assertNotNull(responseBody);
+        assertEquals(1, responseBody.size());
+        assertInstanceOf(TaskResponse.class, responseBody.getFirst());
+
+        verify(taskService).getTasks(null, false);
+    }
+
+    @Test
+    void shouldReturnTaskResponseWhenGettingTaskById() {
+        Task task = new Task();
+
+        task.setId(1L);
+        task.setTitle("Sortir les poubelles");
+        task.setStatus(TaskStatus.TODO);
+        task.setPriority(TaskPriority.HIGH);
+
+        when(taskService.getTaskById(1L))
+                .thenReturn(Optional.of(task));
+
+        ResponseEntity<TaskResponse> result =
+                taskController.getTaskById(1L);
+
+        TaskResponse responseBody = result.getBody();
+
+        assertNotNull(responseBody);
+        assertEquals(1L, responseBody.id());
+        assertEquals("Sortir les poubelles", responseBody.title());
+        assertEquals(TaskStatus.TODO, responseBody.status());
+        assertEquals(TaskPriority.HIGH, responseBody.priority());
+
+        verify(taskService).getTaskById(1L);
+    }
+
+    @Test
+    void shouldReturnTaskResponseWhenCreatingTask() {
+        TaskRequest request = new TaskRequest();
+
+        request.setTitle("Faire les courses");
+        request.setDescription("Acheter du lait et du pain");
+        request.setDueDate(LocalDate.of(2026, 10, 15));
+        request.setAssignedTo("Brewen");
+        request.setStatus(TaskStatus.TODO);
+        request.setPriority(TaskPriority.MEDIUM);
+
+        Task createdTask = new Task();
+
+        createdTask.setId(1L);
+        createdTask.setTitle("Faire les courses");
+        createdTask.setDescription("Acheter du lait et du pain");
+        createdTask.setDueDate(LocalDate.of(2026, 10, 15));
+        createdTask.setAssignedTo("Brewen");
+        createdTask.setStatus(TaskStatus.TODO);
+        createdTask.setPriority(TaskPriority.MEDIUM);
+
+        when(taskService.createTask(any(TaskRequest.class)))
+                .thenReturn(createdTask);
+
+        ResponseEntity<TaskResponse> result =
+                taskController.createTask(request);
+
+        TaskResponse responseBody = result.getBody();
+
+        assertNotNull(responseBody);
+        assertEquals(1L, responseBody.id());
+        assertEquals("Faire les courses", responseBody.title());
+        assertEquals(
+                "Acheter du lait et du pain",
+                responseBody.description()
+        );
+        assertEquals(
+                LocalDate.of(2026, 10, 15),
+                responseBody.dueDate()
+        );
+        assertEquals("Brewen", responseBody.assignedTo());
+        assertEquals(TaskStatus.TODO, responseBody.status());
+        assertEquals(TaskPriority.MEDIUM, responseBody.priority());
+
+        verify(taskService).createTask(request);
+    }
+
+    @Test
+    void shouldReturnTaskResponseWhenUpdatingTaskStatus() {
+        TaskStatusRequest request = new TaskStatusRequest();
+
+        request.setStatus(TaskStatus.IN_PROGRESS);
+
+        Task updatedTask = new Task();
+
+        updatedTask.setId(1L);
+        updatedTask.setTitle("Faire les courses");
+        updatedTask.setStatus(TaskStatus.IN_PROGRESS);
+        updatedTask.setPriority(TaskPriority.MEDIUM);
+
+        when(taskService.updateTaskStatus(
+                1L,
+                TaskStatus.IN_PROGRESS
+        )).thenReturn(Optional.of(updatedTask));
+
+        ResponseEntity<TaskResponse> result =
+                taskController.updateTaskStatus(1L, request);
+
+        TaskResponse responseBody = result.getBody();
+
+        assertNotNull(responseBody);
+        assertEquals(1L, responseBody.id());
+        assertEquals("Faire les courses", responseBody.title());
+        assertEquals(
+                TaskStatus.IN_PROGRESS,
+                responseBody.status()
+        );
+        assertEquals(
+                TaskPriority.MEDIUM,
+                responseBody.priority()
+        );
 
         verify(taskService).updateTaskStatus(
                 1L,

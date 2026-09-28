@@ -1,7 +1,9 @@
 package com.brewen.familydashboard.task.controller;
 
 import com.brewen.familydashboard.task.dto.TaskRequest;
+import com.brewen.familydashboard.task.dto.TaskResponse;
 import com.brewen.familydashboard.task.dto.TaskStatusRequest;
+import com.brewen.familydashboard.task.mapper.TaskMapper;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskStatus;
 import com.brewen.familydashboard.task.service.TaskService;
@@ -10,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -23,41 +24,49 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasks(
-            @RequestParam(required = false)TaskStatus status,
+    public ResponseEntity<List<TaskResponse>> getTasks(
+            @RequestParam(required = false) TaskStatus status,
             @RequestParam(defaultValue = "false") boolean sortByPriority
     ) {
-        return taskService.getTasks(status, sortByPriority);
+        List<TaskResponse> responses = taskService
+                .getTasks(status, sortByPriority)
+                .stream()
+                .map(TaskMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        Optional<Task> task = taskService.getTaskById(id);
-
-        return task
+    public ResponseEntity<TaskResponse> getTaskById(
+            @PathVariable Long id
+    ) {
+        return taskService.getTaskById(id)
+                .map(TaskMapper::toResponse)
                 .map(ResponseEntity::ok)
-                .orElseGet(()->ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Task> updateTaskStatus(
-            @PathVariable("id") Long id,
-            @RequestBody TaskStatusRequest taskStatusRequest
+    public ResponseEntity<TaskResponse> updateTaskStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody TaskStatusRequest request
     ) {
-        if (taskStatusRequest.getStatus() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Optional<Task> updatedTask = taskService.updateTaskStatus(id, taskStatusRequest.getStatus());
-
-        return updatedTask
+        return taskService.updateTaskStatus(id, request.getStatus())
+                .map(TaskMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Task createTask(@Valid @RequestBody TaskRequest taskRequest) {
-        return taskService.createTask(taskRequest);
+    public ResponseEntity<TaskResponse> createTask(
+            @Valid @RequestBody TaskRequest request
+    ) {
+        Task createdTask = taskService.createTask(request);
+
+        TaskResponse response = TaskMapper.toResponse(createdTask);
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
