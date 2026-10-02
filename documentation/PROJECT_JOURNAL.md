@@ -1640,3 +1640,195 @@ FD-031 devra compléter la sécurisation du contrat public en vérifiant notamme
 - les timestamps dans les réponses ;
 - l’absence de champs internes non prévus ;
 - la cohérence des tests après la migration vers le DTO.
+
+---
+
+## FD-031 - Adapter les tests à TaskResponse
+
+### Branche
+
+`feature/task-response-contract-tests`
+
+### Objectif
+
+Renforcer les tests du `TaskController` afin de sécuriser précisément le contrat public défini par `TaskResponse`.
+
+### Situation initiale
+
+`TaskController` retournait déjà `TaskResponse` pour les endpoints concernés.
+
+Les tests MockMvc vérifiaient une partie du JSON, mais ne contrôlaient pas systématiquement :
+
+- les neuf propriétés du DTO ;
+- les timestamps ;
+- le nombre exact de propriétés ;
+- l’absence de champs supplémentaires.
+
+### Approche de test
+
+Le comportement existait déjà.
+
+Les tests ajoutés et renforcés sont donc des tests de caractérisation.
+
+Aucune modification du code de production n’a été nécessaire.
+
+### Progression réalisée
+
+- [x] Sécuriser le contrat de `GET /api/tasks`
+- [x] Sécuriser le contrat de `GET /api/tasks/{id}`
+- [x] Vérifier la réponse de `POST /api/tasks`
+- [x] Vérifier la réponse de `PATCH /api/tasks/{id}/status`
+- [x] Vérifier le nombre exact de propriétés
+- [x] Vérifier les timestamps
+- [x] Exécuter toute la suite Maven
+
+### Contrat JSON sécurisé
+
+Chaque objet `TaskResponse` expose exactement les neuf propriétés suivantes :
+
+```text
+id
+title
+description
+dueDate
+assignedTo
+status
+priority
+createdAt
+updatedAt
+```
+
+### GET /api/tasks
+
+Le test confirme que :
+
+- la réponse contient une liste ;
+- le premier élément contient exactement neuf propriétés ;
+- tous les champs de `TaskResponse` sont exposés ;
+- les enums sont correctement sérialisés ;
+- `dueDate` est correctement sérialisé ;
+- `createdAt` et `updatedAt` sont présents ;
+- aucun champ supplémentaire n’est exposé.
+
+### GET /api/tasks/{id}
+
+Le test confirme que :
+
+- la réponse contient directement un objet JSON ;
+- l’objet contient exactement neuf propriétés ;
+- les valeurs métier sont correctement sérialisées ;
+- les timestamps sont présents ;
+- aucun champ supplémentaire n’est exposé.
+
+### POST /api/tasks
+
+Le test confirme les deux côtés du controller :
+
+```text
+JSON entrant
+→ désérialisation vers TaskRequest
+→ appel de TaskService
+
+Task retournée par TaskService
+→ mapping vers TaskResponse
+→ JSON sortant
+```
+
+Il vérifie également :
+
+- les neuf propriétés de la réponse ;
+- les timestamps ;
+- la date d’échéance ;
+- les enums ;
+- les données transmises au service avec `ArgumentCaptor`.
+
+### PATCH /api/tasks/{id}/status
+
+Le test confirme que :
+
+- la requête contient le nouveau statut ;
+- le service reçoit l’identifiant et le statut attendus ;
+- la réponse contient exactement neuf propriétés ;
+- le statut actualisé est retourné ;
+- `createdAt` est exposé ;
+- `updatedAt` contient la valeur actualisée ;
+- aucun champ supplémentaire n’est exposé.
+
+### Assertions principales
+
+Les tests de liste utilisent :
+
+```text
+$[0].*
+```
+
+pour vérifier les propriétés du premier élément.
+
+Les tests retournant un objet unique utilisent :
+
+```text
+$.*
+```
+
+pour vérifier les propriétés de la réponse.
+
+L’assertion `hasSize(9)` garantit qu’aucun champ non prévu n’est exposé.
+
+### Tests renforcés
+
+- `shouldReturnAllTasks`
+- `shouldReturnTaskWhenIdExists`
+- `shouldCreateTask`
+- `shouldUpdateTaskStatusWhenTaskExists`
+
+### Tests
+
+- [x] Contrat JSON de la liste validé.
+- [x] Contrat JSON de la récupération par identifiant validé.
+- [x] Contrat JSON de la création validé.
+- [x] Contrat JSON de la modification du statut validé.
+- [x] Nombre exact de propriétés validé.
+- [x] Timestamps validés.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Les tests MockMvc protègent le contrat JSON public.
+- Chaque réponse `TaskResponse` doit contenir exactement neuf propriétés.
+- L’ajout involontaire d’un champ fera échouer les tests.
+- Les tests vérifient les valeurs et la structure.
+- Les timestamps utilisent des valeurs fixes afin de garder les tests déterministes.
+- Le service reste simulé avec `@MockitoBean`.
+- Les tests directs ajoutés dans FD-030 restent conservés.
+- Aucune modification du DTO, du mapper, du service ou du controller n’était nécessaire.
+
+### Incident IntelliJ non fonctionnel
+
+IntelliJ a temporairement signalé `TaskResponse` comme une classe implicite de compact source file.
+
+Le problème provenait de l’analyse incomplète du projet et s’est résolu après l’ouverture d’un type dépendant.
+
+Aucune modification du code n’a été nécessaire.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Strengthen TaskResponse contract tests`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-031.
+
+Le ticket suivant sera :
+
+```text
+FD-032 - Tester les réponses 404 du TaskController avec MockMvc
+```
