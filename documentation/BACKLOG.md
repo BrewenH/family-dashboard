@@ -151,7 +151,7 @@ Cette phase doit permettre de ne plus exposer directement l’entité JPA `Task`
 - [x] FD-028 - Créer TaskResponse
 - [x] FD-029 - Créer un mapper entre Task et TaskResponse
 - [x] FD-030 - Retourner TaskResponse depuis TaskController
-- [ ] FD-031 - Adapter les tests à TaskResponse
+- [x] FD-031 - Adapter les tests à TaskResponse
 
 ### Objectifs de FD-028
 
@@ -471,17 +471,17 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-030
+Dernier ticket terminé : FD-031
 Ticket en cours : aucun
-Prochain ticket : FD-031
-Branche de référence : feature/task-controller-response
+Prochain ticket : FD-032
+Branche de référence : feature/task-response-contract-tests
 Documentation : à jour
 ```
 
 ## Ticket suivant recommandé
 
 ```text
-FD-031 - Adapter les tests à TaskResponse
+FD-032 - Tester les réponses 404 du TaskController avec MockMvc
 ```
 
 Ce ticket devra respecter la démarche TDD.
@@ -489,5 +489,5 @@ Ce ticket devra respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Compléter les tests afin de vérifier précisément le contrat JSON exposé par TaskResponse et l’absence de champs internes non prévus.
+Sécuriser les réponses 404 de GET, DELETE et PATCH lorsqu’un identifiant de tâche n’existe pas.
 ```
