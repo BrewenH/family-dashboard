@@ -46,22 +46,45 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 
 - [x] FD-012 - Ajouter les validations sur TaskRequest
 - [x] FD-013 - Ajouter une gestion globale des erreurs de validation
-- [ ] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
+- [x] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
 - [ ] FD-033 - Créer TaskNotFoundException
 - [ ] FD-034 - Centraliser les erreurs de tâche inexistante
 - [ ] FD-035 - Gérer les statuts invalides dans les paramètres
 - [ ] FD-036 - Gérer les JSON mal formés
 - [ ] FD-037 - Ajouter un format d’erreur commun
 
-### Cas à couvrir dans FD-032
+### Cas couverts dans FD-032
 
-- [ ] Tester GET /api/tasks/{id} avec un identifiant inexistant
-- [ ] Tester DELETE /api/tasks/{id} avec un identifiant inexistant
-- [ ] Tester PATCH /api/tasks/{id}/status avec un identifiant inexistant
+- [x] Tester GET /api/tasks/{id} avec un identifiant inexistant
+- [x] Tester DELETE /api/tasks/{id} avec un identifiant inexistant
+- [x] Tester PATCH /api/tasks/{id}/status avec un identifiant inexistant
+- [x] Vérifier les interactions avec TaskService
+- [x] Vérifier la réponse HTTP 404 Not Found
+- [x] Vérifier que les tests existants restent fonctionnels
+
+### Périmètre prévu pour FD-033
+
+- Créer `TaskNotFoundException`.
+- Faire hériter l’exception de `RuntimeException`.
+- Définir un message métier contenant l’identifiant de la tâche.
+- Ajouter les tests unitaires de l’exception.
+- Ne pas encore modifier `TaskService`.
+- Ne pas encore modifier `TaskController`.
+- Ne pas encore modifier `GlobalExceptionHandler`.
+
+### Périmètre prévu pour FD-034
+
+- Utiliser `TaskNotFoundException` dans la logique métier.
+- Centraliser sa traduction HTTP.
+- Faire retourner `404 Not Found` par le gestionnaire global.
+- Adapter les tests du service.
+- Adapter les tests du controller.
+- Supprimer progressivement la construction locale des réponses 404.
+- Conserver un controller aussi fin que possible.
 
 ### Format d’erreur futur envisagé
 
-Le format d’erreur commun pourra contenir :
+Le format commun des erreurs pourra contenir :
 
 ```text
 timestamp
@@ -126,6 +149,7 @@ path
 - [x] FD-023 - Tester GET /api/tasks/{id} avec MockMvc
 - [x] FD-024 - Tester DELETE /api/tasks/{id} avec MockMvc
 - [x] FD-025 - Tester PATCH /api/tasks/{id}/status avec MockMvc
+- [x] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
 
 ### Tests d’intégration JPA
 
@@ -146,49 +170,68 @@ path
 
 ## Module Task : DTO de réponse et mapping
 
-Cette phase doit permettre de ne plus exposer directement l’entité JPA `Task` dans les réponses HTTP.
+Cette phase permet de ne plus exposer directement l’entité JPA `Task` dans les réponses HTTP.
 
 - [x] FD-028 - Créer TaskResponse
 - [x] FD-029 - Créer un mapper entre Task et TaskResponse
 - [x] FD-030 - Retourner TaskResponse depuis TaskController
 - [x] FD-031 - Adapter les tests à TaskResponse
-- [x] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
 
-### Cas couverts dans FD-032
+### Résultat de FD-028
 
-- [x] Tester GET /api/tasks/{id} avec un identifiant inexistant
-- [x] Tester DELETE /api/tasks/{id} avec un identifiant inexistant
-- [x] Tester PATCH /api/tasks/{id}/status avec un identifiant inexistant
+- Création du record immutable `TaskResponse`.
+- Définition explicite des données exposées par l’API.
+- Séparation entre l’entité JPA et le contrat public.
+- Ajout d’un test définissant la structure du DTO.
 
-### Objectifs de FD-028
+### Structure actuelle de TaskResponse
 
-- Définir les données exposées par l’API.
-- Créer un DTO de réponse indépendant de l’entité JPA.
-- Éviter d’exposer accidentellement de futurs champs internes.
-- Préparer l’évolution de l’API sans couplage direct avec la base.
+```text
+id
+title
+description
+dueDate
+assignedTo
+status
+priority
+createdAt
+updatedAt
+```
 
-### Objectifs de FD-029
+### Résultat de FD-029
 
-- Convertir une entité `Task` vers un `TaskResponse`.
-- Centraliser la logique de mapping.
-- Ajouter les tests unitaires du mapper.
-- Éviter la duplication dans le controller et le service.
+- Création de `TaskMapper`.
+- Conversion d’une entité `Task` vers `TaskResponse`.
+- Centralisation du mapping.
+- Ajout d’un test unitaire du mapper.
+- Conservation d’un mapper manuel simple.
+- Aucun ajout de MapStruct pour le moment.
 
-### Objectifs de FD-030
+### Résultat de FD-030
 
-- Retourner `TaskResponse` pour la liste des tâches.
-- Retourner `TaskResponse` pour la récupération par identifiant.
-- Retourner `TaskResponse` après une création.
-- Retourner `TaskResponse` après une modification du statut.
-- Ne plus retourner directement `Task` depuis le controller.
+Les endpoints suivants retournent désormais `TaskResponse` :
 
-### Objectifs de FD-031
+```http
+GET /api/tasks
+GET /api/tasks/{id}
+POST /api/tasks
+PATCH /api/tasks/{id}/status
+```
 
-- Adapter les tests du controller.
-- Adapter les tests du service si nécessaire.
-- Vérifier le JSON réellement exposé.
-- Vérifier que les champs internes ne sont pas exposés.
-- Exécuter la suite Maven complète.
+L’endpoint suivant reste sans corps de réponse :
+
+```http
+DELETE /api/tasks/{id}
+```
+
+### Résultat de FD-031
+
+- Adaptation des tests du controller.
+- Vérification des neuf propriétés JSON.
+- Vérification des timestamps.
+- Vérification du nombre exact de propriétés.
+- Protection contre l’exposition involontaire d’un nouveau champ interne.
+- Conservation des tests directs et MockMvc.
 
 ---
 
@@ -224,7 +267,9 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 - [ ] Prévoir la migration des données existantes
 - [ ] Adapter TaskRequest
 - [ ] Adapter TaskResponse
-- [ ] Adapter le mapper Task
+- [ ] Adapter TaskMapper
+- [ ] Adapter TaskService
+- [ ] Adapter TaskController
 - [ ] Adapter les tests
 
 ---
@@ -301,7 +346,14 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 
 ## Module FamilyEvent
 
+### Conception
+
 - [ ] Concevoir le module FamilyEvent
+- [ ] Définir le modèle FamilyEvent
+- [ ] Définir les relations avec FamilyMember
+
+### Backend
+
 - [ ] Créer l’entité FamilyEvent
 - [ ] Créer FamilyEventRepository
 - [ ] Créer FamilyEventService
@@ -311,6 +363,9 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 - [ ] Modifier un événement
 - [ ] Supprimer un événement
 - [ ] Filtrer les événements par date
+
+### Qualité
+
 - [ ] Ajouter les validations
 - [ ] Ajouter la gestion des erreurs
 - [ ] Ajouter les tests unitaires
@@ -321,14 +376,21 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 
 ## Dashboard global
 
+### Conception
+
 - [ ] Concevoir le premier endpoint Dashboard
+- [ ] Définir les informations affichées
+- [ ] Définir l’ordre et la priorité des widgets
+
+### Backend
+
 - [ ] Créer DashboardResponse
 - [ ] Créer DashboardService
 - [ ] Créer DashboardController
 - [ ] Afficher les tâches à faire
 - [ ] Afficher les tâches prioritaires
 - [ ] Afficher les événements à venir
-- [ ] Intégrer plus tard les wishlists
+- [ ] Intégrer les wishlists
 - [ ] Ajouter les tests du Dashboard
 
 ---
@@ -412,10 +474,16 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 - [ ] Ajouter la gestion des erreurs
 - [ ] Ajouter les tests frontend
 
-### Intégration API FamilyMember et Wishlist
+### Intégration API FamilyMember
 
 - [ ] Créer FamilyMemberService côté Angular
 - [ ] Afficher les membres
+- [ ] Ajouter un membre
+- [ ] Afficher le détail d’un membre
+- [ ] Ajouter les tests frontend
+
+### Intégration API Wishlist
+
 - [ ] Créer WishlistService côté Angular
 - [ ] Afficher la wishlist d’un membre
 - [ ] Ajouter un souhait
@@ -461,16 +529,19 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 Ordre immédiat :
 
 ```text
-1. Créer TaskResponse.
-2. Créer le mapper entre Task et TaskResponse.
-3. Retourner TaskResponse depuis TaskController.
-4. Adapter les tests existants au nouveau format de réponse.
-5. Tester les réponses 404 du TaskController.
-6. Centraliser les erreurs métier avec TaskNotFoundException.
-7. Concevoir FamilyMember.
-8. Développer le MVP Wishlist.
-9. Reprendre FamilyEvent et le Dashboard global.
-10. Créer le frontend Angular.
+1. Créer TaskNotFoundException.
+2. Centraliser les erreurs de tâche inexistante.
+3. Gérer les statuts invalides dans les paramètres.
+4. Gérer les corps JSON mal formés.
+5. Ajouter un format commun pour les réponses d’erreur.
+6. Concevoir FamilyMember.
+7. Développer le backend MVP de FamilyMember.
+8. Relier progressivement Task à FamilyMember.
+9. Concevoir le MVP Wishlist.
+10. Développer le backend MVP de la Wishlist.
+11. Reprendre FamilyEvent et le Dashboard global.
+12. Créer le frontend Angular.
+13. Préparer le déploiement sur Raspberry Pi.
 ```
 
 ---
@@ -481,10 +552,11 @@ Ordre immédiat :
 Dernier ticket terminé : FD-032
 Ticket en cours : aucun
 Prochain ticket : FD-033
-Branche de référence : feature/task-controller-not-found-tests
+Branche de référence : main
 Documentation : à jour
 ```
 
+---
 
 ## Ticket suivant recommandé
 
@@ -499,3 +571,22 @@ Premier objectif envisagé :
 ```text
 Créer une exception métier dédiée représentant explicitement l’absence d’une tâche.
 ```
+
+Périmètre initial :
+
+```text
+- Écrire le test avant l’exception
+- Créer TaskNotFoundException
+- Faire hériter l’exception de RuntimeException
+- Vérifier son message métier
+- Ne pas encore modifier TaskService
+- Ne pas encore modifier TaskController
+- Ne pas encore modifier GlobalExceptionHandler
+```
+
+Le branchement de l’exception dans le flux applicatif sera réalisé dans :
+
+```text
+FD-034 - Centraliser les erreurs de tâche inexistante
+```
+``
