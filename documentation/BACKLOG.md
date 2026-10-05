@@ -152,6 +152,13 @@ Cette phase doit permettre de ne plus exposer directement l’entité JPA `Task`
 - [x] FD-029 - Créer un mapper entre Task et TaskResponse
 - [x] FD-030 - Retourner TaskResponse depuis TaskController
 - [x] FD-031 - Adapter les tests à TaskResponse
+- [x] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
+
+### Cas couverts dans FD-032
+
+- [x] Tester GET /api/tasks/{id} avec un identifiant inexistant
+- [x] Tester DELETE /api/tasks/{id} avec un identifiant inexistant
+- [x] Tester PATCH /api/tasks/{id}/status avec un identifiant inexistant
 
 ### Objectifs de FD-028
 
@@ -471,17 +478,18 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-031
+Dernier ticket terminé : FD-032
 Ticket en cours : aucun
-Prochain ticket : FD-032
-Branche de référence : feature/task-response-contract-tests
+Prochain ticket : FD-033
+Branche de référence : feature/task-controller-not-found-tests
 Documentation : à jour
 ```
+
 
 ## Ticket suivant recommandé
 
 ```text
-FD-032 - Tester les réponses 404 du TaskController avec MockMvc
+FD-033 - Créer TaskNotFoundException
 ```
 
 Ce ticket devra respecter la démarche TDD.
@@ -489,5 +497,5 @@ Ce ticket devra respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Sécuriser les réponses 404 de GET, DELETE et PATCH lorsqu’un identifiant de tâche n’existe pas.
+Créer une exception métier dédiée représentant explicitement l’absence d’une tâche.
 ```

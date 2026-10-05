@@ -1832,3 +1832,152 @@ Le ticket suivant sera :
 ```text
 FD-032 - Tester les réponses 404 du TaskController avec MockMvc
 ```
+
+---
+
+## FD-032 - Tester les réponses 404 du TaskController avec MockMvc
+
+### Branche
+
+`feature/task-controller-not-found-tests`
+
+### Objectif
+
+Sécuriser les réponses `404 Not Found` du `TaskController` lorsqu’un identifiant ne correspond à aucune tâche.
+
+### Endpoints couverts
+
+```http
+GET /api/tasks/{id}
+DELETE /api/tasks/{id}
+PATCH /api/tasks/{id}/status
+```
+
+### Approche de test
+
+Les comportements existaient déjà dans le controller.
+
+Les tests ajoutés sont donc des tests de caractérisation.
+
+Ils ont permis de vérifier le comportement actuel sans introduire artificiellement une modification du code de production.
+
+### Progression réalisée
+
+- [x] Tester le 404 de `GET /api/tasks/{id}`
+- [x] Tester le 404 de `DELETE /api/tasks/{id}`
+- [x] Tester le 404 de `PATCH /api/tasks/{id}/status`
+- [x] Vérifier les interactions avec TaskService
+- [x] Exécuter toute la suite Maven
+
+### GET /api/tasks/{id}
+
+Le test `shouldReturnNotFoundWhenGettingMissingTask` confirme le scénario suivant :
+
+```text
+GET /api/tasks/999
+→ TaskService.getTaskById(999L)
+→ Optional.empty()
+→ 404 Not Found
+```
+
+Le test vérifie que :
+
+- l’identifiant de l’URL est transmis au service ;
+- le service retourne `Optional.empty()` ;
+- le controller retourne `404 Not Found` ;
+- aucune tâche et aucun `TaskResponse` ne sont retournés.
+
+### DELETE /api/tasks/{id}
+
+Le test `shouldReturnNotFoundWhenDeletingMissingTask` confirme le scénario suivant :
+
+```text
+DELETE /api/tasks/999
+→ TaskService.deleteTaskById(999L)
+→ false
+→ 404 Not Found
+```
+
+Le test vérifie que :
+
+- l’identifiant de l’URL est transmis au service ;
+- le service indique que la suppression n’a pas été effectuée ;
+- le controller retourne `404 Not Found` ;
+- aucun contenu n’est retourné dans la réponse.
+
+### PATCH /api/tasks/{id}/status
+
+Le test `shouldReturnNotFoundWhenUpdatingStatusOfMissingTask` confirme le scénario suivant :
+
+```text
+PATCH /api/tasks/999/status
+→ désérialisation du JSON
+→ TaskStatus.IN_PROGRESS
+→ TaskService.updateTaskStatus(999L, TaskStatus.IN_PROGRESS)
+→ Optional.empty()
+→ 404 Not Found
+```
+
+Le test vérifie que :
+
+- le JSON est correctement désérialisé ;
+- l’identifiant est transmis au service ;
+- le statut `IN_PROGRESS` est transmis au service ;
+- le service retourne `Optional.empty()` ;
+- le controller retourne `404 Not Found` ;
+- aucun `TaskResponse` n’est retourné.
+
+### Tests ajoutés
+
+- `shouldReturnNotFoundWhenGettingMissingTask`
+- `shouldReturnNotFoundWhenDeletingMissingTask`
+- `shouldReturnNotFoundWhenUpdatingStatusOfMissingTask`
+
+### Tests
+
+- [x] Test du GET avec identifiant inexistant réussi.
+- [x] Test du DELETE avec identifiant inexistant réussi.
+- [x] Test du PATCH avec identifiant inexistant réussi.
+- [x] Interactions avec TaskService vérifiées avec `verify`.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Les réponses `404 Not Found` actuelles sont conservées.
+- Les scénarios d’absence sont simulés explicitement dans les tests.
+- `Optional.empty()` représente l’absence pour GET et PATCH.
+- La valeur `false` représente l’absence de suppression pour DELETE.
+- Les tests vérifient les statuts HTTP et les appels au service.
+- Aucune modification de `TaskController` n’était nécessaire.
+- Aucune modification de `TaskService` n’était nécessaire.
+- Aucune exception métier n’est créée dans ce ticket.
+- Aucun format JSON d’erreur commun n’est ajouté dans ce ticket.
+
+### Limite actuelle
+
+Le controller construit actuellement lui-même les réponses `404 Not Found` à partir des résultats retournés par le service.
+
+La prochaine évolution introduira une exception métier dédiée afin de représenter explicitement l’absence d’une tâche.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskController not found tests`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-032.
+
+Le ticket suivant sera :
+
+```text
+FD-033 - Créer TaskNotFoundException
+```
