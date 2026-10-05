@@ -505,4 +505,51 @@ class TaskControllerTest {
                 TaskStatus.IN_PROGRESS
         );
     }
+
+    @Test
+    void shouldReturnNotFoundWhenGettingMissingTask() throws Exception {
+        when(taskService.getTaskById(999L))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/tasks/{id}", 999L))
+                .andExpect(status().isNotFound());
+
+        verify(taskService).getTaskById(999L);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenDeletingMissingTask() throws Exception {
+        when(taskService.deleteTaskById(999L))
+                .thenReturn(false);
+
+        mockMvc.perform(delete("/api/tasks/{id}", 999L))
+                .andExpect(status().isNotFound());
+
+        verify(taskService).deleteTaskById(999L);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenUpdatingStatusOfMissingTask()
+            throws Exception {
+        String requestBody = """
+            {
+              "status": "IN_PROGRESS"
+            }
+            """;
+
+        when(taskService.updateTaskStatus(
+                999L,
+                TaskStatus.IN_PROGRESS
+        )).thenReturn(Optional.empty());
+
+        mockMvc.perform(patch("/api/tasks/{id}/status", 999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isNotFound());
+
+        verify(taskService).updateTaskStatus(
+                999L,
+                TaskStatus.IN_PROGRESS
+        );
+    }
 }
