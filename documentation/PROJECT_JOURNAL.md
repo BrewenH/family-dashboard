@@ -1981,3 +1981,126 @@ Le ticket suivant sera :
 ```text
 FD-033 - Créer TaskNotFoundException
 ```
+
+---
+
+## FD-033 - Créer TaskNotFoundException
+
+### Branche
+
+`feature/task-not-found-exception`
+
+### Objectif
+
+Créer une exception métier dédiée représentant explicitement l’absence d’une tâche.
+
+### Problème initial
+
+L’absence d’une tâche était représentée par :
+
+- `Optional.empty()` pour la lecture et la modification ;
+- `false` pour la suppression ;
+- des réponses `404 Not Found` construites localement dans le controller.
+
+Une exception métier dédiée prépare la centralisation de cette gestion dans FD-034.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Résultat TDD
+
+- RED : `TaskNotFoundExceptionTest` ne compilait pas car `TaskNotFoundException` n’existait pas.
+- GREEN : création d’une exception minimale héritant de `RuntimeException` et construisant son message à partir de l’identifiant.
+- REFACTOR : vérification du nom, du package, du constructeur et du message. Aucune logique supplémentaire n’était nécessaire.
+
+### Réalisé
+
+- Création de `TaskNotFoundExceptionTest`.
+- Définition du contrat de l’exception avant son implémentation.
+- Création de `TaskNotFoundException`.
+- Héritage de `RuntimeException`.
+- Ajout d’un constructeur prenant l’identifiant de la tâche.
+- Construction d’un message métier contenant l’identifiant.
+- Vérification du type de l’exception.
+- Vérification exacte du message.
+- Exécution de toute la suite Maven.
+
+### Contrat de l’exception
+
+Construction :
+
+```java
+new TaskNotFoundException(999L)
+```
+
+Message produit :
+
+```text
+Task not found with id: 999
+```
+
+### Test ajouté
+
+`shouldCreateExceptionWithTaskIdInMessage`
+
+### Tests
+
+- [x] Test unitaire de l’exception réussi.
+- [x] Héritage de `RuntimeException` vérifié.
+- [x] Message métier vérifié.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- `TaskNotFoundException` est une exception non vérifiée.
+- L’identifiant recherché est inclus dans le message.
+- L’exception reste indépendante de Spring et de la couche HTTP.
+- Aucune annotation `@ResponseStatus` n’est ajoutée.
+- Aucune propriété supplémentaire n’est nécessaire pour le moment.
+- Aucun changement de `TaskService` n’est réalisé dans FD-033.
+- Aucun changement de `TaskController` n’est réalisé dans FD-033.
+- Aucun changement de `GlobalExceptionHandler` n’est réalisé dans FD-033.
+- Les réponses `404 Not Found` existantes restent inchangées dans ce ticket.
+
+### Hors périmètre confirmé
+
+- Lever l’exception depuis le service.
+- Remplacer les retours `Optional.empty()`.
+- Remplacer le retour booléen de suppression.
+- Traduire l’exception en réponse HTTP `404 Not Found`.
+- Ajouter un format JSON commun pour les erreurs.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/task/exception/TaskNotFoundException.java`
+- `src/test/java/com/brewen/familydashboard/task/exception/TaskNotFoundExceptionTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add TaskNotFoundException`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-033.
+
+Le ticket suivant sera :
+
+```text
+FD-034 - Centraliser les erreurs de tâche inexistante
+```
+
+FD-034 devra notamment :
+
+- utiliser `TaskNotFoundException` dans la logique métier ;
+- centraliser sa traduction en `404 Not Found` ;
+- adapter les tests du service ;
+- adapter les tests du controller ;
+- réduire la gestion locale des erreurs dans le controller.
