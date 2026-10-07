@@ -50,8 +50,8 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - [ ] FD-033 - Créer TaskNotFoundException
 - [ ] FD-034 - Centraliser les erreurs de tâche inexistante
 - [ ] FD-035 - Gérer les statuts invalides dans les paramètres
-- [ ] FD-036 - Gérer les JSON mal formés
-- [ ] FD-037 - Ajouter un format d’erreur commun
+- [ ] FD-036 - Gérer les corps JSON mal formés
+- [ ] FD-037 - Ajouter un format commun pour les réponses d’erreur
 
 ### Cas couverts dans FD-032
 
@@ -59,14 +59,13 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - [x] Tester DELETE /api/tasks/{id} avec un identifiant inexistant
 - [x] Tester PATCH /api/tasks/{id}/status avec un identifiant inexistant
 - [x] Vérifier les interactions avec TaskService
-- [x] Vérifier la réponse HTTP 404 Not Found
-- [x] Vérifier que les tests existants restent fonctionnels
+- [x] Vérifier les réponses HTTP 404 Not Found
 
 ### Périmètre prévu pour FD-033
 
 - Créer `TaskNotFoundException`.
 - Faire hériter l’exception de `RuntimeException`.
-- Définir un message métier contenant l’identifiant de la tâche.
+- Construire un message contenant l’identifiant de la tâche.
 - Ajouter les tests unitaires de l’exception.
 - Ne pas encore modifier `TaskService`.
 - Ne pas encore modifier `TaskController`.
@@ -75,12 +74,11 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 ### Périmètre prévu pour FD-034
 
 - Utiliser `TaskNotFoundException` dans la logique métier.
-- Centraliser sa traduction HTTP.
+- Centraliser sa traduction en réponse HTTP.
 - Faire retourner `404 Not Found` par le gestionnaire global.
 - Adapter les tests du service.
 - Adapter les tests du controller.
 - Supprimer progressivement la construction locale des réponses 404.
-- Conserver un controller aussi fin que possible.
 
 ### Format d’erreur futur envisagé
 
@@ -537,11 +535,9 @@ Ordre immédiat :
 6. Concevoir FamilyMember.
 7. Développer le backend MVP de FamilyMember.
 8. Relier progressivement Task à FamilyMember.
-9. Concevoir le MVP Wishlist.
-10. Développer le backend MVP de la Wishlist.
-11. Reprendre FamilyEvent et le Dashboard global.
-12. Créer le frontend Angular.
-13. Préparer le déploiement sur Raspberry Pi.
+9. Concevoir et développer le MVP Wishlist.
+10. Reprendre FamilyEvent et le Dashboard global.
+11. Créer le frontend Angular.
 ```
 
 ---
@@ -589,4 +585,3 @@ Le branchement de l’exception dans le flux applicatif sera réalisé dans :
 ```text
 FD-034 - Centraliser les erreurs de tâche inexistante
 ```
-``
