@@ -47,7 +47,7 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - [x] FD-012 - Ajouter les validations sur TaskRequest
 - [x] FD-013 - Ajouter une gestion globale des erreurs de validation
 - [x] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
-- [ ] FD-033 - Créer TaskNotFoundException
+- [x] FD-033 - Créer TaskNotFoundException
 - [ ] FD-034 - Centraliser les erreurs de tâche inexistante
 - [ ] FD-035 - Gérer les statuts invalides dans les paramètres
 - [ ] FD-036 - Gérer les corps JSON mal formés
@@ -545,10 +545,10 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-032
+Dernier ticket terminé : FD-033
 Ticket en cours : aucun
-Prochain ticket : FD-033
-Branche de référence : main
+Prochain ticket : FD-034
+Branche de référence : feature/task-not-found-exception
 Documentation : à jour
 ```
 
@@ -557,7 +557,7 @@ Documentation : à jour
 ## Ticket suivant recommandé
 
 ```text
-FD-033 - Créer TaskNotFoundException
+FD-034 - Centraliser les erreurs de tâche inexistante
 ```
 
 Ce ticket devra respecter la démarche TDD.
@@ -565,23 +565,5 @@ Ce ticket devra respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Créer une exception métier dédiée représentant explicitement l’absence d’une tâche.
-```
-
-Périmètre initial :
-
-```text
-- Écrire le test avant l’exception
-- Créer TaskNotFoundException
-- Faire hériter l’exception de RuntimeException
-- Vérifier son message métier
-- Ne pas encore modifier TaskService
-- Ne pas encore modifier TaskController
-- Ne pas encore modifier GlobalExceptionHandler
-```
-
-Le branchement de l’exception dans le flux applicatif sera réalisé dans :
-
-```text
-FD-034 - Centraliser les erreurs de tâche inexistante
+Utiliser TaskNotFoundException dans la logique métier et traduire cette exception en réponse HTTP 404 avec le gestionnaire global.
 ```
