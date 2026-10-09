@@ -1,6 +1,7 @@
 package com.brewen.familydashboard.task.service;
 
 import com.brewen.familydashboard.task.dto.TaskRequest;
+import com.brewen.familydashboard.task.exception.TaskNotFoundException;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskPriority;
 import com.brewen.familydashboard.task.model.TaskStatus;
@@ -89,23 +90,27 @@ class TaskServiceTest {
         when(taskRepository.findById(1L))
                 .thenReturn(Optional.of(task));
 
-        Optional<Task> result = taskService.getTaskById(1L);
+        Task result = taskService.getTaskById(1L);
 
-        assertTrue(result.isPresent());
-        assertEquals(1L, result.get().getId());
-        assertEquals("Sortir les poubelles", result.get().getTitle());
+        assertEquals(task, result);
 
         verify(taskRepository).findById(1L);
     }
 
     @Test
-    void shouldReturnEmptyWhenTaskIdDoesNotExist() {
+    void shouldThrowTaskNotFoundExceptionWhenTaskIdDoesNotExist() {
         when(taskRepository.findById(999L))
                 .thenReturn(Optional.empty());
 
-        Optional<Task> result = taskService.getTaskById(999L);
+        TaskNotFoundException exception = assertThrows(
+                TaskNotFoundException.class,
+                () -> taskService.getTaskById(999L)
+        );
 
-        assertTrue(result.isEmpty());
+        assertEquals(
+                "Task not found with id: 999",
+                exception.getMessage()
+        );
 
         verify(taskRepository).findById(999L);
     }
@@ -144,22 +149,26 @@ class TaskServiceTest {
         when(taskRepository.existsById(1L))
                 .thenReturn(true);
 
-        boolean result = taskService.deleteTaskById(1L);
-
-        assertTrue(result);
+        taskService.deleteTaskById(1L);
 
         verify(taskRepository).existsById(1L);
         verify(taskRepository).deleteById(1L);
     }
 
     @Test
-    void shouldNotDeleteTaskWhenIdDoesNotExist() {
+    void shouldThrowTaskNotFoundExceptionWhenDeletingMissingTask() {
         when(taskRepository.existsById(999L))
                 .thenReturn(false);
 
-        boolean result = taskService.deleteTaskById(999L);
+        TaskNotFoundException exception = assertThrows(
+                TaskNotFoundException.class,
+                () -> taskService.deleteTaskById(999L)
+        );
 
-        assertFalse(result);
+        assertEquals(
+                "Task not found with id: 999",
+                exception.getMessage()
+        );
 
         verify(taskRepository).existsById(999L);
         verify(taskRepository, never()).deleteById(999L);
@@ -180,29 +189,34 @@ class TaskServiceTest {
         when(taskRepository.save(task))
                 .thenReturn(task);
 
-        Optional<Task> result = taskService.updateTaskStatus(
+        Task result = taskService.updateTaskStatus(
                 1L,
-                TaskStatus.IN_PROGRESS
+                TaskStatus.DONE
         );
 
-        assertTrue(result.isPresent());
-        assertEquals(TaskStatus.IN_PROGRESS, result.get().getStatus());
+        assertEquals(TaskStatus.DONE, result.getStatus());
 
         verify(taskRepository).findById(1L);
         verify(taskRepository).save(task);
     }
 
     @Test
-    void shouldReturnEmptyWhenUpdatingStatusOfMissingTask() {
+    void shouldThrowTaskNotFoundExceptionWhenUpdatingMissingTask() {
         when(taskRepository.findById(999L))
                 .thenReturn(Optional.empty());
 
-        Optional<Task> result = taskService.updateTaskStatus(
-                999L,
-                TaskStatus.DONE
+        TaskNotFoundException exception = assertThrows(
+                TaskNotFoundException.class,
+                () -> taskService.updateTaskStatus(
+                        999L,
+                        TaskStatus.DONE
+                )
         );
 
-        assertTrue(result.isEmpty());
+        assertEquals(
+                "Task not found with id: 999",
+                exception.getMessage()
+        );
 
         verify(taskRepository).findById(999L);
         verify(taskRepository, never()).save(any(Task.class));

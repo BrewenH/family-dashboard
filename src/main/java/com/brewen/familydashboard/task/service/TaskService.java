@@ -1,13 +1,13 @@
 package com.brewen.familydashboard.task.service;
 
 import com.brewen.familydashboard.task.dto.TaskRequest;
+import com.brewen.familydashboard.task.exception.TaskNotFoundException;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskStatus;
 import com.brewen.familydashboard.task.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -54,16 +54,21 @@ public class TaskService {
         };
     }
 
-    public Optional<Task> getTaskById(Long id) {
-        return taskRepository.findById(id);
+    public Task getTaskById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
-    public Optional<Task> updateTaskStatus(Long id, TaskStatus status) {
-        return taskRepository.findById(id)
-                .map(task -> {
-                    task.setStatus(status);
-                    return taskRepository.save(task);
-                });
+    public Task updateTaskStatus(
+            Long id,
+            TaskStatus status
+    ) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+
+        task.setStatus(status);
+
+        return taskRepository.save(task);
     }
 
     public Task createTask(TaskRequest taskRequest) {
@@ -79,12 +84,11 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public boolean deleteTaskById(Long id) {
+    public void deleteTaskById(Long id) {
         if (!taskRepository.existsById(id)) {
-            return false;
+            throw new TaskNotFoundException(id);
         }
 
         taskRepository.deleteById(id);
-        return true;
     }
 }

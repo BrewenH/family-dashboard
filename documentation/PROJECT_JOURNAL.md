@@ -2104,3 +2104,312 @@ FD-034 devra notamment :
 - adapter les tests du service ;
 - adapter les tests du controller ;
 - réduire la gestion locale des erreurs dans le controller.
+
+---
+
+## FD-034 - Centraliser les erreurs de tâche inexistante
+
+### Branche
+
+`feature/centralize-task-not-found`
+
+### Objectif
+
+Utiliser `TaskNotFoundException` dans la logique métier et centraliser sa traduction en réponse HTTP `404 Not Found`.
+
+### Situation initiale
+
+L’absence d’une tâche était représentée de plusieurs manières :
+
+```text
+getTaskById()
+→ Optional.empty()
+
+deleteTaskById()
+→ false
+
+updateTaskStatus()
+→ Optional.empty()
+```
+
+Le `TaskController` interprétait lui-même ces valeurs afin de construire les réponses `404 Not Found`.
+
+### Situation finale
+
+Le flux est désormais centralisé :
+
+```text
+TaskService
+→ TaskNotFoundException
+→ GlobalExceptionHandler
+→ 404 Not Found
+```
+
+Le controller ne construit plus localement les réponses `404` liées à une tâche inexistante.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Progression réalisée
+
+- [x] Faire lever l’exception par `getTaskById`
+- [x] Faire lever l’exception par `deleteTaskById`
+- [x] Faire lever l’exception par `updateTaskStatus`
+- [x] Ajouter le traitement dans `GlobalExceptionHandler`
+- [x] Simplifier les signatures du service
+- [x] Simplifier `TaskController`
+- [x] Adapter les tests du service
+- [x] Adapter les tests du controller
+- [x] Exécuter toute la suite Maven
+
+### Résultat TDD de getTaskById
+
+#### RED
+
+Le repository simulé retournait :
+
+```text
+Optional.empty()
+```
+
+Le test attendait une `TaskNotFoundException`, mais le service retournait encore un `Optional.empty()`.
+
+Le test échouait donc parce qu’aucune exception n’était levée.
+
+#### GREEN
+
+`TaskService.getTaskById()` a été modifiée pour lever :
+
+```java
+new TaskNotFoundException(id)
+```
+
+lorsque le repository ne trouve aucune tâche.
+
+#### REFACTOR
+
+La signature a été simplifiée :
+
+```text
+Optional<Task> getTaskById(Long id)
+→ Task getTaskById(Long id)
+```
+
+La méthode retourne directement la tâche lorsqu’elle existe.
+
+### Résultat TDD de deleteTaskById
+
+#### RED
+
+Le repository simulé retournait :
+
+```text
+existsById(999L)
+→ false
+```
+
+Le test attendait une `TaskNotFoundException`, mais le service retournait encore `false`.
+
+#### GREEN
+
+`TaskService.deleteTaskById()` a été modifiée pour lever `TaskNotFoundException` lorsque la tâche n’existe pas.
+
+#### REFACTOR
+
+La signature a été simplifiée :
+
+```text
+boolean deleteTaskById(Long id)
+→ void deleteTaskById(Long id)
+```
+
+Le résultat est désormais représenté ainsi :
+
+```text
+Succès
+→ la méthode se termine normalement
+
+Tâche inexistante
+→ TaskNotFoundException
+```
+
+### Résultat TDD de updateTaskStatus
+
+#### RED
+
+Le repository simulé retournait :
+
+```text
+Optional.empty()
+```
+
+Le test attendait une `TaskNotFoundException`, mais le service retournait encore un `Optional.empty()`.
+
+#### GREEN
+
+`TaskService.updateTaskStatus()` a été modifiée pour lever `TaskNotFoundException` lorsque la tâche n’existe pas.
+
+#### REFACTOR
+
+La signature a été simplifiée :
+
+```text
+Optional<Task> updateTaskStatus(Long id, TaskStatus status)
+→ Task updateTaskStatus(Long id, TaskStatus status)
+```
+
+La méthode retourne directement la tâche mise à jour.
+
+### Gestion globale de l’exception
+
+`GlobalExceptionHandler` traite désormais `TaskNotFoundException`.
+
+Le traitement produit :
+
+```text
+404 Not Found
+```
+
+Le format commun des corps d’erreur n’est pas encore ajouté.
+
+Dans FD-034, la réponse `404` reste sans corps spécifique.
+
+### Simplification du controller
+
+Les endpoints suivants ne construisent plus eux-mêmes de réponse `404` :
+
+```http
+GET /api/tasks/{id}
+DELETE /api/tasks/{id}
+PATCH /api/tasks/{id}/status
+```
+
+Le controller :
+
+- reçoit les requêtes HTTP ;
+- appelle `TaskService` ;
+- construit les réponses nominales ;
+- laisse remonter `TaskNotFoundException` ;
+- délègue sa traduction HTTP à `GlobalExceptionHandler`.
+
+### Adaptation des tests du service
+
+Les scénarios d’absence utilisent désormais `assertThrows`.
+
+```text
+getTaskById()
+→ TaskNotFoundException
+
+deleteTaskById()
+→ TaskNotFoundException
+
+updateTaskStatus()
+→ TaskNotFoundException
+```
+
+Les tests vérifient également :
+
+- le message de l’exception ;
+- l’identifiant absent ;
+- l’absence de suppression pour une tâche inexistante ;
+- l’absence de sauvegarde lors d’une modification impossible.
+
+La classe `TaskServiceTest` contient 14 tests réussis.
+
+### Adaptation des tests du controller
+
+Les tests MockMvc simulent désormais directement :
+
+```text
+TaskService
+→ TaskNotFoundException
+```
+
+Ils vérifient ensuite que :
+
+```text
+GlobalExceptionHandler
+→ 404 Not Found
+```
+
+Les trois scénarios concernés sont :
+
+- récupération d’une tâche inexistante ;
+- suppression d’une tâche inexistante ;
+- modification du statut d’une tâche inexistante.
+
+### Signatures finales du service
+
+```text
+List<Task> getTasks(...)
+
+Task createTask(TaskRequest request)
+
+Task getTaskById(Long id)
+
+void deleteTaskById(Long id)
+
+Task updateTaskStatus(Long id, TaskStatus status)
+```
+
+### Tests
+
+- [x] Tests de `getTaskById()` réussis.
+- [x] Tests de `deleteTaskById()` réussis.
+- [x] Tests de `updateTaskStatus()` réussis.
+- [x] Les 14 tests de `TaskServiceTest` réussissent.
+- [x] Tests nominaux du controller réussis.
+- [x] Tests `404 Not Found` du controller réussis.
+- [x] Test du gestionnaire global réussi à travers MockMvc.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- L’absence d’une tâche est une erreur métier représentée par `TaskNotFoundException`.
+- `TaskService` ne retourne plus de valeur technique pour indiquer cette absence.
+- `Optional.empty()` n’est plus retourné par les méthodes métier concernées.
+- Le booléen de suppression a été supprimé.
+- `GlobalExceptionHandler` traduit l’exception en `404 Not Found`.
+- `TaskController` reste concentré sur sa responsabilité HTTP.
+- Le service reste indépendant des statuts HTTP.
+- L’exception reste indépendante de Spring.
+- Le futur format commun des erreurs sera ajouté dans un ticket séparé.
+
+### Hors périmètre confirmé
+
+- Gestion des valeurs de statut invalides.
+- Gestion des corps JSON mal formés.
+- Ajout d’un corps JSON commun pour les erreurs.
+- Modification de `TaskResponse`.
+- Modification de `TaskMapper`.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/task/service/TaskService.java`
+- `src/main/java/com/brewen/familydashboard/task/controller/TaskController.java`
+- `src/main/java/com/brewen/familydashboard/common/exception/GlobalExceptionHandler.java`
+- `src/test/java/com/brewen/familydashboard/task/service/TaskServiceTest.java`
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Centralize task not found handling`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-034.
+
+Le ticket suivant sera :
+
+```text
+FD-035 - Gérer les statuts invalides dans les paramètres
+```
