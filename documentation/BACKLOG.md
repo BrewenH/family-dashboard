@@ -48,7 +48,7 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - [x] FD-013 - Ajouter une gestion globale des erreurs de validation
 - [x] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
 - [x] FD-033 - Créer TaskNotFoundException
-- [ ] FD-034 - Centraliser les erreurs de tâche inexistante
+- [x] FD-034 - Centraliser les erreurs de tâche inexistante
 - [ ] FD-035 - Gérer les statuts invalides dans les paramètres
 - [ ] FD-036 - Gérer les corps JSON mal formés
 - [ ] FD-037 - Ajouter un format commun pour les réponses d’erreur
@@ -545,10 +545,10 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-033
+Dernier ticket terminé : FD-034
 Ticket en cours : aucun
-Prochain ticket : FD-034
-Branche de référence : feature/task-not-found-exception
+Prochain ticket : FD-035
+Branche de référence : feature/centralize-task-not-found
 Documentation : à jour
 ```
 
@@ -557,7 +557,7 @@ Documentation : à jour
 ## Ticket suivant recommandé
 
 ```text
-FD-034 - Centraliser les erreurs de tâche inexistante
+FD-035 - Gérer les statuts invalides dans les paramètres
 ```
 
 Ce ticket devra respecter la démarche TDD.
@@ -565,5 +565,16 @@ Ce ticket devra respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Utiliser TaskNotFoundException dans la logique métier et traduire cette exception en réponse HTTP 404 avec le gestionnaire global.
+Sécuriser la réponse HTTP produite lorsqu’une valeur de TaskStatus invalide est reçue dans le paramètre status de GET /api/tasks.
+```
+
+Périmètre initial :
+
+```text
+- Écrire le test MockMvc avant le traitement
+- Envoyer une valeur de statut inconnue
+- Vérifier la réponse HTTP attendue
+- Centraliser le traitement de l’erreur de conversion
+- Ne pas encore traiter les corps JSON mal formés
+- Ne pas encore créer le format commun complet des erreurs
 ```

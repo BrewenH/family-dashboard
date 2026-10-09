@@ -362,6 +362,46 @@ Règle durable :
 - les nouvelles propriétés internes d’une entité ne doivent pas être automatiquement exposées par l’API ;
 - toute évolution de `TaskResponse` doit être sécurisée par des tests.
 
+### Gestion des tâches inexistantes
+
+L’absence d’une tâche est représentée par l’exception métier :
+
+```text
+TaskNotFoundException
+```
+
+Flux appliqué :
+
+```text
+TaskRepository
+→ TaskService
+→ TaskNotFoundException
+→ GlobalExceptionHandler
+→ 404 Not Found
+```
+
+Les méthodes concernées du service retournent directement leur résultat nominal :
+
+```text
+Task getTaskById(Long id)
+
+void deleteTaskById(Long id)
+
+Task updateTaskStatus(Long id, TaskStatus status)
+```
+
+Règles durables :
+
+- `TaskService` lève `TaskNotFoundException` lorsqu’une tâche n’existe pas ;
+- le service ne connaît pas le statut HTTP `404 Not Found` ;
+- `TaskController` ne construit pas localement les réponses d’absence ;
+- `GlobalExceptionHandler` centralise la traduction HTTP de l’exception ;
+- l’exception métier reste indépendante de Spring ;
+- les tests du service vérifient l’exception et son message ;
+- les tests MockMvc vérifient la réponse HTTP produite par le gestionnaire global.
+
+Le corps commun des réponses d’erreur sera défini dans une évolution ultérieure.
+
 ### Fonctionnalités disponibles
 
 - Création d’une tâche.
@@ -411,7 +451,6 @@ Les tests du `TaskService` couvrent notamment :
 
 - Les controllers ne sont pas encore testés avec MockMvc.
 - Les callbacks JPA ne sont pas encore couverts par des tests d’intégration.
-- Les erreurs métier comme `Task not found` ne sont pas encore centralisées.
 - Le champ `assignedTo` reste temporairement un texte simple.
 - Le warning Mockito lié à l’auto-attachement reste identifié comme non bloquant.
 

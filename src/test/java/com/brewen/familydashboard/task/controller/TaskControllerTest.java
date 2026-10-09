@@ -2,6 +2,7 @@ package com.brewen.familydashboard.task.controller;
 
 import com.brewen.familydashboard.task.dto.TaskResponse;
 import com.brewen.familydashboard.task.dto.TaskStatusRequest;
+import com.brewen.familydashboard.task.exception.TaskNotFoundException;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskPriority;
 import com.brewen.familydashboard.task.model.TaskStatus;
@@ -18,8 +19,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +29,6 @@ import com.brewen.familydashboard.task.dto.TaskRequest;
 import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -239,7 +238,7 @@ class TaskControllerTest {
         task.setUpdatedAt(updatedAt);
 
         when(taskService.getTaskById(1L))
-                .thenReturn(Optional.of(task));
+                .thenReturn(task);
 
         mockMvc.perform(get("/api/tasks/{id}", 1L))
                 .andExpect(status().isOk())
@@ -283,9 +282,6 @@ class TaskControllerTest {
 
     @Test
     void shouldDeleteTaskWhenIdExists() throws Exception {
-        when(taskService.deleteTaskById(1L))
-                .thenReturn(true);
-
         mockMvc.perform(delete("/api/tasks/{id}", 1L))
                 .andExpect(status().isNoContent());
 
@@ -321,7 +317,7 @@ class TaskControllerTest {
         when(taskService.updateTaskStatus(
                 1L,
                 TaskStatus.IN_PROGRESS
-        )).thenReturn(Optional.of(updatedTask));
+        )).thenReturn(updatedTask);
 
         mockMvc.perform(patch("/api/tasks/{id}/status", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -402,7 +398,7 @@ class TaskControllerTest {
         task.setPriority(TaskPriority.HIGH);
 
         when(taskService.getTaskById(1L))
-                .thenReturn(Optional.of(task));
+                .thenReturn(task);
 
         ResponseEntity<TaskResponse> result =
                 taskController.getTaskById(1L);
@@ -481,7 +477,7 @@ class TaskControllerTest {
         when(taskService.updateTaskStatus(
                 1L,
                 TaskStatus.IN_PROGRESS
-        )).thenReturn(Optional.of(updatedTask));
+        )).thenReturn(updatedTask);
 
         ResponseEntity<TaskResponse> result =
                 taskController.updateTaskStatus(1L, request);
@@ -509,7 +505,7 @@ class TaskControllerTest {
     @Test
     void shouldReturnNotFoundWhenGettingMissingTask() throws Exception {
         when(taskService.getTaskById(999L))
-                .thenReturn(Optional.empty());
+                .thenThrow(new TaskNotFoundException(999L));
 
         mockMvc.perform(get("/api/tasks/{id}", 999L))
                 .andExpect(status().isNotFound());
@@ -519,8 +515,9 @@ class TaskControllerTest {
 
     @Test
     void shouldReturnNotFoundWhenDeletingMissingTask() throws Exception {
-        when(taskService.deleteTaskById(999L))
-                .thenReturn(false);
+        doThrow(new TaskNotFoundException(999L))
+                .when(taskService)
+                .deleteTaskById(999L);
 
         mockMvc.perform(delete("/api/tasks/{id}", 999L))
                 .andExpect(status().isNotFound());
@@ -540,7 +537,7 @@ class TaskControllerTest {
         when(taskService.updateTaskStatus(
                 999L,
                 TaskStatus.IN_PROGRESS
-        )).thenReturn(Optional.empty());
+        )).thenThrow(new TaskNotFoundException(999L));
 
         mockMvc.perform(patch("/api/tasks/{id}/status", 999L)
                         .contentType(MediaType.APPLICATION_JSON)

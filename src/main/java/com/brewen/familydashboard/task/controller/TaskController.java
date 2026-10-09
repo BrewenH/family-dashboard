@@ -41,10 +41,11 @@ public class TaskController {
     public ResponseEntity<TaskResponse> getTaskById(
             @PathVariable Long id
     ) {
-        return taskService.getTaskById(id)
-                .map(TaskMapper::toResponse)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Task task = taskService.getTaskById(id);
+
+        return ResponseEntity.ok(
+                TaskMapper.toResponse(task)
+        );
     }
 
     @PatchMapping("/{id}/status")
@@ -52,10 +53,14 @@ public class TaskController {
             @PathVariable Long id,
             @Valid @RequestBody TaskStatusRequest request
     ) {
-        return taskService.updateTaskStatus(id, request.getStatus())
-                .map(TaskMapper::toResponse)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Task updatedTask = taskService.updateTaskStatus(
+                id,
+                request.getStatus()
+        );
+
+        return ResponseEntity.ok(
+                TaskMapper.toResponse(updatedTask)
+        );
     }
 
     @PostMapping
@@ -70,12 +75,10 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
-        boolean deleted = taskService.deleteTaskById(id);
-
-        if (!deleted){
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> deleteTask(
+            @PathVariable Long id
+    ) {
+        taskService.deleteTaskById(id);
 
         return ResponseEntity.noContent().build();
     }
