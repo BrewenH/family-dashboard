@@ -2413,3 +2413,127 @@ Le ticket suivant sera :
 ```text
 FD-035 - Gérer les statuts invalides dans les paramètres
 ```
+
+---
+
+## FD-035 - Gérer les statuts invalides dans les paramètres
+
+### Branche
+
+`feature/handle-invalid-task-status`
+
+### Objectif
+
+Sécuriser la réponse HTTP produite lorsqu’une valeur invalide est reçue dans le paramètre `status` de `GET /api/tasks`.
+
+### Endpoint testé
+
+```http
+GET /api/tasks?status=UNKNOWN
+```
+
+### Valeurs valides de TaskStatus
+
+```text
+TODO
+IN_PROGRESS
+DONE
+```
+
+### Approche de test
+
+Le comportement de conversion est pris en charge par Spring MVC.
+
+Le test ajouté est donc un test de caractérisation écrit avant toute éventuelle modification du code de production.
+
+### Résultat du test de caractérisation
+
+Le test `shouldReturnBadRequestWhenStatusParameterIsInvalid` passe immédiatement.
+
+Spring MVC tente de convertir la valeur :
+
+```text
+UNKNOWN
+```
+
+vers l’enum :
+
+```java
+TaskStatus
+```
+
+Comme cette valeur ne correspond à aucune constante de l’enum, la conversion échoue avant l’appel du controller.
+
+Le comportement obtenu est :
+
+```text
+Paramètre status invalide
+→ échec de conversion par Spring MVC
+→ TaskController non exécuté
+→ TaskService non appelé
+→ 400 Bad Request
+```
+
+### Progression réalisée
+
+- [x] Tester une valeur de statut inconnue
+- [x] Vérifier la réponse `400 Bad Request`
+- [x] Vérifier que TaskService n’est pas appelé
+- [x] Déterminer si un handler explicite est nécessaire
+- [x] Exécuter toute la suite Maven
+
+### Test ajouté
+
+`shouldReturnBadRequestWhenStatusParameterIsInvalid`
+
+### Tests
+
+- [x] Test du paramètre invalide réussi.
+- [x] Réponse `400 Bad Request` vérifiée.
+- [x] Absence d’interaction avec `TaskService` vérifiée.
+- [x] Tests existants du `TaskController` réussis.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Le mécanisme natif de conversion de Spring MVC est conservé.
+- Aucun traitement explicite n’est ajouté dans `TaskController`.
+- Aucun traitement explicite n’est ajouté dans `GlobalExceptionHandler`.
+- `TaskService` ne doit pas être appelé lorsque la conversion du paramètre échoue.
+- L’enum `TaskStatus` reste inchangé.
+- Les valeurs admises restent `TODO`, `IN_PROGRESS` et `DONE`.
+- Le `400 Bad Request` natif est suffisant pour ce ticket.
+- Un message d’erreur personnalisé pourra être ajouté avec le futur format commun des réponses d’erreur.
+
+### Hors périmètre confirmé
+
+- Statut invalide dans un corps JSON.
+- Corps JSON syntaxiquement incorrect.
+- Format commun des réponses d’erreur.
+- Modification de `TaskStatus`.
+- Modification de `TaskController`.
+- Modification de `TaskService`.
+- Modification de `GlobalExceptionHandler`.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add invalid task status parameter test`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-035.
+
+Le ticket suivant sera :
+
+```text
+FD-036 - Gérer les corps JSON mal formés
+```

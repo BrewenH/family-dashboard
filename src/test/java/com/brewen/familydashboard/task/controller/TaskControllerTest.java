@@ -549,4 +549,14 @@ class TaskControllerTest {
                 TaskStatus.IN_PROGRESS
         );
     }
+
+    @Test
+    void shouldReturnBadRequestWhenStatusParameterIsInvalid()
+            throws Exception {
+        mockMvc.perform(get("/api/tasks")
+                        .param("status", "UNKNOWN"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(taskService);
+    }
 }

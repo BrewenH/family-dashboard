@@ -49,7 +49,7 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - [x] FD-032 - Tester les réponses 404 du TaskController avec MockMvc
 - [x] FD-033 - Créer TaskNotFoundException
 - [x] FD-034 - Centraliser les erreurs de tâche inexistante
-- [ ] FD-035 - Gérer les statuts invalides dans les paramètres
+- [x] FD-035 - Gérer les statuts invalides dans les paramètres
 - [ ] FD-036 - Gérer les corps JSON mal formés
 - [ ] FD-037 - Ajouter un format commun pour les réponses d’erreur
 
@@ -545,10 +545,10 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-034
+Dernier ticket terminé : FD-035
 Ticket en cours : aucun
-Prochain ticket : FD-035
-Branche de référence : feature/centralize-task-not-found
+Prochain ticket : FD-036
+Branche de référence : feature/handle-invalid-task-status
 Documentation : à jour
 ```
 
@@ -557,7 +557,7 @@ Documentation : à jour
 ## Ticket suivant recommandé
 
 ```text
-FD-035 - Gérer les statuts invalides dans les paramètres
+FD-036 - Gérer les corps JSON mal formés
 ```
 
 Ce ticket devra respecter la démarche TDD.
@@ -565,16 +565,14 @@ Ce ticket devra respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Sécuriser la réponse HTTP produite lorsqu’une valeur de TaskStatus invalide est reçue dans le paramètre status de GET /api/tasks.
+Sécuriser la réponse HTTP produite lorsqu’un corps JSON ne peut pas être désérialisé par Spring.
 ```
 
-Périmètre initial :
+Premiers scénarios envisagés :
 
 ```text
-- Écrire le test MockMvc avant le traitement
-- Envoyer une valeur de statut inconnue
-- Vérifier la réponse HTTP attendue
-- Centraliser le traitement de l’erreur de conversion
-- Ne pas encore traiter les corps JSON mal formés
-- Ne pas encore créer le format commun complet des erreurs
+- JSON syntaxiquement incorrect
+- Valeur d’enum inconnue dans le JSON
+- Vérification du statut 400 Bad Request
+- Vérification que TaskService n’est pas appelé
 ```
