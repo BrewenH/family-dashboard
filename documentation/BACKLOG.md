@@ -50,7 +50,7 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - [x] FD-033 - Créer TaskNotFoundException
 - [x] FD-034 - Centraliser les erreurs de tâche inexistante
 - [x] FD-035 - Gérer les statuts invalides dans les paramètres
-- [ ] FD-036 - Gérer les corps JSON mal formés
+- [x] FD-036 - Gérer les corps JSON mal formés
 - [ ] FD-037 - Ajouter un format commun pour les réponses d’erreur
 
 ### Cas couverts dans FD-032
@@ -545,19 +545,18 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-035
+Dernier ticket terminé : FD-036
 Ticket en cours : aucun
-Prochain ticket : FD-036
-Branche de référence : feature/handle-invalid-task-status
+Prochain ticket : FD-037
+Branche de référence : feature/handle-malformed-task-json
 Documentation : à jour
 ```
-
 ---
 
 ## Ticket suivant recommandé
 
 ```text
-FD-036 - Gérer les corps JSON mal formés
+FD-037 - Ajouter un format commun pour les réponses d’erreur
 ```
 
 Ce ticket devra respecter la démarche TDD.
@@ -565,14 +564,24 @@ Ce ticket devra respecter la démarche TDD.
 Premier objectif envisagé :
 
 ```text
-Sécuriser la réponse HTTP produite lorsqu’un corps JSON ne peut pas être désérialisé par Spring.
+Définir une structure uniforme pour les principales réponses d’erreur de l’API.
 ```
 
-Premiers scénarios envisagés :
+Format initial envisagé :
 
 ```text
-- JSON syntaxiquement incorrect
-- Valeur d’enum inconnue dans le JSON
-- Vérification du statut 400 Bad Request
-- Vérification que TaskService n’est pas appelé
+timestamp
+status
+error
+message
+path
+```
+
+Premiers cas concernés :
+
+```text
+- Erreur de validation
+- Tâche inexistante
+- Paramètre de statut invalide
+- Corps JSON impossible à désérialiser
 ```
