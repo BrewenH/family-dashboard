@@ -429,6 +429,63 @@ Le corps commun des réponses d’erreur sera défini dans une évolution ultér
 - Tests unitaires d’écriture du `TaskService`.
 - Tests unitaires du tri par priorité.
 
+### Format commun des réponses d’erreur
+
+Les principales erreurs de l’API utilisent le record immutable :
+
+```text
+ApiErrorResponse
+```
+
+Structure :
+
+```text
+LocalDateTime timestamp
+int status
+String error
+String message
+String path
+```
+
+Exemple :
+
+```json
+{
+  "timestamp": "2026-10-11T13:37:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Task not found with id: 999",
+  "path": "/api/tasks/999"
+}
+```
+
+`GlobalExceptionHandler` centralise actuellement :
+
+```text
+TaskNotFoundException
+→ 404 Not Found
+
+MethodArgumentTypeMismatchException
+→ 400 Bad Request
+
+HttpMessageNotReadableException
+→ 400 Bad Request
+
+MethodArgumentNotValidException
+→ 400 Bad Request
+```
+
+Règles durables :
+
+- les controllers ne construisent pas directement les corps d’erreur ;
+- les services restent indépendants de la couche HTTP ;
+- les détails techniques et les stack traces ne sont pas exposés ;
+- le message doit être compréhensible par le consommateur de l’API ;
+- le chemin correspond à l’URI de la requête ;
+- les erreurs de validation conservent les messages des annotations ;
+- plusieurs messages de validation sont concaténés avec `;` ;
+- chaque évolution du format commun doit être protégée par des tests MockMvc.
+
 ### Tests automatisés existants
 
 Les tests du `TaskService` couvrent notamment :

@@ -51,7 +51,7 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - [x] FD-034 - Centraliser les erreurs de tâche inexistante
 - [x] FD-035 - Gérer les statuts invalides dans les paramètres
 - [x] FD-036 - Gérer les corps JSON mal formés
-- [ ] FD-037 - Ajouter un format commun pour les réponses d’erreur
+- [x] FD-037 - Ajouter un format commun pour les réponses d’erreur
 
 ### Cas couverts dans FD-032
 
@@ -80,9 +80,9 @@ Les tickets doivent être traités progressivement, un par un, avec une démarch
 - Adapter les tests du controller.
 - Supprimer progressivement la construction locale des réponses 404.
 
-### Format d’erreur futur envisagé
+### Format commun des erreurs
 
-Le format commun des erreurs pourra contenir :
+Le format commun est maintenant implémenté avec `ApiErrorResponse`.
 
 ```text
 timestamp
@@ -91,6 +91,15 @@ error
 message
 path
 ```
+
+Cas actuellement couverts :
+
+- [x] Tâche inexistante
+- [x] Paramètre de statut invalide
+- [x] Corps JSON syntaxiquement incorrect
+- [x] Valeur d’enum inconnue dans un corps JSON
+- [x] Erreurs de validation
+- [x] Erreurs de validation multiples
 
 ---
 
@@ -545,43 +554,48 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-036
+Dernier ticket terminé : FD-037
 Ticket en cours : aucun
-Prochain ticket : FD-037
-Branche de référence : feature/handle-malformed-task-json
+Prochain ticket : FM-001
+Branche de référence : feature/common-error-response
 Documentation : à jour
 ```
----
 
 ## Ticket suivant recommandé
 
 ```text
-FD-037 - Ajouter un format commun pour les réponses d’erreur
+FM-001 - Concevoir le module FamilyMember
 ```
-
-Ce ticket devra respecter la démarche TDD.
 
 Premier objectif envisagé :
 
 ```text
-Définir une structure uniforme pour les principales réponses d’erreur de l’API.
+Définir le rôle, les responsabilités, les propriétés et les relations du futur modèle FamilyMember.
 ```
 
-Format initial envisagé :
+Ce ticket commencera après la finalisation de la gestion commune des erreurs du module Task.
+
+## Ticket suivant recommandé
 
 ```text
-timestamp
-status
-error
-message
-path
+FM-001 - Concevoir le module FamilyMember
 ```
 
-Premiers cas concernés :
+Ce ticket devra respecter le workflow documentaire du projet.
+
+Premier objectif envisagé :
 
 ```text
-- Erreur de validation
-- Tâche inexistante
-- Paramètre de statut invalide
-- Corps JSON impossible à désérialiser
+Définir le rôle, les responsabilités, les propriétés et les relations du futur modèle FamilyMember.
+```
+
+Premières questions de conception :
+
+```text
+- Quelles informations représentent un membre familial ?
+- Quels champs sont obligatoires ?
+- Comment identifier un membre ?
+- Quelle relation prévoir avec Task ?
+- Quelle relation prévoir avec Wishlist ?
+- Quelles données doivent être exposées par l’API ?
 ```

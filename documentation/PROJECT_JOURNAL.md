@@ -2702,3 +2702,294 @@ Le ticket suivant sera :
 ```text
 FD-037 - Ajouter un format commun pour les réponses d’erreur
 ```
+
+---
+
+## FD-037 - Ajouter un format commun pour les réponses d’erreur
+
+### Branche
+
+`feature/common-error-response`
+
+### Objectif
+
+Définir une structure uniforme pour les principales réponses d’erreur de l’API.
+
+### Situation initiale
+
+Les erreurs de l’API utilisaient plusieurs formats :
+
+- les tâches inexistantes retournaient `404 Not Found` sans corps spécifique ;
+- les paramètres invalides utilisaient la réponse native de Spring MVC ;
+- les corps JSON illisibles utilisaient la réponse native de Spring MVC ;
+- les erreurs de validation retournaient un `ValidationErrorResponse` contenant une liste `errors`.
+
+### Situation finale
+
+Les principales erreurs utilisent désormais le même contrat :
+
+```text
+timestamp
+status
+error
+message
+path
+```
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Progression réalisée
+
+- [x] Uniformiser les erreurs de tâche inexistante
+- [x] Uniformiser les paramètres de statut invalides
+- [x] Uniformiser les corps JSON impossibles à désérialiser
+- [x] Uniformiser les erreurs de validation
+- [x] Vérifier les cinq propriétés du contrat
+- [x] Vérifier les messages métier
+- [x] Vérifier les chemins HTTP
+- [x] Vérifier l’absence d’appel au service lorsque la requête est invalide
+- [x] Exécuter toute la suite Maven
+
+### DTO commun créé
+
+Le record suivant a été ajouté :
+
+```text
+ApiErrorResponse
+```
+
+Il contient exactement :
+
+```text
+LocalDateTime timestamp
+int status
+String error
+String message
+String path
+```
+
+### Contrat JSON commun
+
+Exemple de réponse :
+
+```json
+{
+  "timestamp": "2026-10-11T13:37:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Task not found with id: 999",
+  "path": "/api/tasks/999"
+}
+```
+
+### Tâche inexistante
+
+`GlobalExceptionHandler` traite :
+
+```text
+TaskNotFoundException
+```
+
+Le flux est :
+
+```text
+TaskService
+→ TaskNotFoundException
+→ GlobalExceptionHandler
+→ ApiErrorResponse
+→ 404 Not Found
+```
+
+Exemple de message :
+
+```text
+Task not found with id: 999
+```
+
+### Paramètre de statut invalide
+
+`GlobalExceptionHandler` traite :
+
+```text
+MethodArgumentTypeMismatchException
+```
+
+Exemple de requête :
+
+```http
+GET /api/tasks?status=UNKNOWN
+```
+
+Réponse obtenue :
+
+```json
+{
+  "timestamp": "généré au moment de la réponse",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Invalid value 'UNKNOWN' for parameter 'status'",
+  "path": "/api/tasks"
+}
+```
+
+La conversion échoue avant l’exécution du controller et `TaskService` n’est pas appelé.
+
+### Corps JSON impossible à désérialiser
+
+`GlobalExceptionHandler` traite :
+
+```text
+HttpMessageNotReadableException
+```
+
+Les scénarios couverts sont :
+
+- JSON syntaxiquement incorrect ;
+- valeur `TaskStatus` inconnue lors de la création ;
+- valeur `TaskStatus` inconnue lors de la modification du statut.
+
+Le message commun retenu est :
+
+```text
+Malformed or unreadable JSON request
+```
+
+`TaskService` n’est jamais appelé lorsque le corps HTTP ne peut pas être désérialisé.
+
+### Erreurs de validation
+
+`GlobalExceptionHandler` traite :
+
+```text
+MethodArgumentNotValidException
+```
+
+Les messages définis dans les annotations de validation sont conservés.
+
+Exemple avec un titre vide :
+
+```json
+{
+  "timestamp": "généré au moment de la réponse",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Le titre est obligatoire",
+  "path": "/api/tasks"
+}
+```
+
+Lorsque plusieurs champs sont invalides, leurs messages sont concaténés avec le séparateur :
+
+```text
+;
+```
+
+Les tests vérifient la présence de chaque message sans dépendre de leur ordre.
+
+### Messages de validation conservés
+
+```text
+Le titre est obligatoire
+Le statut est obligatoire
+La priorité est obligatoire
+```
+
+### Tests renforcés ou ajoutés
+
+- test du format commun pour une tâche inexistante ;
+- test du format commun pour un paramètre de statut invalide ;
+- test du format commun pour un JSON syntaxiquement incorrect ;
+- test du format commun pour un statut inconnu lors de la création ;
+- test du format commun pour un statut inconnu lors de la modification ;
+- test du format commun pour un titre vide ;
+- test de la présence de plusieurs messages de validation.
+
+### Assertions communes
+
+Les tests vérifient systématiquement :
+
+```text
+exactement cinq propriétés
+timestamp présent
+status numérique
+error correspondant au statut HTTP
+message contrôlé
+path correspondant à la requête
+```
+
+### Tests
+
+- [x] Erreurs `404 Not Found` validées.
+- [x] Paramètres invalides validés.
+- [x] JSON syntaxiquement incorrect validé.
+- [x] Valeurs d’enum inconnues validées.
+- [x] Erreurs de validation simples validées.
+- [x] Erreurs de validation multiples validées.
+- [x] Absence d’interaction avec `TaskService` vérifiée lorsque nécessaire.
+- [x] Tests existants du controller réussis.
+- [x] Tests du service réussis.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation d’un record immutable `ApiErrorResponse`.
+- Utilisation d’un contrat commun à cinq propriétés.
+- Centralisation de la construction des réponses d’erreur dans `GlobalExceptionHandler`.
+- Conservation des messages métier de validation.
+- Concaténation des messages multiples avec `;`.
+- Utilisation du chemin fourni par `HttpServletRequest`.
+- Aucun détail technique ou stack trace n’est exposé au client.
+- `TaskController` et `TaskService` restent indépendants du format JSON des erreurs.
+- Les timestamps sont générés au moment du traitement de l’erreur.
+- Les tests vérifient la présence du timestamp sans imposer une valeur exacte.
+- `ValidationErrorResponse` est supprimé s’il n’est plus utilisé.
+
+### Exceptions centralisées
+
+```text
+TaskNotFoundException
+MethodArgumentTypeMismatchException
+HttpMessageNotReadableException
+MethodArgumentNotValidException
+```
+
+### Statuts actuellement couverts
+
+```text
+400 Bad Request
+404 Not Found
+```
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/common/exception/ApiErrorResponse.java`
+- `src/main/java/com/brewen/familydashboard/common/exception/GlobalExceptionHandler.java`
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Fichier supprimé si inutilisé
+
+- `src/main/java/com/brewen/familydashboard/common/exception/ValidationErrorResponse.java`
+
+### Commit
+
+`Add common API error response`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-037.
+
+Le prochain ticket sera :
+
+```text
+FM-001 - Concevoir le module FamilyMember
+```

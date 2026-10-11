@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -508,10 +508,23 @@ class TaskControllerTest {
                 .thenThrow(new TaskNotFoundException(999L));
 
         mockMvc.perform(get("/api/tasks/{id}", 999L))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.*").value(hasSize(5)))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Task not found with id: 999")
+                )
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/tasks/999")
+                );
 
         verify(taskService).getTaskById(999L);
     }
+
 
     @Test
     void shouldReturnNotFoundWhenDeletingMissingTask() throws Exception {
@@ -555,7 +568,19 @@ class TaskControllerTest {
             throws Exception {
         mockMvc.perform(get("/api/tasks")
                         .param("status", "UNKNOWN"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.*").value(hasSize(5)))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Invalid value 'UNKNOWN' for parameter 'status'")
+                )
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/tasks")
+                );
 
         verifyNoInteractions(taskService);
     }
@@ -573,7 +598,19 @@ class TaskControllerTest {
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(malformedJson))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.*").value(hasSize(5)))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Malformed or unreadable JSON request")
+                )
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/tasks")
+                );
 
         verifyNoInteractions(taskService);
     }
@@ -595,7 +632,22 @@ class TaskControllerTest {
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.*").value(hasSize(5)))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(
+                        jsonPath("$.error")
+                                .value("Bad Request")
+                )
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Malformed or unreadable JSON request")
+                )
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/tasks")
+                );
 
         verifyNoInteractions(taskService);
     }
@@ -612,7 +664,103 @@ class TaskControllerTest {
         mockMvc.perform(patch("/api/tasks/{id}/status", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.*").value(hasSize(5)))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Malformed or unreadable JSON request")
+                )
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/tasks/1/status")
+                );
+
+        verifyNoInteractions(taskService);
+    }
+
+    @Test
+    void shouldReturnCommonErrorResponseWhenTaskTitleIsBlank()
+            throws Exception {
+        String requestBody = """
+            {
+              "title": "",
+              "description": "Acheter du lait et du pain",
+              "dueDate": "2026-10-15",
+              "assignedTo": "Brewen",
+              "status": "TODO",
+              "priority": "MEDIUM"
+            }
+            """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.*").value(hasSize(5)))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(
+                        jsonPath("$.error")
+                                .value("Bad Request")
+                )
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Le titre est obligatoire")
+                )
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/tasks")
+                );
+
+        verifyNoInteractions(taskService);
+    }
+
+    @Test
+    void shouldReturnAllValidationMessagesWhenTaskIsInvalid()
+            throws Exception {
+        String requestBody = """
+            {
+              "title": "",
+              "description": "Acheter du lait et du pain",
+              "dueDate": "2026-10-15",
+              "assignedTo": "Brewen",
+              "status": null,
+              "priority": null
+            }
+            """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.*").value(hasSize(5)))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(
+                        jsonPath("$.error")
+                                .value("Bad Request")
+                )
+                .andExpect(
+                        jsonPath("$.message")
+                                .value(allOf(
+                                        containsString(
+                                                "Le titre est obligatoire"
+                                        ),
+                                        containsString(
+                                                "Le statut est obligatoire"
+                                        ),
+                                        containsString(
+                                                "La priorité est obligatoire"
+                                        )
+                                ))
+                )
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/tasks")
+                );
 
         verifyNoInteractions(taskService);
     }
