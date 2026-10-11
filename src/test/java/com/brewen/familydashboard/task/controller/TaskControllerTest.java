@@ -559,4 +559,61 @@ class TaskControllerTest {
 
         verifyNoInteractions(taskService);
     }
+
+    @Test
+    void shouldReturnBadRequestWhenTaskJsonIsMalformed()
+            throws Exception {
+        String malformedJson = """
+            {
+              "title": "Faire les courses",
+              "status": "TODO",
+              "priority": "MEDIUM"
+            """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(taskService);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingTaskWithUnknownStatus()
+            throws Exception {
+        String requestBody = """
+            {
+              "title": "Faire les courses",
+              "description": "Acheter du lait et du pain",
+              "dueDate": "2026-10-15",
+              "assignedTo": "Brewen",
+              "status": "UNKNOWN",
+              "priority": "MEDIUM"
+            }
+            """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(taskService);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdatingTaskWithUnknownStatus()
+            throws Exception {
+        String requestBody = """
+            {
+              "status": "UNKNOWN"
+            }
+            """;
+
+        mockMvc.perform(patch("/api/tasks/{id}/status", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(taskService);
+    }
 }

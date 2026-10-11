@@ -2537,3 +2537,168 @@ Le ticket suivant sera :
 ```text
 FD-036 - Gérer les corps JSON mal formés
 ```
+
+---
+
+## FD-036 - Gérer les corps JSON mal formés
+
+### Branche
+
+`feature/handle-malformed-task-json`
+
+### Objectif
+
+Sécuriser les réponses HTTP produites lorsque Spring ne peut pas désérialiser le corps JSON d’une requête du module Task.
+
+### Scénarios couverts
+
+- JSON syntaxiquement incorrect lors de la création d’une tâche.
+- Valeur `TaskStatus` inconnue lors de la création d’une tâche.
+- Valeur `TaskStatus` inconnue lors de la modification du statut.
+
+### Approche de test
+
+Spring MVC et Jackson géraient déjà ces erreurs de désérialisation.
+
+Les tests ajoutés sont donc des tests de caractérisation.
+
+Aucune modification du code de production n’a été nécessaire.
+
+### Progression réalisée
+
+- [x] Tester un JSON syntaxiquement incorrect
+- [x] Tester un statut inconnu dans le JSON de création
+- [x] Tester un statut inconnu dans le JSON de modification
+- [x] Vérifier les réponses `400 Bad Request`
+- [x] Vérifier que TaskService n’est jamais appelé
+- [x] Déterminer si un handler explicite est nécessaire
+- [x] Exécuter toute la suite Maven
+
+### JSON syntaxiquement incorrect
+
+Le test `shouldReturnBadRequestWhenTaskJsonIsMalformed` envoie à :
+
+```http
+POST /api/tasks
+```
+
+un objet JSON ne possédant pas d’accolade fermante.
+
+Le comportement constaté est :
+
+```text
+JSON syntaxiquement incorrect
+→ lecture impossible par Jackson
+→ TaskRequest non construit
+→ TaskController non exécuté
+→ TaskService non appelé
+→ 400 Bad Request
+```
+
+### Statut inconnu lors de la création
+
+Le test `shouldReturnBadRequestWhenCreatingTaskWithUnknownStatus` envoie un JSON syntaxiquement valide contenant :
+
+```json
+{
+  "status": "UNKNOWN"
+}
+```
+
+Le comportement constaté est :
+
+```text
+JSON syntaxiquement valide
+→ conversion de UNKNOWN vers TaskStatus impossible
+→ TaskRequest non construit
+→ TaskController non exécuté
+→ TaskService non appelé
+→ 400 Bad Request
+```
+
+### Statut inconnu lors de la modification
+
+Le test `shouldReturnBadRequestWhenUpdatingTaskWithUnknownStatus` envoie à :
+
+```http
+PATCH /api/tasks/1/status
+```
+
+le corps suivant :
+
+```json
+{
+  "status": "UNKNOWN"
+}
+```
+
+Le comportement constaté est :
+
+```text
+JSON syntaxiquement valide
+→ conversion de UNKNOWN vers TaskStatus impossible
+→ TaskStatusRequest non construit
+→ TaskController non exécuté
+→ TaskService non appelé
+→ 400 Bad Request
+```
+
+### Tests ajoutés
+
+- `shouldReturnBadRequestWhenTaskJsonIsMalformed`
+- `shouldReturnBadRequestWhenCreatingTaskWithUnknownStatus`
+- `shouldReturnBadRequestWhenUpdatingTaskWithUnknownStatus`
+
+### Tests
+
+- [x] Test du JSON syntaxiquement incorrect réussi.
+- [x] Test du statut inconnu lors de la création réussi.
+- [x] Test du statut inconnu lors de la modification réussi.
+- [x] Réponses `400 Bad Request` vérifiées.
+- [x] Absence d’interaction avec `TaskService` vérifiée.
+- [x] Tests existants du `TaskController` réussis.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Le mécanisme natif de désérialisation de Spring MVC et Jackson est conservé.
+- Aucun traitement supplémentaire n’est ajouté dans `TaskController`.
+- Aucun traitement supplémentaire n’est ajouté dans `GlobalExceptionHandler`.
+- `TaskService` ne doit jamais être appelé lorsque le corps ne peut pas être désérialisé.
+- Les DTO de requête restent inchangés.
+- L’enum `TaskStatus` reste inchangé.
+- Le statut HTTP natif `400 Bad Request` est suffisant pour ce ticket.
+- Un gestionnaire explicite sera ajouté dans FD-037 pour produire un corps d’erreur uniforme et un message contrôlé.
+
+### Hors périmètre confirmé
+
+- Format commun des réponses d’erreur.
+- Message d’erreur personnalisé.
+- Modification de `TaskRequest`.
+- Modification de `TaskStatusRequest`.
+- Modification de `TaskStatus`.
+- Modification de `TaskController`.
+- Modification de `TaskService`.
+
+### Fichiers modifiés
+
+- `src/test/java/com/brewen/familydashboard/task/controller/TaskControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add malformed task JSON tests`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FD-036.
+
+Le ticket suivant sera :
+
+```text
+FD-037 - Ajouter un format commun pour les réponses d’erreur
+```
