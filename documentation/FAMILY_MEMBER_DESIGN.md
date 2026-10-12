@@ -245,6 +245,40 @@ FM-003 devra préciser :
 
 ---
 
+## 12. Relations définies dans FM-003
+
+Les relations fonctionnelles et techniques futures sont documentées dans :
+
+```text
+documentation/FAMILY_MEMBER_RELATIONS.md
+```
+
+Principales décisions :
+
+```text
+Task
+→ zéro ou un membre assigné
+→ relation progressive et unidirectionnelle
+
+Wishlist
+→ appartient à un membre
+→ au maximum une wishlist par membre dans le MVP
+
+FamilyEvent
+→ pourra concerner plusieurs membres
+→ structure technique reportée à sa conception
+
+Notifications
+→ préférences portées par un module distinct
+
+Dashboard
+→ composition de données sans relation JPA directe
+```
+
+La désactivation d’un membre conservera ses données historiques.
+
+---
+
 ## 12. Modèle défini dans FM-002
 
 Le modèle fonctionnel détaillé est documenté dans :
@@ -265,3 +299,37 @@ updatedAt
 ```
 
 Les relations techniques restent volontairement absentes jusqu’à FM-003.
+
+---
+
+## 13. Relations définies dans FM-003
+
+Les relations fonctionnelles et techniques futures sont documentées dans :
+
+```text
+documentation/FAMILY_MEMBER_RELATIONS.md
+```
+
+Principales décisions :
+
+```text
+Task
+→ zéro ou un membre assigné
+→ relation progressive et unidirectionnelle
+
+Wishlist
+→ appartient à un membre
+→ au maximum une wishlist par membre dans le MVP
+
+FamilyEvent
+→ pourra concerner plusieurs membres
+→ structure technique reportée à sa conception
+
+Notifications
+→ préférences portées par un module distinct
+
+Dashboard
+→ composition de données sans relation JPA directe
+```
+
+La désactivation d’un membre conservera ses données historiques.

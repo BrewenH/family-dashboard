@@ -250,7 +250,7 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 
 - [x] FM-001 - Concevoir le module FamilyMember
 - [x] FM-002 - Définir le modèle FamilyMember
-- [ ] FM-003 - Définir les relations avec les futurs modules
+- [x] FM-003 - Définir les relations avec les futurs modules
 
 ### Backend MVP
 
@@ -683,6 +683,66 @@ Le ticket suivant sera :
 FM-003 - Définir les relations avec les futurs modules
 ```
 
+### Relations définies dans FM-003
+
+#### Task
+
+```text
+Une Task
+→ zéro ou un FamilyMember
+
+Un FamilyMember
+→ zéro à plusieurs Task
+```
+
+Décisions :
+
+- [x] Relation initialement unidirectionnelle.
+- [x] Référence portée par `Task`.
+- [x] Chargement paresseux privilégié.
+- [x] Aucune collection de tâches dans `FamilyMember`.
+- [x] Conservation temporaire de `assignedTo`.
+- [x] Migration progressive des données.
+
+#### Wishlist
+
+```text
+Un FamilyMember
+→ zéro ou une Wishlist
+
+Une Wishlist
+→ exactement un FamilyMember
+```
+
+Décisions :
+
+- [x] Référence portée par `Wishlist`.
+- [x] Une wishlist au maximum par membre dans le MVP.
+- [x] Aucune suppression automatique après désactivation.
+
+#### FamilyEvent
+
+```text
+Plusieurs FamilyMember
+↔
+Plusieurs FamilyEvent
+```
+
+Décisions :
+
+- [x] Besoin fonctionnel identifié.
+- [ ] Structure technique à définir dans le module FamilyEvent.
+- [ ] Choisir entre relation directe et entité d’association.
+
+#### Règles communes
+
+- [x] Désactivation préférée à la suppression.
+- [x] Conservation des données historiques.
+- [x] Réactivation possible avec le même identifiant.
+- [x] Aucune cascade générale de suppression.
+- [x] Relations ajoutées progressivement.
+- [x] Entités liées non exposées directement par l’API.
+
 ### Évolution du module Task
 
 - [ ] Remplacer progressivement le champ texte assignedTo
@@ -970,35 +1030,48 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FM-002
+Dernier ticket terminé : FM-003
 Ticket en cours : aucun
-Prochain ticket : FM-003
-Branche de référence : feature/design-family-member-model
+Prochain ticket : FM-004
+Branche de référence : feature/design-family-member-relations
 Documentation : à jour
 ```
 
 ## Ticket suivant recommandé
 
 ```text
-FM-003 - Définir les relations avec les futurs modules
+FM-004 - Créer l’entité FamilyMember
 ```
 
-Ce ticket devra poursuivre la conception avant l’implémentation Java.
+Ce ticket commencera l’implémentation Java du module FamilyMember avec une démarche TDD.
 
 Premier objectif envisagé :
 
 ```text
-Définir les relations fonctionnelles et techniques entre FamilyMember, Task, Wishlist et les futurs modules.
+Créer l’entité JPA FamilyMember à partir du modèle défini dans FM-002.
 ```
 
-Questions principales :
+Périmètre initial :
 
 ```text
-- Une tâche peut-elle être assignée à zéro ou un membre ?
-- Une wishlist appartient-elle obligatoirement à un membre ?
-- Un événement peut-il concerner plusieurs membres ?
-- Un membre désactivé reste-t-il visible dans les historiques ?
-- Les relations doivent-elles être unidirectionnelles ?
-- Comment migrer progressivement Task.assignedTo ?
-- Quelles règles appliquer lors de la suppression ou de la désactivation ?
+- Créer l’entité sans relation avec les autres modules
+- Ajouter id
+- Ajouter displayName
+- Ajouter color
+- Ajouter active
+- Ajouter createdAt
+- Ajouter updatedAt
+- Ajouter les callbacks JPA d’audit
+- Ajouter les tests du modèle
+```
+
+Hors périmètre initial :
+
+```text
+- Aucune relation avec Task
+- Aucune relation avec Wishlist
+- Aucun repository
+- Aucun service
+- Aucun controller
+- Aucune migration de assignedTo
 ```
