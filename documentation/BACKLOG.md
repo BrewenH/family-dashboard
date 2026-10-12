@@ -249,7 +249,7 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 ### Conception
 
 - [x] FM-001 - Concevoir le module FamilyMember
-- [ ] FM-002 - Définir le modèle FamilyMember
+- [x] FM-002 - Définir le modèle FamilyMember
 - [ ] FM-003 - Définir les relations avec les futurs modules
 
 ### Backend MVP
@@ -266,6 +266,422 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 - [ ] FM-013 - Ajouter les tests unitaires
 - [ ] FM-014 - Ajouter les tests du controller
 - [ ] FM-015 - Ajouter les tests d’intégration
+
+---
+
+## FM-002 - Définir le modèle FamilyMember
+
+### Branche
+
+`feature/design-family-member-model`
+
+### Objectif
+
+Définir précisément les propriétés, les types Java envisagés, les contraintes de validation et les données publiques du futur modèle `FamilyMember`.
+
+### Contexte
+
+FM-001 a défini `FamilyMember` comme une personne appartenant au foyer et disposant d’une identité fonctionnelle stable.
+
+FM-002 précise le modèle MVP sans créer encore de code Java.
+
+### Réalisé
+
+- Création de `FAMILY_MEMBER_MODEL.md`.
+- Définition des propriétés du modèle MVP.
+- Définition des types Java envisagés.
+- Définition des contraintes de validation.
+- Choix d’un nom d’affichage unique.
+- Définition de la stratégie d’activation.
+- Définition des champs d’audit.
+- Définition des données fournies à la création.
+- Définition des données exposées par l’API.
+- Identification des données volontairement absentes du MVP.
+- Définition des opérations HTTP envisagées.
+- Préparation des décisions restantes pour FM-003.
+- Mise à jour du document général de conception.
+- Mise à jour du contexte permanent du projet.
+
+### Modèle MVP retenu
+
+```text
+id
+displayName
+color
+active
+createdAt
+updatedAt
+```
+
+### Propriétés retenues
+
+#### id
+
+```text
+Type Java envisagé : Long
+Généré par l’application : oui
+Fourni par le client : non
+Exposé par l’API : oui
+Modifiable : non
+```
+
+`id` représente l’identité technique stable du membre.
+
+#### displayName
+
+```text
+Type Java envisagé : String
+Obligatoire : oui
+Fourni à la création : oui
+Exposé par l’API : oui
+Modifiable : oui
+Longueur maximale envisagée : 50 caractères
+```
+
+Exemples :
+
+```text
+Brewen
+Maman
+Papa
+Léa
+Mamie
+```
+
+Le MVP ne distingue pas immédiatement :
+
+```text
+firstName
+lastName
+```
+
+Contraintes envisagées :
+
+```java
+@NotBlank(message = "Le nom d’affichage est obligatoire")
+@Size(
+        max = 50,
+        message = "Le nom d’affichage ne doit pas dépasser 50 caractères"
+)
+```
+
+#### color
+
+```text
+Type Java envisagé : String ou enum à confirmer
+Obligatoire : non
+Fourni à la création : facultatif
+Exposé par l’API : oui
+Modifiable : oui
+```
+
+La couleur permettra d’identifier visuellement un membre dans le dashboard.
+
+Valeurs envisagées :
+
+```text
+BLUE
+GREEN
+PURPLE
+ORANGE
+PINK
+```
+
+La décision entre une chaîne contrôlée et un enum est reportée avant l’implémentation Java.
+
+#### active
+
+```text
+Type Java envisagé : boolean
+Obligatoire : oui
+Valeur initiale : true
+Fourni à la création : non
+Exposé par l’API : oui
+Modification : opération dédiée
+```
+
+Le statut distingue :
+
+```text
+active = true
+→ membre disponible pour de nouvelles opérations
+
+active = false
+→ membre désactivé mais conservé
+```
+
+La désactivation permettra de conserver les données historiques liées au membre.
+
+#### createdAt
+
+```text
+Type Java envisagé : LocalDateTime
+Géré par l’application : oui
+Fourni par le client : non
+Exposé par l’API : oui
+Modifiable : non
+```
+
+Initialisation envisagée :
+
+```text
+@PrePersist
+```
+
+#### updatedAt
+
+```text
+Type Java envisagé : LocalDateTime
+Géré par l’application : oui
+Fourni par le client : non
+Exposé par l’API : oui
+Modifiable directement : non
+```
+
+Initialisation et actualisation envisagées :
+
+```text
+@PrePersist
+@PreUpdate
+```
+
+### Requête de création envisagée
+
+Le futur DTO :
+
+```text
+FamilyMemberRequest
+```
+
+contiendra :
+
+```text
+displayName
+color
+```
+
+Le client ne fournira pas :
+
+```text
+id
+active
+createdAt
+updatedAt
+```
+
+Ces valeurs seront contrôlées par l’application.
+
+### Réponse API envisagée
+
+Le futur DTO :
+
+```text
+FamilyMemberResponse
+```
+
+contiendra :
+
+```text
+id
+displayName
+color
+active
+createdAt
+updatedAt
+```
+
+L’entité JPA ne devra pas être retournée directement par le controller.
+
+### Données volontairement absentes du MVP
+
+```text
+email
+mot de passe
+rôle de sécurité
+date de naissance
+adresse
+numéro de téléphone
+photo binaire
+préférences détaillées
+identifiants de connexion
+```
+
+Ces informations ne sont pas nécessaires au premier usage fonctionnel du module.
+
+### Opérations envisagées
+
+#### Création
+
+```http
+POST /api/family-members
+```
+
+#### Consultation de la liste
+
+```http
+GET /api/family-members
+```
+
+#### Consultation par identifiant
+
+```http
+GET /api/family-members/{id}
+```
+
+#### Modification
+
+Une opération future permettra de modifier :
+
+```text
+displayName
+color
+```
+
+La méthode HTTP exacte devra être confirmée avant l’implémentation.
+
+#### Désactivation
+
+Une opération dédiée permettra de passer un membre de :
+
+```text
+active = true
+```
+
+à :
+
+```text
+active = false
+```
+
+La suppression physique ne sera pas l’opération par défaut.
+
+### Validation envisagée
+
+#### Nom d’affichage absent ou vide
+
+```text
+400 Bad Request
+```
+
+Message :
+
+```text
+Le nom d’affichage est obligatoire
+```
+
+#### Nom d’affichage trop long
+
+```text
+400 Bad Request
+```
+
+Message :
+
+```text
+Le nom d’affichage ne doit pas dépasser 50 caractères
+```
+
+#### Couleur invalide
+
+Le comportement dépendra du type retenu avant l’implémentation :
+
+```text
+String contrôlée
+ou
+enum FamilyMemberColor
+```
+
+### Gestion des erreurs envisagée
+
+Le module utilisera le contrat commun :
+
+```text
+timestamp
+status
+error
+message
+path
+```
+
+Une future exception métier pourra représenter un membre inexistant :
+
+```text
+FamilyMemberNotFoundException
+```
+
+Message envisagé :
+
+```text
+Family member not found with id: 42
+```
+
+### Décisions reportées à FM-003
+
+FM-003 devra définir :
+
+- la relation future avec `Task` ;
+- la relation avec `Wishlist` ;
+- les relations éventuelles avec `FamilyEvent` ;
+- la cardinalité de chaque relation ;
+- les directions des relations JPA ;
+- la stratégie de migration de `Task.assignedTo` ;
+- le comportement des données liées lors de la désactivation ;
+- les règles de suppression ;
+- les contraintes référentielles ;
+- la stratégie de chargement des relations.
+
+### Tests
+
+Aucun test Java n’a été ajouté dans FM-002.
+
+Ce ticket est documentaire et prépare l’implémentation future.
+
+Les documents ont été relus afin de vérifier :
+
+- la cohérence avec FM-001 ;
+- la simplicité du modèle MVP ;
+- la séparation avec l’authentification ;
+- le contrôle des données publiques ;
+- la stratégie de désactivation ;
+- l’absence de relations JPA prématurées ;
+- la distinction entre FM-002 et FM-003.
+
+### Décisions techniques
+
+- Le modèle utilise un seul `displayName`.
+- `displayName` est obligatoire.
+- Sa longueur maximale envisagée est de 50 caractères.
+- Une couleur visuelle facultative est prévue.
+- Le type définitif de `color` reste à confirmer.
+- Un membre est actif par défaut.
+- Le client ne choisit pas `active` lors de la création.
+- Les timestamps sont gérés automatiquement.
+- Les DTO sont indépendants de l’entité JPA.
+- La suppression physique n’est pas le comportement par défaut.
+- Les informations d’authentification sont absentes du modèle.
+- Les relations restent hors du modèle jusqu’à FM-003.
+
+### Fichiers modifiés
+
+- `documentation/FAMILY_MEMBER_MODEL.md`
+- `documentation/FAMILY_MEMBER_DESIGN.md`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Define FamilyMember model`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FM-002.
+
+Le ticket suivant sera :
+
+```text
+FM-003 - Définir les relations avec les futurs modules
+```
 
 ### Évolution du module Task
 
@@ -554,17 +970,17 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FM-001
+Dernier ticket terminé : FM-002
 Ticket en cours : aucun
-Prochain ticket : FM-002
-Branche de référence : feature/design-family-member
+Prochain ticket : FM-003
+Branche de référence : feature/design-family-member-model
 Documentation : à jour
 ```
 
 ## Ticket suivant recommandé
 
 ```text
-FM-002 - Définir le modèle FamilyMember
+FM-003 - Définir les relations avec les futurs modules
 ```
 
 Ce ticket devra poursuivre la conception avant l’implémentation Java.
@@ -572,18 +988,17 @@ Ce ticket devra poursuivre la conception avant l’implémentation Java.
 Premier objectif envisagé :
 
 ```text
-Définir précisément les propriétés, les types Java, les contraintes et les données publiques du modèle FamilyMember.
+Définir les relations fonctionnelles et techniques entre FamilyMember, Task, Wishlist et les futurs modules.
 ```
 
 Questions principales :
 
 ```text
-- Quel nom fonctionnel stocker ?
-- Faut-il distinguer prénom, nom et nom d’affichage ?
-- Quels champs sont obligatoires ?
-- Comment représenter l’activation d’un membre ?
-- Faut-il prévoir une couleur ou un avatar ?
-- Quels champs d’audit conserver ?
-- Quelles données exposer dans FamilyMemberResponse ?
-- Quelles données accepter dans FamilyMemberRequest ?
+- Une tâche peut-elle être assignée à zéro ou un membre ?
+- Une wishlist appartient-elle obligatoirement à un membre ?
+- Un événement peut-il concerner plusieurs membres ?
+- Un membre désactivé reste-t-il visible dans les historiques ?
+- Les relations doivent-elles être unidirectionnelles ?
+- Comment migrer progressivement Task.assignedTo ?
+- Quelles règles appliquer lors de la suppression ou de la désactivation ?
 ```
