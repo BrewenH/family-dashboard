@@ -242,3 +242,26 @@ FM-003 devra préciser :
 - la stratégie de migration du champ `assignedTo` ;
 - le comportement des relations lors de la désactivation d’un membre ;
 - les règles de suppression et de conservation des données.
+
+---
+
+## 12. Modèle défini dans FM-002
+
+Le modèle fonctionnel détaillé est documenté dans :
+
+```text
+documentation/FAMILY_MEMBER_MODEL.md
+```
+
+Résumé du modèle MVP :
+
+```text
+id
+displayName
+color
+active
+createdAt
+updatedAt
+```
+
+Les relations techniques restent volontairement absentes jusqu’à FM-003.

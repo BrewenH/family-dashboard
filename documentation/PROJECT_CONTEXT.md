@@ -532,12 +532,64 @@ Règles de conception retenues :
 - une stratégie de désactivation devra être étudiée ;
 - les propriétés exactes seront définies dans FM-002 ;
 - les relations techniques seront définies dans FM-003.
+- displayName est obligatoire 
+- displayName est limité à 50 caractères 
+- active vaut true par défaut 
+- la désactivation est préférée à la suppression 
+- les timestamps sont automatiques 
+- l’entité ne sera pas exposée directement 
+- les relations sont reportées à FM-003
 
 Le document de conception détaillé est :
 
 ```text
 documentation/FAMILY_MEMBER_DESIGN.md
 ```
+
+### Modèle fonctionnel retenu
+
+Le modèle MVP envisagé contient :
+
+```text
+id: Long
+displayName: String
+color: String ou enum à confirmer
+active: boolean
+createdAt: LocalDateTime
+updatedAt: LocalDateTime
+```
+
+`displayName` est obligatoire et représente le nom visible dans le dashboard.
+
+Le modèle ne distingue pas immédiatement prénom et nom de famille.
+
+Le client pourra fournir à la création :
+
+```text
+displayName
+color
+```
+
+L’application gérera :
+
+```text
+id
+active
+createdAt
+updatedAt
+```
+
+Un membre sera actif par défaut.
+
+La désactivation sera préférée à la suppression physique afin de préserver les futures données liées.
+
+Le document détaillé est :
+
+```text
+documentation/FAMILY_MEMBER_MODEL.md
+```
+
+Le type définitif de `color` et les relations avec les autres modules restent à confirmer.
 
 ## 11. Wishlist familiale
 
