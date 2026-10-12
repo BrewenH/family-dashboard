@@ -2993,3 +2993,230 @@ Le prochain ticket sera :
 ```text
 FM-001 - Concevoir le module FamilyMember
 ```
+
+---
+
+## FM-001 - Concevoir le module FamilyMember
+
+### Branche
+
+`feature/design-family-member`
+
+### Objectif
+
+Définir le rôle, les responsabilités, les limites et les principaux cas d’usage du module `FamilyMember`.
+
+### Contexte
+
+Family Dashboard doit pouvoir représenter plusieurs personnes appartenant au même foyer.
+
+Le module `Task` utilise actuellement un champ texte :
+
+```text
+assignedTo
+```
+
+Cette solution convient au premier MVP du module Task, mais elle ne fournit pas une identité stable et réutilisable entre les différents modules.
+
+`FamilyMember` doit devenir progressivement la référence fonctionnelle commune pour représenter une personne du foyer.
+
+### Réalisé
+
+- Création du document `FAMILY_MEMBER_DESIGN.md`.
+- Définition du rôle fonctionnel de `FamilyMember`.
+- Distinction entre membre familial et utilisateur authentifié.
+- Définition des principales responsabilités du module.
+- Identification des cas d’usage principaux.
+- Identification des futures relations avec les autres modules.
+- Définition des limites du premier MVP.
+- Définition des principes de conception.
+- Répartition des décisions restantes entre FM-002 et FM-003.
+- Mise à jour du contexte permanent du projet.
+
+### Rôle retenu
+
+`FamilyMember` représente une personne appartenant au foyer géré par Family Dashboard.
+
+Un membre constitue une identité fonctionnelle stable pouvant être référencée par plusieurs fonctionnalités.
+
+### Distinction avec l’authentification
+
+Un `FamilyMember` n’est pas obligatoirement un utilisateur authentifié.
+
+```text
+FamilyMember
+→ personne représentée dans le dashboard familial
+
+Utilisateur authentifié
+→ personne autorisée à accéder à l’application
+```
+
+Cette distinction doit notamment permettre de représenter :
+
+- un enfant sans compte de connexion ;
+- une personne utilisant uniquement l’écran familial ;
+- le propriétaire d’une wishlist ;
+- une personne assignée à une tâche ;
+- un membre concerné par un événement ou une notification.
+
+### Responsabilités fonctionnelles retenues
+
+Le module devra permettre progressivement de :
+
+- créer un membre familial ;
+- consulter la liste des membres ;
+- consulter un membre par identifiant ;
+- modifier les informations autorisées ;
+- gérer l’activation ou la disponibilité d’un membre ;
+- fournir une identité stable aux autres modules ;
+- contrôler les données exposées par l’API ;
+- préserver la cohérence des données liées au membre.
+
+### Cas d’usage principaux
+
+```text
+Ajouter un membre
+Consulter les membres
+Consulter un membre par identifiant
+Modifier un membre
+Désactiver un membre
+Référencer un membre depuis un autre module
+```
+
+### Relations fonctionnelles futures
+
+#### Task
+
+Une tâche pourra être assignée à un `FamilyMember`.
+
+Le champ actuel :
+
+```text
+assignedTo
+```
+
+sera remplacé progressivement par une relation structurée.
+
+Cette migration ne fait pas partie du premier ticket d’implémentation de `FamilyMember`.
+
+#### Wishlist
+
+Chaque membre pourra posséder une wishlist.
+
+Le module `FamilyMember` doit donc être disponible avant le développement du MVP Wishlist.
+
+#### FamilyEvent
+
+Un événement pourra éventuellement concerner un ou plusieurs membres.
+
+La forme technique de cette relation reste à définir.
+
+#### Notifications
+
+Les destinataires et leurs préférences pourront être associés à un membre.
+
+#### Dashboard
+
+Les données du dashboard pourront être regroupées ou filtrées par membre.
+
+### Limites retenues pour le MVP
+
+Le premier MVP ne doit pas inclure immédiatement :
+
+- l’authentification ;
+- les mots de passe ;
+- les rôles de sécurité ;
+- les autorisations individuelles ;
+- un profil utilisateur complexe ;
+- une photo stockée en base ;
+- des préférences avancées ;
+- une suppression en cascade ;
+- la migration immédiate du champ `Task.assignedTo`.
+
+### Principes de conception retenus
+
+- Chaque membre devra posséder un identifiant technique stable.
+- Un membre ne sera pas automatiquement lié à un compte de connexion.
+- Le module devra être indépendant des mécanismes d’authentification.
+- L’entité JPA ne devra pas être exposée directement par l’API.
+- Des DTO de requête et de réponse devront être prévus.
+- Un mapper devra centraliser les conversions.
+- Les données obligatoires devront être validées.
+- Les erreurs devront utiliser `ApiErrorResponse`.
+- La stratégie de suppression devra protéger les données liées.
+- Une stratégie de désactivation devra être étudiée.
+- Le développement devra être protégé par des tests automatisés.
+
+### Décisions reportées à FM-002
+
+FM-002 devra définir précisément :
+
+- les propriétés du modèle ;
+- les types Java ;
+- les champs obligatoires ;
+- les contraintes de validation ;
+- les longueurs maximales ;
+- le nom d’affichage ;
+- la stratégie d’activation ;
+- les éventuelles informations visuelles ;
+- les champs d’audit ;
+- les données exposées par l’API.
+
+### Décisions reportées à FM-003
+
+FM-003 devra définir précisément :
+
+- la relation avec `Task` ;
+- la relation avec `Wishlist` ;
+- les relations éventuelles avec `FamilyEvent` ;
+- la stratégie de migration de `assignedTo` ;
+- la conservation des données liées ;
+- le comportement lors de la désactivation d’un membre ;
+- les règles de suppression.
+
+### Tests
+
+Aucun test Java n’a été ajouté dans FM-001.
+
+Ce ticket est uniquement documentaire et architectural.
+
+Les documents Markdown ont été relus afin de vérifier :
+
+- la cohérence du rôle du module ;
+- la distinction entre membre et utilisateur ;
+- la séparation entre FM-001, FM-002 et FM-003 ;
+- la place de `FamilyMember` avant la Wishlist ;
+- le caractère progressif de la migration de `Task.assignedTo`.
+
+### Décisions techniques
+
+- Aucun code Java n’est ajouté dans FM-001.
+- Aucune entité JPA n’est créée.
+- Aucune relation JPA n’est créée.
+- Aucun repository n’est créé.
+- Aucun service n’est créé.
+- Aucun controller n’est créé.
+- Aucun DTO n’est créé.
+- Aucune migration de données n’est effectuée.
+- Le document de conception devient la référence pour les tickets suivants.
+
+### Fichiers modifiés
+
+- `documentation/FAMILY_MEMBER_DESIGN.md`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Design FamilyMember module`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FM-001.
+
+Le ticket suivant sera :
+
+```text
+FM-002 - Définir le modèle FamilyMember
+```
