@@ -511,6 +511,34 @@ Les tests du `TaskService` couvrent notamment :
 - Le champ `assignedTo` reste temporairement un texte simple.
 - Le warning Mockito lié à l’auto-attachement reste identifié comme non bloquant.
 
+## Module FamilyMember
+
+`FamilyMember` représentera une personne appartenant au foyer géré par Family Dashboard.
+
+Un membre familial n’est pas obligatoirement un utilisateur authentifié.
+
+Cette séparation permet de représenter des personnes sans compte de connexion, notamment des enfants ou des membres utilisant uniquement le dashboard familial.
+
+Règles de conception retenues :
+
+- un membre possède une identité technique stable ;
+- le module sert de référence aux autres fonctionnalités ;
+- le module doit exister avant la Wishlist ;
+- la relation avec `Task` sera introduite progressivement ;
+- le champ texte `assignedTo` n’est pas supprimé pendant le premier MVP ;
+- l’entité JPA ne devra pas être exposée directement par l’API ;
+- les erreurs utiliseront `ApiErrorResponse` ;
+- la suppression physique n’est pas choisie automatiquement ;
+- une stratégie de désactivation devra être étudiée ;
+- les propriétés exactes seront définies dans FM-002 ;
+- les relations techniques seront définies dans FM-003.
+
+Le document de conception détaillé est :
+
+```text
+documentation/FAMILY_MEMBER_DESIGN.md
+```
+
 ## 11. Wishlist familiale
 
 Une fonctionnalité Wishlist familiale a été ajoutée à la roadmap.

@@ -248,7 +248,7 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 
 ### Conception
 
-- [ ] FM-001 - Concevoir le module FamilyMember
+- [x] FM-001 - Concevoir le module FamilyMember
 - [ ] FM-002 - Définir le modèle FamilyMember
 - [ ] FM-003 - Définir les relations avec les futurs modules
 
@@ -554,48 +554,36 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FD-037
+Dernier ticket terminé : FM-001
 Ticket en cours : aucun
-Prochain ticket : FM-001
-Branche de référence : feature/common-error-response
+Prochain ticket : FM-002
+Branche de référence : feature/design-family-member
 Documentation : à jour
 ```
 
 ## Ticket suivant recommandé
 
 ```text
-FM-001 - Concevoir le module FamilyMember
+FM-002 - Définir le modèle FamilyMember
 ```
+
+Ce ticket devra poursuivre la conception avant l’implémentation Java.
 
 Premier objectif envisagé :
 
 ```text
-Définir le rôle, les responsabilités, les propriétés et les relations du futur modèle FamilyMember.
+Définir précisément les propriétés, les types Java, les contraintes et les données publiques du modèle FamilyMember.
 ```
 
-Ce ticket commencera après la finalisation de la gestion commune des erreurs du module Task.
-
-## Ticket suivant recommandé
+Questions principales :
 
 ```text
-FM-001 - Concevoir le module FamilyMember
-```
-
-Ce ticket devra respecter le workflow documentaire du projet.
-
-Premier objectif envisagé :
-
-```text
-Définir le rôle, les responsabilités, les propriétés et les relations du futur modèle FamilyMember.
-```
-
-Premières questions de conception :
-
-```text
-- Quelles informations représentent un membre familial ?
+- Quel nom fonctionnel stocker ?
+- Faut-il distinguer prénom, nom et nom d’affichage ?
 - Quels champs sont obligatoires ?
-- Comment identifier un membre ?
-- Quelle relation prévoir avec Task ?
-- Quelle relation prévoir avec Wishlist ?
-- Quelles données doivent être exposées par l’API ?
+- Comment représenter l’activation d’un membre ?
+- Faut-il prévoir une couleur ou un avatar ?
+- Quels champs d’audit conserver ?
+- Quelles données exposer dans FamilyMemberResponse ?
+- Quelles données accepter dans FamilyMemberRequest ?
 ```
