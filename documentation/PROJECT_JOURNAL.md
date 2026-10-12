@@ -3223,6 +3223,92 @@ FM-002 - Définir le modèle FamilyMember
 
 ---
 
+## Ticket en cours : FM-003 - Définir les relations avec les futurs modules
+
+### Branche
+
+`feature/design-family-member-relations`
+
+### Objectif
+
+Définir les relations fonctionnelles et techniques futures entre `FamilyMember` et les autres modules de Family Dashboard.
+
+### Contexte
+
+FM-001 a défini le rôle de `FamilyMember`.
+
+FM-002 a défini son modèle fonctionnel MVP :
+
+```text
+id
+displayName
+color
+active
+createdAt
+updatedAt
+```
+
+FM-003 doit maintenant préciser comment cette identité stable pourra être référencée par les autres fonctionnalités.
+
+### Modules concernés
+
+```text
+Task
+Wishlist
+FamilyEvent
+Notifications
+Dashboard
+```
+
+### Principes initiaux
+
+- Les relations doivent être ajoutées progressivement.
+- `FamilyMember` ne doit pas devenir un objet chargé de toutes les données du projet.
+- Les relations JPA bidirectionnelles doivent être évitées lorsqu’elles ne sont pas nécessaires.
+- Les collections importantes doivent être chargées explicitement.
+- La désactivation d’un membre ne doit pas supprimer ses données historiques.
+- La suppression en cascade n’est pas retenue par défaut.
+- Le champ `Task.assignedTo` doit être migré progressivement.
+
+### Progression prévue
+
+- [~] Définir la relation avec Task
+- [ ] Définir la relation avec Wishlist
+- [ ] Définir la relation avec FamilyEvent
+- [ ] Définir la relation avec Notifications
+- [ ] Définir l’usage dans le Dashboard
+- [ ] Définir les règles de désactivation
+- [ ] Définir les règles de suppression
+- [ ] Définir la stratégie de migration de assignedTo
+- [ ] Préparer FM-004
+
+### Hors périmètre
+
+- Aucune annotation JPA.
+- Aucune modification de l’entité Task.
+- Aucune suppression du champ assignedTo.
+- Aucune entité Wishlist.
+- Aucune entité FamilyEvent.
+- Aucune migration de données.
+- Aucun endpoint HTTP.
+- Aucun test Java.
+
+### Fichiers concernés
+
+- `documentation/FAMILY_MEMBER_RELATIONS.md`
+- `documentation/FAMILY_MEMBER_DESIGN.md`
+- `documentation/FAMILY_MEMBER_MODEL.md`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Prochaine action exacte
+
+Créer `FAMILY_MEMBER_RELATIONS.md` et formaliser les cardinalités, les directions des relations et les règles de conservation des données.
+``
+
+---
+
 ## FM-002 - Définir le modèle FamilyMember
 
 ### Branche
@@ -3635,4 +3721,443 @@ Le ticket suivant sera :
 
 ```text
 FM-003 - Définir les relations avec les futurs modules
+```
+
+---
+
+## FM-003 - Définir les relations avec les futurs modules
+
+### Branche
+
+`feature/design-family-member-relations`
+
+### Objectif
+
+Définir les relations fonctionnelles et techniques futures entre `FamilyMember` et les autres modules de Family Dashboard.
+
+### Contexte
+
+FM-001 a défini le rôle fonctionnel de `FamilyMember`.
+
+FM-002 a défini son modèle MVP :
+
+```text
+id
+displayName
+color
+active
+createdAt
+updatedAt
+```
+
+FM-003 précise les futures relations sans créer encore d’annotation JPA ni modifier les modules existants.
+
+### Réalisé
+
+- Création de `FAMILY_MEMBER_RELATIONS.md`.
+- Définition de la relation future avec `Task`.
+- Définition de la relation future avec `Wishlist`.
+- Identification de la relation potentielle avec `FamilyEvent`.
+- Définition du rôle de `FamilyMember` dans les notifications.
+- Définition de son utilisation par le Dashboard.
+- Définition des règles de désactivation.
+- Définition des règles de suppression physique.
+- Définition des principes de chargement JPA.
+- Définition de la stratégie progressive de migration de `Task.assignedTo`.
+- Mise à jour des documents de conception existants.
+- Mise à jour du contexte permanent du projet.
+
+### Principes généraux retenus
+
+- Les relations seront ajoutées progressivement.
+- `FamilyMember` sera d’abord créé sans relation.
+- Les relations unidirectionnelles seront privilégiées.
+- Les collections importantes seront récupérées avec des requêtes explicites.
+- Les relations JPA ne seront pas exposées directement par l’API.
+- Les DTO contrôleront les informations publiquement exposées.
+- La désactivation ne supprimera aucune donnée historique.
+- La suppression en cascade générale est interdite.
+- Les relations seront chargées paresseusement lorsque cela est pertinent.
+
+### Relation avec Task
+
+#### Besoin fonctionnel
+
+Une tâche pourra être assignée à un membre du foyer.
+
+L’assignation restera facultative afin d’autoriser les tâches non attribuées.
+
+#### Cardinalité retenue
+
+```text
+Un FamilyMember
+→ peut être assigné à zéro, une ou plusieurs tâches
+
+Une Task
+→ peut être assignée à zéro ou un FamilyMember
+```
+
+Notation :
+
+```text
+FamilyMember 1
+←
+Task 0..*
+```
+
+#### Direction retenue
+
+La relation sera initialement portée uniquement par `Task`.
+
+```text
+Task
+→ assignedMember: FamilyMember
+```
+
+`FamilyMember` ne contiendra pas de collection :
+
+```java
+List<Task> tasks;
+```
+
+Les tâches associées à un membre seront récupérées par une requête dédiée.
+
+#### Relation JPA envisagée
+
+```text
+Task
+→ ManyToOne
+→ FamilyMember
+```
+
+La relation sera facultative pendant la migration.
+
+Le chargement paresseux est privilégié :
+
+```text
+FetchType.LAZY
+```
+
+Aucune annotation JPA n’est ajoutée dans FM-003.
+
+### Migration de Task.assignedTo
+
+Le champ actuel :
+
+```java
+private String assignedTo;
+```
+
+sera conservé temporairement.
+
+La migration envisagée suivra les étapes suivantes :
+
+```text
+1. Ajouter assignedMember sans supprimer assignedTo.
+2. Adapter les DTO et le mapper.
+3. Utiliser assignedMember pour les nouvelles données.
+4. Migrer les anciennes valeurs texte lorsque cela est possible.
+5. Identifier les valeurs historiques non associables.
+6. Vérifier les données migrées.
+7. Supprimer assignedTo dans un ticket dédié.
+```
+
+Les anciennes valeurs non associables ne devront pas être supprimées silencieusement.
+
+Exemples possibles :
+
+```text
+Tout le monde
+Invité
+Ancienne orthographe d’un prénom
+Valeur libre ne correspondant à aucun membre
+```
+
+### Relation avec Wishlist
+
+#### Cardinalité retenue pour le MVP
+
+```text
+Un FamilyMember
+→ possède zéro ou une Wishlist
+
+Une Wishlist
+→ appartient exactement à un FamilyMember
+```
+
+Notation :
+
+```text
+FamilyMember 1
+↔
+Wishlist 0..1
+```
+
+#### Direction retenue
+
+La référence sera portée par `Wishlist`.
+
+```text
+Wishlist
+→ owner: FamilyMember
+```
+
+`FamilyMember` ne devra pas dépendre de l’implémentation interne de la wishlist.
+
+La décision technique entre une relation `OneToOne` et une relation avec contrainte unique sera confirmée pendant la conception du module Wishlist.
+
+### Relation avec FamilyEvent
+
+Un événement pourra concerner :
+
+```text
+aucun membre particulier
+un membre
+plusieurs membres
+tous les membres
+```
+
+Cardinalité fonctionnelle envisagée :
+
+```text
+FamilyEvent *
+↔
+FamilyMember *
+```
+
+La structure technique reste volontairement ouverte.
+
+Une entité d’association sera privilégiée si la relation contient des données métier telles que :
+
+```text
+rôle du participant
+organisateur
+invitation
+statut de participation
+présence obligatoire ou facultative
+```
+
+Aucune relation `ManyToMany` directe n’est décidée dans FM-003.
+
+### Relation avec les notifications
+
+Les préférences de notification seront portées par un module distinct.
+
+Conceptuellement :
+
+```text
+NotificationPreference
+→ FamilyMember
+```
+
+`FamilyMember` restera la référence fonctionnelle du destinataire, mais ne contiendra pas la logique d’envoi.
+
+Un membre pourra exister sans :
+
+```text
+compte authentifié
+adresse email
+appareil personnel
+canal de notification
+```
+
+### Utilisation dans le Dashboard
+
+Le Dashboard pourra utiliser `FamilyMember` pour :
+
+- regrouper les tâches ;
+- filtrer les tâches ;
+- afficher la couleur d’un membre ;
+- afficher les wishlists ;
+- identifier les événements liés à un membre.
+
+Le Dashboard ne possédera aucune relation JPA directe avec `FamilyMember`.
+
+Il composera les données provenant des services applicatifs.
+
+### Désactivation d’un membre
+
+Un membre désactivé :
+
+- n’apparaît plus par défaut dans les nouvelles sélections ;
+- ne peut plus recevoir de nouvelle tâche ;
+- conserve ses tâches historiques ;
+- conserve sa wishlist ;
+- conserve ses participations aux événements ;
+- reste consultable dans les historiques ;
+- peut être réactivé avec le même identifiant.
+
+La désactivation ne modifie pas les anciennes relations.
+
+### Suppression d’un membre
+
+La désactivation est l’opération normale.
+
+La suppression physique sera réservée aux situations contrôlées.
+
+Elle ne pourra être autorisée que si aucune donnée importante ne référence encore le membre.
+
+Aucune suppression en cascade générale ne devra partir de `FamilyMember`.
+
+La suppression d’un membre ne devra jamais supprimer automatiquement :
+
+```text
+les tâches
+les souhaits
+les événements
+les historiques
+```
+
+### Contraintes référentielles envisagées
+
+```text
+Task.assignedMember
+→ facultatif pendant la migration
+
+Wishlist.owner
+→ obligatoire
+
+Références historiques
+→ conservées après désactivation
+
+Suppression physique d’un membre référencé
+→ refusée
+```
+
+Les contraintes exactes seront ajoutées lors de l’implémentation des relations concernées.
+
+### Stratégie de chargement
+
+- Les relations vers `FamilyMember` utiliseront un chargement paresseux lorsque cela est pertinent.
+- Aucune collection de tâches, wishlists ou événements ne sera ajoutée dans l’entité initiale.
+- Les données liées seront récupérées par des requêtes explicites.
+- Les DTO décideront quelles informations du membre sont exposées.
+
+Un futur `TaskResponse` pourra éventuellement exposer un résumé du membre :
+
+```text
+assignedMemberId
+assignedMemberDisplayName
+assignedMemberColor
+```
+
+Cette structure sera définie pendant l’évolution du module Task.
+
+### Résumé des cardinalités
+
+#### Task
+
+```text
+FamilyMember 1
+←
+Task 0..*
+```
+
+Une tâche possède zéro ou un membre assigné.
+
+#### Wishlist
+
+```text
+FamilyMember 1
+↔
+Wishlist 0..1
+```
+
+Une wishlist appartient exactement à un membre.
+
+#### FamilyEvent
+
+```text
+FamilyMember *
+↔
+FamilyEvent *
+```
+
+La structure technique reste à définir.
+
+#### Notifications
+
+```text
+FamilyMember 1
+←
+NotificationPreference 0..*
+```
+
+Relation future portée par le module de notifications.
+
+#### Dashboard
+
+```text
+Aucune relation JPA directe
+```
+
+### Ordre d’implémentation retenu
+
+```text
+1. Créer FamilyMember sans relation.
+2. Créer FamilyMemberRepository.
+3. Créer FamilyMemberService.
+4. Créer les DTO et le mapper.
+5. Créer FamilyMemberController.
+6. Ajouter les opérations du MVP.
+7. Ajouter les validations et les erreurs.
+8. Ajouter les tests automatisés.
+9. Concevoir précisément la migration de Task.assignedTo.
+10. Ajouter la relation Task vers FamilyMember.
+11. Migrer les données existantes.
+12. Supprimer assignedTo dans un ticket dédié.
+13. Développer le module Wishlist.
+```
+
+### Tests
+
+Aucun test Java n’a été ajouté dans FM-003.
+
+Ce ticket est uniquement documentaire et architectural.
+
+Les documents ont été relus afin de vérifier :
+
+- les cardinalités ;
+- la direction des relations ;
+- l’absence de collection dans `FamilyMember` ;
+- la conservation des historiques ;
+- l’absence de suppression en cascade ;
+- la migration progressive de `assignedTo` ;
+- la séparation entre les responsabilités des modules.
+
+### Décisions techniques
+
+- `FamilyMember` sera créé sans relation dans FM-004.
+- Les relations seront ajoutées dans des tickets dédiés.
+- Les relations unidirectionnelles sont privilégiées.
+- `FamilyMember` ne contiendra pas de collection de tâches.
+- `Task` portera la future référence vers le membre assigné.
+- `Wishlist` portera la référence vers son propriétaire.
+- La relation avec `FamilyEvent` nécessite une conception dédiée.
+- Les préférences de notification appartiendront à un module distinct.
+- Le Dashboard composera les données sans relation JPA.
+- Les suppressions en cascade générales sont interdites.
+- La désactivation est préférée à la suppression physique.
+
+### Fichiers modifiés
+
+- `documentation/FAMILY_MEMBER_RELATIONS.md`
+- `documentation/FAMILY_MEMBER_DESIGN.md`
+- `documentation/FAMILY_MEMBER_MODEL.md`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Define FamilyMember relations`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FM-003.
+
+Le ticket suivant sera :
+
+```text
+FM-004 - Créer l’entité FamilyMember
 ```

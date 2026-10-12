@@ -470,3 +470,30 @@ Le contrat public doit rester contrôlé par `FamilyMemberResponse`.
 - Comment empêcher la suppression de données encore référencées ?
 - Quelle stratégie de chargement JPA utiliser ?
 - Quelles relations doivent être unidirectionnelles ?
+
+---
+
+## 14. Relations définies dans FM-003
+
+Les relations ne font pas partie des propriétés propres du modèle MVP initial.
+
+`FamilyMember` sera créé sans collection de tâches, de wishlists ou d’événements.
+
+Les références seront portées par les modules concernés :
+
+```text
+Task
+→ assignedMember
+
+Wishlist
+→ owner
+
+NotificationPreference
+→ member
+```
+
+Le document détaillé des relations est :
+
+```text
+documentation/FAMILY_MEMBER_RELATIONS.md
+```

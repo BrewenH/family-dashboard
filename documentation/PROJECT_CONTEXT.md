@@ -591,6 +591,81 @@ documentation/FAMILY_MEMBER_MODEL.md
 
 Le type définitif de `color` et les relations avec les autres modules restent à confirmer.
 
+### Relations futures
+
+#### Task
+
+Une tâche pourra être assignée à zéro ou un `FamilyMember`.
+
+La relation sera initialement portée par `Task` et restera facultative pendant la migration.
+
+```text
+Task
+→ assignedMember: FamilyMember
+```
+
+La relation envisagée est un `ManyToOne` unidirectionnel avec chargement paresseux.
+
+`FamilyMember` ne contiendra pas de collection de tâches.
+
+Le champ texte `assignedTo` sera conservé pendant une migration progressive.
+
+#### Wishlist
+
+Une wishlist appartiendra à un membre.
+
+Dans le MVP :
+
+```text
+Un FamilyMember
+→ zéro ou une Wishlist
+
+Une Wishlist
+→ exactement un FamilyMember
+```
+
+La référence sera portée par `Wishlist`.
+
+#### FamilyEvent
+
+Un événement pourra concerner plusieurs membres.
+
+La structure technique exacte sera définie pendant la conception de `FamilyEvent`.
+
+Une entité d’association sera privilégiée si la relation possède des propriétés métier.
+
+#### Notifications
+
+Les préférences de notification seront portées par un module dédié et pourront référencer un membre.
+
+Un membre n’est pas obligatoirement associé à un compte ou à un canal de notification.
+
+#### Dashboard
+
+Le Dashboard ne possédera pas de relation JPA directe avec `FamilyMember`.
+
+Il composera les informations fournies par les différents services.
+
+### Désactivation et suppression
+
+Un membre désactivé :
+
+- ne doit plus être proposé pour de nouvelles assignations ;
+- conserve ses tâches historiques ;
+- conserve sa wishlist ;
+- conserve ses relations historiques ;
+- peut être réactivé avec le même identifiant.
+
+La désactivation est préférée à la suppression physique.
+
+Aucune suppression en cascade générale ne doit partir de `FamilyMember`.
+
+Le document détaillé est :
+
+```text
+documentation/FAMILY_MEMBER_RELATIONS.md
+```
+
 ## 11. Wishlist familiale
 
 Une fonctionnalité Wishlist familiale a été ajoutée à la roadmap.
