@@ -1017,19 +1017,141 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 
 ---
 
-## Déploiement Raspberry Pi
+## Architecture hardware et déploiement Raspberry Pi
 
-- [ ] Choisir l’architecture de déploiement
-- [ ] Préparer le Raspberry Pi
-- [ ] Configurer le réseau familial
-- [ ] Déployer le backend
-- [ ] Déployer le frontend
-- [ ] Configurer le démarrage automatique
-- [ ] Configurer le navigateur en mode kiosque
+### Conception hardware
+
+- [ ] HW-001 - Définir les besoins matériels
+- [ ] HW-002 - Choisir le Raspberry Pi et la mémoire
+- [ ] HW-003 - Choisir l’écran et le mode d’interaction
+- [ ] HW-004 - Définir le stockage et les sauvegardes
+- [ ] HW-005 - Définir l’architecture logicielle de déploiement
+- [ ] HW-006 - Définir le réseau et l’accès distant
+- [ ] HW-007 - Définir l’alimentation, le boîtier et le refroidissement
+- [ ] HW-008 - Finaliser l’architecture hardware cible
+
+### Préparation du matériel
+
+- [ ] Acheter ou préparer le Raspberry Pi retenu
+- [ ] Préparer le SSD
+- [ ] Installer Raspberry Pi OS 64 bits
+- [ ] Configurer le démarrage sur SSD
+- [ ] Installer le refroidissement
+- [ ] Installer le Raspberry Pi dans son boîtier
+- [ ] Vérifier la stabilité de l’alimentation
+- [ ] Configurer la date, l’heure et le fuseau système
+
+### Réseau
+
+- [ ] Configurer Ethernet
+- [ ] Configurer le Wi-Fi de secours
+- [ ] Définir un nom d’hôte local
+- [ ] Configurer une réservation DHCP
+- [ ] Vérifier l’accès depuis le réseau familial
+- [ ] Configurer l’accès SSH par clés
+- [ ] Étudier WireGuard ou Tailscale pour la maintenance distante
+- [ ] Vérifier qu’aucun port applicatif n’est exposé directement sur Internet
+
+### Déploiement logiciel
+
+- [ ] Installer Java 21 pour ARM64
+- [ ] Choisir entre systemd et Docker
+- [ ] Choisir la base de données de production
+- [ ] Configurer la base de données
+- [ ] Déployer le backend Spring Boot
+- [ ] Déployer le frontend Angular
+- [ ] Choisir entre Spring Boot et Nginx pour servir Angular
+- [ ] Configurer les variables d’environnement
+- [ ] Configurer le démarrage automatique des services
+- [ ] Configurer les politiques de redémarrage
+
+### Affichage en mode kiosque
+
+- [ ] Installer Chromium
+- [ ] Configurer Chromium en mode kiosque
+- [ ] Configurer l’ouverture automatique de session
+- [ ] Ouvrir automatiquement le dashboard
+- [ ] Masquer les éléments du navigateur
+- [ ] Configurer le rechargement après une erreur
 - [ ] Configurer l’écran HDMI
-- [ ] Ajouter les logs
-- [ ] Prévoir les sauvegardes
-- [ ] Documenter la maintenance
+- [ ] Confirmer l’orientation paysage ou portrait
+- [ ] Désactiver la mise en veille non souhaitée
+- [ ] Adapter la luminosité à l’usage domestique
+
+### Écran et interaction
+
+- [ ] Choisir la taille de l’écran
+- [ ] Confirmer la résolution cible
+- [ ] Décider si l’écran doit être tactile
+- [ ] Définir la distance de lecture
+- [ ] Définir la hauteur et l’emplacement d’installation
+- [ ] Vérifier les contraintes d’accessibilité
+- [ ] Fournir les contraintes hardware au frontend Angular
+
+### Logs et supervision
+
+- [ ] Configurer les logs du backend
+- [ ] Configurer la rotation des logs
+- [ ] Superviser `GET /api/health`
+- [ ] Journaliser les démarrages
+- [ ] Journaliser les échecs de sauvegarde
+- [ ] Prévoir une alerte locale en cas de service indisponible
+- [ ] Vérifier l’espace disque disponible
+
+### Sauvegardes
+
+- [ ] Choisir la cible de sauvegarde
+- [ ] Configurer une sauvegarde quotidienne
+- [ ] Conserver plusieurs versions
+- [ ] Sauvegarder la base de données
+- [ ] Sauvegarder la configuration
+- [ ] Sauvegarder les éventuels médias futurs
+- [ ] Chiffrer les sauvegardes distantes
+- [ ] Tester la restauration
+- [ ] Documenter la procédure de restauration
+
+### Alimentation et disponibilité
+
+- [ ] Choisir une alimentation adaptée
+- [ ] Étudier un mini-onduleur ou un UPS HAT
+- [ ] Configurer un arrêt propre
+- [ ] Tester une coupure électrique
+- [ ] Tester le redémarrage automatique
+- [ ] Vérifier le redémarrage de tous les services
+- [ ] Vérifier le retour automatique au mode kiosque
+
+### Maintenance
+
+- [ ] Documenter la connexion SSH
+- [ ] Documenter les mises à jour du système
+- [ ] Documenter le déploiement d’une nouvelle version
+- [ ] Sauvegarder avant chaque mise à jour
+- [ ] Prévoir une procédure de retour arrière
+- [ ] Vérifier l’état de santé après une mise à jour
+- [ ] Documenter le remplacement du Raspberry Pi
+- [ ] Documenter le remplacement du SSD
+
+### Cible de référence provisoire
+
+```text
+Raspberry Pi 5
+8 Go de RAM recommandés
+SSD USB 3 de 128 Go recommandé
+Raspberry Pi OS 64 bits
+Java 21
+Spring Boot
+Angular
+PostgreSQL local à confirmer
+Écran HDMI Full HD
+Orientation paysage
+Chromium en mode kiosque
+Ethernet prioritaire
+Wi-Fi secondaire
+Refroidissement actif
+Sauvegarde quotidienne sur support distinct
+```
+
+Cette cible doit être validée progressivement par les tickets HW-001 à HW-008.
 
 ---
 
@@ -1053,17 +1175,32 @@ Le MVP doit rester simple et permettre de gérer des idées de cadeaux en texte 
 Ordre immédiat :
 
 ```text
-1. Créer TaskNotFoundException.
-2. Centraliser les erreurs de tâche inexistante.
-3. Gérer les statuts invalides dans les paramètres.
-4. Gérer les corps JSON mal formés.
-5. Ajouter un format commun pour les réponses d’erreur.
-6. Concevoir FamilyMember.
-7. Développer le backend MVP de FamilyMember.
-8. Relier progressivement Task à FamilyMember.
-9. Concevoir et développer le MVP Wishlist.
-10. Reprendre FamilyEvent et le Dashboard global.
-11. Créer le frontend Angular.
+1. Poursuivre le backend FamilyMember.
+2. Développer le backend MVP de FamilyMember.
+3. Relier progressivement Task à FamilyMember.
+4. Traiter HW-001 à HW-003 avant de figer le frontend.
+5. Concevoir le MVP Wishlist.
+6. Développer le backend MVP de la Wishlist.
+7. Reprendre FamilyEvent et le Dashboard global.
+8. Concevoir le frontend Angular selon les contraintes de l’écran.
+9. Traiter HW-004 à HW-008.
+10. Préparer et tester le déploiement Raspberry Pi.
+```
+
+Séquence hardware :
+
+```text
+Avant le layout Angular définitif
+→ HW-001
+→ HW-002
+→ HW-003
+
+Avant le déploiement réel
+→ HW-004
+→ HW-005
+→ HW-006
+→ HW-007
+→ HW-008
 ```
 
 ---

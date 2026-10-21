@@ -4520,3 +4520,99 @@ Le ticket suivant sera :
 ```text
 FM-005 - Créer FamilyMemberRepository
 ```
+
+---
+
+## Mise à jour documentaire - Intégrer l’architecture hardware
+
+### Branche
+
+`docs/add-hardware-architecture`
+
+### Objectif
+
+Intégrer officiellement la cible hardware et la stratégie de déploiement Raspberry Pi dans la documentation et la feuille de route.
+
+### Contexte
+
+Le Raspberry Pi, l’écran HDMI et le mode kiosque étaient déjà présents dans les idées de déploiement.
+
+Aucune conception détaillée ne précisait cependant :
+
+- le modèle de Raspberry Pi ;
+- la mémoire ;
+- le stockage ;
+- l’écran ;
+- le réseau ;
+- la base de données ;
+- le mode de déploiement ;
+- les sauvegardes ;
+- l’alimentation ;
+- le refroidissement ;
+- la maintenance.
+
+### Réalisé
+
+- Création de `HARDWARE_ARCHITECTURE.md`.
+- Création des tickets HW-001 à HW-008.
+- Définition d’une cible matérielle provisoire.
+- Définition de l’architecture logicielle envisagée.
+- Définition des contraintes de stockage.
+- Définition des principes réseau.
+- Définition du mode kiosque.
+- Définition des principes de sauvegarde.
+- Définition des besoins d’alimentation et de refroidissement.
+- Définition des règles de maintenance.
+- Intégration des contraintes hardware dans la future conception Angular.
+- Mise à jour de `PROJECT_CONTEXT.md`.
+- Mise à jour de `BACKLOG.md`.
+
+### Cible provisoire documentée
+
+```text
+Raspberry Pi 5
+8 Go de RAM recommandés
+SSD USB 3 de 128 Go recommandé
+Raspberry Pi OS 64 bits
+Java 21
+Spring Boot
+Angular
+PostgreSQL local à confirmer
+Écran HDMI Full HD
+Orientation paysage
+Chromium en mode kiosque
+Ethernet prioritaire
+Wi-Fi secondaire
+Refroidissement actif
+Sauvegarde quotidienne sur support distinct
+```
+
+### Décision de planification
+
+Le développement backend se poursuit normalement.
+
+```text
+Prochain ticket backend
+→ FM-005 - Créer FamilyMemberRepository
+```
+
+Les tickets hardware sont placés ainsi :
+
+```text
+Avant de figer le frontend Angular
+→ HW-001 à HW-003
+
+Avant le déploiement réel
+→ HW-004 à HW-008
+```
+
+### Fichiers modifiés
+
+- `documentation/HARDWARE_ARCHITECTURE.md`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add hardware architecture roadmap`
