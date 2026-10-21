@@ -254,7 +254,7 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 
 ### Backend MVP
 
-- [ ] FM-004 - Créer l’entité FamilyMember
+- [x] FM-004 - Créer l’entité FamilyMember
 - [ ] FM-005 - Créer FamilyMemberRepository
 - [ ] FM-006 - Créer FamilyMemberService
 - [ ] FM-007 - Créer FamilyMemberController
@@ -266,6 +266,47 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 - [ ] FM-013 - Ajouter les tests unitaires
 - [ ] FM-014 - Ajouter les tests du controller
 - [ ] FM-015 - Ajouter les tests d’intégration
+
+### Résultat de FM-004
+
+L’entité `FamilyMember` contient :
+
+```text
+id: Long
+displayName: String
+color: String
+active: boolean
+createdAt: LocalDateTime
+updatedAt: LocalDateTime
+```
+
+Mapping JPA :
+
+```text
+Table : family_members
+Identifiant : génération IDENTITY
+displayName : obligatoire, 50 caractères maximum
+color : facultative
+active : obligatoire, true par défaut
+createdAt : obligatoire et non modifiable
+updatedAt : obligatoire
+```
+
+Cycle de vie :
+
+```text
+@PrePersist
+→ initialise createdAt et updatedAt avec la même valeur
+
+@PreUpdate
+→ actualise uniquement updatedAt
+```
+
+Relations :
+
+```text
+Aucune relation JPA ajoutée dans FM-004
+```
 
 ---
 
@@ -1030,48 +1071,33 @@ Ordre immédiat :
 ## État actuel du projet
 
 ```text
-Dernier ticket terminé : FM-003
+Dernier ticket terminé : FM-004
 Ticket en cours : aucun
-Prochain ticket : FM-004
-Branche de référence : feature/design-family-member-relations
+Prochain ticket : FM-005
+Branche de référence : feature/family-member-entity
 Documentation : à jour
 ```
 
 ## Ticket suivant recommandé
 
 ```text
-FM-004 - Créer l’entité FamilyMember
+FM-005 - Créer FamilyMemberRepository
 ```
 
-Ce ticket commencera l’implémentation Java du module FamilyMember avec une démarche TDD.
+Ce ticket devra respecter la démarche TDD.
 
 Premier objectif envisagé :
 
 ```text
-Créer l’entité JPA FamilyMember à partir du modèle défini dans FM-002.
+Créer le repository Spring Data JPA permettant de persister et de retrouver les membres familiaux.
 ```
 
-Périmètre initial :
+Premiers comportements à couvrir :
 
 ```text
-- Créer l’entité sans relation avec les autres modules
-- Ajouter id
-- Ajouter displayName
-- Ajouter color
-- Ajouter active
-- Ajouter createdAt
-- Ajouter updatedAt
-- Ajouter les callbacks JPA d’audit
-- Ajouter les tests du modèle
-```
-
-Hors périmètre initial :
-
-```text
-- Aucune relation avec Task
-- Aucune relation avec Wishlist
-- Aucun repository
-- Aucun service
-- Aucun controller
-- Aucune migration de assignedTo
+- Sauvegarder un membre
+- Générer son identifiant
+- Initialiser ses timestamps via Hibernate
+- Retrouver un membre par identifiant
+- Vérifier la valeur active par défaut
 ```

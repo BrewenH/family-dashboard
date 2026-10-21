@@ -4161,3 +4161,362 @@ Le ticket suivant sera :
 ```text
 FM-004 - Créer l’entité FamilyMember
 ```
+
+---
+
+## FM-004 - Créer l’entité FamilyMember
+
+### Branche
+
+`feature/family-member-entity`
+
+### Objectif
+
+Créer l’entité JPA `FamilyMember` à partir du modèle fonctionnel défini dans FM-002.
+
+### Modèle créé
+
+```text
+id: Long
+displayName: String
+color: String
+active: boolean
+createdAt: LocalDateTime
+updatedAt: LocalDateTime
+```
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Progression réalisée
+
+- [x] Vérifier que le membre est actif par défaut
+- [x] Ajouter les propriétés du modèle
+- [x] Ajouter les annotations JPA
+- [x] Ajouter le callback `@PrePersist`
+- [x] Ajouter le callback `@PreUpdate`
+- [x] Tester l’initialisation des timestamps
+- [x] Tester l’actualisation de `updatedAt`
+- [x] Exécuter toute la suite Maven
+
+### Premier cycle TDD : activation par défaut
+
+#### RED
+
+Le test `shouldBeActiveByDefault` ne compilait pas car le type `FamilyMember` n’existait pas.
+
+#### GREEN
+
+Création d’une première version minimale de `FamilyMember` avec :
+
+```java
+private boolean active = true;
+```
+
+#### Résultat
+
+Un nouveau membre est immédiatement actif :
+
+```text
+new FamilyMember()
+→ active = true
+```
+
+Cette valeur par défaut appartient directement au modèle.
+
+### Deuxième cycle TDD : propriétés du modèle
+
+#### RED
+
+Le test `shouldExposeFamilyMemberData` imposait les propriétés suivantes :
+
+```text
+id
+displayName
+color
+active
+createdAt
+updatedAt
+```
+
+Les champs et les accesseurs n’existaient pas encore.
+
+#### GREEN
+
+Ajout des propriétés :
+
+```text
+Long id
+String displayName
+String color
+boolean active
+LocalDateTime createdAt
+LocalDateTime updatedAt
+```
+
+Ajout des accesseurs nécessaires.
+
+#### Résultat
+
+Les propriétés peuvent être renseignées et consultées.
+
+La valeur par défaut de `active` reste `true`.
+
+### Troisième cycle TDD : mapping JPA
+
+#### RED
+
+Le test `shouldDefineJpaMapping` compilait, mais échouait car aucune annotation JPA n’était présente.
+
+#### GREEN
+
+Ajout des annotations :
+
+```text
+@Entity
+@Table
+@Id
+@GeneratedValue
+@Column
+```
+
+#### Table créée
+
+```text
+family_members
+```
+
+#### Mapping défini
+
+```text
+id
+→ clé primaire
+→ génération IDENTITY
+
+displayName
+→ colonne display_name
+→ obligatoire
+→ longueur maximale de 50 caractères
+
+color
+→ colonne color
+→ facultative
+
+active
+→ colonne active
+→ obligatoire
+→ valeur true par défaut
+
+createdAt
+→ colonne created_at
+→ obligatoire
+→ non modifiable après création
+
+updatedAt
+→ colonne updated_at
+→ obligatoire
+```
+
+Un constructeur public sans argument est présent pour JPA.
+
+### Quatrième cycle TDD : callback PrePersist
+
+#### RED
+
+Le test `shouldInitializeTimestampsBeforePersisting` ne compilait pas car la méthode `initializeTimestamps()` n’existait pas.
+
+#### GREEN
+
+Ajout du callback :
+
+```java
+@PrePersist
+void initializeTimestamps()
+```
+
+Le callback utilise une seule valeur temporelle :
+
+```java
+LocalDateTime now = LocalDateTime.now();
+```
+
+puis affecte cette valeur à :
+
+```text
+createdAt
+updatedAt
+```
+
+#### Résultat
+
+Avant le callback :
+
+```text
+createdAt = null
+updatedAt = null
+```
+
+Après le callback :
+
+```text
+createdAt != null
+updatedAt != null
+createdAt = updatedAt
+```
+
+L’utilisation d’une seule valeur garantit l’égalité exacte des deux timestamps.
+
+### Cinquième cycle TDD : callback PreUpdate
+
+#### RED
+
+Le test `shouldUpdateOnlyUpdatedAtBeforeUpdating` ne compilait pas car la méthode `updateTimestamp()` n’existait pas.
+
+#### GREEN
+
+Ajout du callback :
+
+```java
+@PreUpdate
+void updateTimestamp()
+```
+
+Le callback actualise uniquement :
+
+```text
+updatedAt
+```
+
+Il ne modifie pas :
+
+```text
+createdAt
+```
+
+#### Résultat
+
+Après une mise à jour :
+
+```text
+createdAt reste inchangé
+updatedAt est remplacé par une valeur plus récente
+```
+
+Aucun `Thread.sleep()` n’est utilisé.
+
+### Décision concernant color
+
+FM-004 utilise :
+
+```java
+String color
+```
+
+Le choix d’un éventuel enum dédié reste reporté à une évolution ultérieure.
+
+Aucune liste de valeurs n’est imposée dans l’entité pendant ce ticket.
+
+### Tests ajoutés
+
+- `shouldBeActiveByDefault`
+- `shouldExposeFamilyMemberData`
+- `shouldDefineJpaMapping`
+- `shouldInitializeTimestampsBeforePersisting`
+- `shouldUpdateOnlyUpdatedAtBeforeUpdating`
+
+### Tests
+
+- [x] Les cinq tests de `FamilyMemberTest` réussissent.
+- [x] La valeur par défaut de `active` est validée.
+- [x] Les propriétés du modèle sont validées.
+- [x] Le mapping JPA est validé.
+- [x] L’initialisation des timestamps est validée.
+- [x] La mise à jour de `updatedAt` est validée.
+- [x] La conservation de `createdAt` est validée.
+- [x] Aucun délai artificiel n’est utilisé.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucune erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- `FamilyMember` est une entité JPA.
+- La table utilisée est `family_members`.
+- L’identifiant utilise `GenerationType.IDENTITY`.
+- `displayName` est obligatoire et limité à 50 caractères en base.
+- `color` reste facultative et utilise temporairement `String`.
+- `active` vaut `true` par défaut.
+- `createdAt` et `updatedAt` sont gérés par les callbacks JPA.
+- `createdAt` n’est pas modifiable après sa création.
+- Les méthodes de cycle de vie ont une visibilité de package.
+- Les accesseurs sont explicites.
+- Lombok n’est pas utilisé dans l’entité.
+- Aucune relation avec un autre module n’est ajoutée.
+- Les contraintes HTTP seront ajoutées plus tard dans un DTO de requête.
+- Le déclenchement réel des callbacks par Hibernate sera testé après la création du repository.
+
+### Hors périmètre confirmé
+
+- Aucun repository.
+- Aucun service.
+- Aucun controller.
+- Aucun DTO.
+- Aucun mapper.
+- Aucune relation avec `Task`.
+- Aucune relation avec `Wishlist`.
+- Aucune relation avec `FamilyEvent`.
+- Aucune migration de `Task.assignedTo`.
+
+### Corrections qualité Sonar
+
+Les callbacks temporels utilisent désormais explicitement le fuseau UTC :
+
+### Corrections qualité Sonar
+
+Les callbacks temporels utilisent désormais explicitement le fuseau UTC :
+
+```java
+LocalDateTime.now(ZoneOffset.UTC)
+```
+
+Cette décision rend les timestamps indépendants du fuseau horaire de la machine d’exécution.
+
+Le constructeur sans argument de l’entité est désormais `protected` et contient un commentaire expliquant qu’il est requis par JPA.
+
+Le test de mise à jour utilise également UTC afin de comparer des valeurs exprimées dans le même référentiel temporel.
+
+Alertes traitées :
+
+- fuseau horaire explicite dans `@PrePersist` ;
+- fuseau horaire explicite dans `@PreUpdate` ;
+- justification du constructeur JPA volontairement vide ;
+- alignement du test temporel sur UTC.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/familymember/model/FamilyMember.java`
+- `src/test/java/com/brewen/familydashboard/familymember/model/FamilyMemberTest.java`
+- `documentation/PROJECT_CONTEXT.md`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Add FamilyMember entity`
+
+```text
+LocalDateTime.now(ZoneOffset.UTC)
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FM-004.
+
+Le ticket suivant sera :
+
+```text
+FM-005 - Créer FamilyMemberRepository
+```
