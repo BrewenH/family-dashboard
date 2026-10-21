@@ -979,3 +979,70 @@ Pour chaque ticket, Copilot doit fournir :
 - la liste des fichiers documentaires à inclure dans le commit ;
 - le message exact du commit ;
 - l’état nécessaire pour reprendre depuis l’autre ordinateur.
+
+## Architecture hardware cible
+
+Family Dashboard est destiné à être déployé sur un appareil autonome installé dans le foyer.
+
+### Cible matérielle provisoire
+
+```text
+Raspberry Pi 5
+8 Go de RAM recommandés
+SSD USB 3
+Raspberry Pi OS 64 bits
+Écran HDMI Full HD
+Chromium en mode kiosque
+Ethernet prioritaire
+Wi-Fi secondaire
+Refroidissement actif
+```
+
+### Architecture logicielle envisagée
+
+```text
+Raspberry Pi
+├── Backend Spring Boot avec Java 21
+├── Frontend Angular
+├── Base de données locale
+├── Chromium en mode kiosque
+├── Logs locaux
+└── Sauvegardes
+```
+
+### Principes durables
+
+- les fonctions locales doivent rester utilisables sans Internet ;
+- les API externes ne doivent pas bloquer les fonctions locales ;
+- le stockage durable devra privilégier un SSD ;
+- les sauvegardes devront être placées sur un support distinct ;
+- les services ne devront pas être exposés directement sur Internet ;
+- Ethernet est prioritaire lorsque l’installation le permet ;
+- le système devra redémarrer automatiquement après une coupure ;
+- le navigateur devra revenir automatiquement au dashboard ;
+- les logs devront utiliser une rotation ;
+- la restauration des sauvegardes devra être testée ;
+- le frontend devra être adapté à la résolution et à la distance de lecture ;
+- l’utilisation du tactile devra être décidée avant de figer les interactions Angular ;
+- les timestamps applicatifs utilisent UTC afin de rester indépendants du fuseau de la machine.
+
+### Décisions restant à confirmer
+
+- modèle exact du Raspberry Pi ;
+- quantité définitive de mémoire ;
+- taille et orientation de l’écran ;
+- présence du tactile ;
+- capacité exacte du SSD ;
+- systemd ou Docker ;
+- PostgreSQL ou base embarquée ;
+- Nginx ou Spring Boot pour servir Angular ;
+- solution de sauvegarde ;
+- protection contre les coupures ;
+- accès distant sécurisé ;
+- boîtier et refroidissement.
+
+Le document détaillé est :
+
+```text
+documentation/HARDWARE_ARCHITECTURE.md
+```
