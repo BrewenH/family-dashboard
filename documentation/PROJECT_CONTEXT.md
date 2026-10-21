@@ -546,6 +546,57 @@ Le document de conception détaillé est :
 documentation/FAMILY_MEMBER_DESIGN.md
 ```
 
+### Entité FamilyMember
+
+L’entité JPA `FamilyMember` est maintenant créée.
+
+Structure :
+
+```text
+id: Long
+displayName: String
+color: String
+active: boolean
+createdAt: LocalDateTime
+updatedAt: LocalDateTime
+```
+
+Persistance :
+
+```text
+Table : family_members
+Identifiant : GenerationType.IDENTITY
+displayName : colonne obligatoire, longueur maximale de 50
+color : colonne facultative
+active : colonne obligatoire
+createdAt : colonne obligatoire et non modifiable
+updatedAt : colonne obligatoire
+```
+
+Valeurs et cycle de vie :
+
+```text
+active
+→ true par défaut
+
+@PrePersist
+→ initialise createdAt et updatedAt avec la même valeur
+
+@PreUpdate
+→ actualise uniquement updatedAt
+```
+
+Règles durables :
+
+- l’entité possède un constructeur public sans argument ;
+- les callbacks de cycle de vie restent internes au package du modèle ;
+- `createdAt` reste stable après la création ;
+- `updatedAt` est actualisé lors des modifications ;
+- `color` reste temporairement une chaîne facultative ;
+- aucune relation JPA n’est ajoutée dans l’entité initiale ;
+- les validations HTTP seront ajoutées au DTO de requête ;
+- l’entité ne devra pas être retournée directement par le futur controller.
+
 ### Modèle fonctionnel retenu
 
 Le modèle MVP envisagé contient :
