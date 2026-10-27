@@ -42,7 +42,7 @@ public class FamilyMember {
     )
     private LocalDateTime updatedAt;
 
-    protected FamilyMember() {
+    public FamilyMember() {
         // Required by JPA for entity instantiation.
     }
 
