@@ -255,7 +255,7 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 ### Backend MVP
 
 - [x] FM-004 - Créer l’entité FamilyMember
-- [ ] FM-005 - Créer FamilyMemberRepository
+- [x] FM-005 - Créer FamilyMemberRepository
 - [ ] FM-006 - Créer FamilyMemberService
 - [ ] FM-007 - Créer FamilyMemberController
 - [ ] FM-008 - Ajouter un membre de la famille
@@ -307,6 +307,16 @@ Relations :
 ```text
 Aucune relation JPA ajoutée dans FM-004
 ```
+
+### Résultat de FM-005
+
+L'interface `FamilyMemberRepository` a été créée.
+
+```text
+Héritage : JpaRepository<FamilyMember, Long>
+Opérations validées : save(), findById()
+Tests : Tests d'intégration JPA validés (DataJpaTest)
+
 
 ---
 

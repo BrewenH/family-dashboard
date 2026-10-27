@@ -4616,3 +4616,77 @@ Avant le déploiement réel
 ### Commit
 
 `Add hardware architecture roadmap`
+
+## FM-005 - Créer FamilyMemberRepository
+
+### Branche
+
+`feature/family-member-repository`
+
+### Objectif
+
+Créer le repository Spring Data JPA permettant de persister et de retrouver les membres familiaux.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Réalisé
+
+- Création de `FamilyMemberRepositoryTest`.
+- Configuration d'un test d'intégration avec `@DataJpaTest`.
+- Création de l'interface `FamilyMemberRepository` héritant de `JpaRepository`.
+- Validation de la persistance et de la récupération d'un membre.
+- Exécution de toute la suite Maven.
+
+### Résultat TDD
+
+#### RED
+Le test `shouldSaveAndFindFamilyMember` ne compilait pas car le type `FamilyMemberRepository` n'existait pas.
+
+#### GREEN
+Création de l'interface `FamilyMemberRepository` étendant `JpaRepository<FamilyMember, Long>`. Le test passe désormais.
+
+#### REFACTOR
+Vérification de la cohérence du build global. Aucune modification du code de production n'a été nécessaire après le passage au vert.
+
+### Test ajouté
+
+`shouldSaveAndFindFamilyMember`
+
+### Tests
+
+- [x] Sauvegarde et récupération par identifiant réussies.
+- [x] Génération automatique de l'ID validée.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucun erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation de `@DataJpaTest` pour isoler la couche de persistance.
+- Utilisation de la base H2 en mémoire pour les tests.
+- Héritage de `JpaRepository` pour bénéficier des méthodes CRUD standard sans implémentation manuelle.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/familymember/repository/FamilyMemberRepository.java`
+- `src/test/java/com/brewen/familydashboard/familymember/repository/FamilyMemberRepositoryTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Implement FamilyMemberRepository with integration tests`
+
+### Prochaine étape
+
+Créer et merger la Pull Request de FM-005.
+
+Le ticket suivant sera :
+
+```text
+FM-006 - Créer FamilyMemberService
