@@ -1046,3 +1046,18 @@ Le document détaillé est :
 ```text
 documentation/HARDWARE_ARCHITECTURE.md
 ```
+
+## 14. Pivot Stratégique : Approche "Thin Slice" (V1)
+
+**Date du pivot** : 2024-05-22
+**Décision** : Abandon de l'approche de développement séquentielle par couches (Tout le Back $\rightarrow$ Tout le Front) au profit d'une approche par "Tranches Fines" (Vertical Slicing).
+
+**Objectif** : Atteindre le "Seuil de Déployabilité" le plus rapidement possible pour sortir une V1 utilisable.
+
+**Priorités de la V1** :
+1. Finaliser le socle `FamilyMember`.
+2. Implémenter le lien technique `Task` $\leftrightarrow$ `FamilyMember`.
+3. Intégration Frontend Angular (Tâches et Membres uniquement).
+4. Déploiement sur Raspberry Pi 5.
+
+Les autres modules (`Wishlist`, etc.) seront développés et intégrés itérativement après le premier déploiement.

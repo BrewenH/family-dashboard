@@ -4756,3 +4756,79 @@ Vérification de l'utilisation de `@Transactional` et de l'injection de dépenda
 
 `Implement FamilyMemberService with unit tests`
 
+## FM-007 - Créer FamilyMemberController
+
+### Branche
+
+`feature/family-member-controller`
+
+### Objectif
+
+Exposer l'API REST pour la gestion des membres de la famille, en commençant par l'endpoint de création.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Réalisé
+
+- Création de `FamilyMemberControllerTest` avec MockMvc.
+- Implémentation de `FamilyMemberController` avec l'endpoint `POST /api/family-members`.
+- Utilisation de `ResponseEntity` pour retourner le statut HTTP `201 Created`.
+- Validation de la désérialisation du JSON et de l'appel au service.
+- Validation du build global.
+
+### Difficultés et Résolutions (Infrastructure)
+
+Ce ticket a été marqué par une phase importante de configuration du nouvel environnement de développement :
+- **Erreur de version Spring Boot** : Le `pom.xml` indiquait une version `4.1.0` (inexistante). Correction : passage en version stable `3.3.2`.
+- **Conflits d'imports** : Erreurs de packages inexistants pour `@DataJpaTest` et `@WebMvcTest`. Correction : alignement sur les packages officiels de Spring Boot 3.3.x.
+- **Incompatibilité d'annotations** : Tentative d'utilisation de `@MockitoBean` (introduit en 3.4) sur une version 3.3.2. Correction : retour à l'utilisation de `@MockBean`.
+- **Problème de Classpath IDE** : L'IDE ne reconnaissait pas les librairies de test malgré leur présence. Résolution : `mvnw clean install -U` et "Reload All Maven Projects".
+
+### Résultat TDD
+
+#### RED
+Le test `shouldCreateFamilyMember` ne compilait pas car la classe `FamilyMemberController` était absente.
+
+#### GREEN
+Création du controller et implémentation de la méthode `createFamilyMember`. Le test MockMvc passe désormais avec un statut 201.
+
+#### REFACTOR
+Vérification du respect des conventions REST et de l'absence de logique métier dans le controller. Le code est conforme.
+
+### Test ajouté
+
+`shouldCreateFamilyMember`
+
+### Tests
+
+- [x] Création d'un membre via HTTP POST validée.
+- [x] Statut HTTP 201 Created vérifié.
+- [x] Contenu du JSON de réponse validé.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucun erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation de `@WebMvcTest` pour des tests de controller isolés et rapides.
+- Utilisation de `MockMvc` pour simuler les requêtes HTTP sans lancer le serveur.
+- Retour d'un statut `201 Created` pour la création, conformément aux standards REST.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/familymember/controller/FamilyMemberController.java`
+- `src/test/java/com/brewen/familydashboard/familymember/controller/FamilyMemberControllerTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+- `pom.xml`
+
+### Commit
+
+`Implement FamilyMemberController with MockMvc tests`
+
+

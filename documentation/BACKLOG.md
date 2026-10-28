@@ -257,7 +257,7 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 - [x] FM-004 - Créer l’entité FamilyMember
 - [x] FM-005 - Créer FamilyMemberRepository
 - [x] FM-006 - Créer FamilyMemberService
-- [ ] FM-007 - Créer FamilyMemberController
+- [x] FM-007 - Créer FamilyMemberController
 - [ ] FM-008 - Ajouter un membre de la famille
 - [ ] FM-009 - Consulter les membres de la famille
 - [ ] FM-010 - Consulter un membre par identifiant
@@ -387,6 +387,16 @@ Modifiable : non
 ```
 
 `id` représente l’identité technique stable du membre.
+
+### Résultat de FM-007
+
+Le point d'entrée API pour les membres est opérationnel.
+
+```text
+Endpoint : POST /api/family-members
+Statut retourné : 201 Created
+Tests : MockMvc validés.
+
 
 #### displayName
 
