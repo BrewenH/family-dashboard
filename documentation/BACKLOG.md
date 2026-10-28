@@ -256,7 +256,7 @@ Ce module doit être créé avant la Wishlist afin de représenter le propriéta
 
 - [x] FM-004 - Créer l’entité FamilyMember
 - [x] FM-005 - Créer FamilyMemberRepository
-- [ ] FM-006 - Créer FamilyMemberService
+- [x] FM-006 - Créer FamilyMemberService
 - [ ] FM-007 - Créer FamilyMemberController
 - [ ] FM-008 - Ajouter un membre de la famille
 - [ ] FM-009 - Consulter les membres de la famille
@@ -363,6 +363,16 @@ active
 createdAt
 updatedAt
 ```
+
+### Résultat de FM-006
+
+La couche métier `FamilyMemberService` est implémentée.
+
+```text
+Responsabilité : Isolation de la logique métier et orchestration du repository.
+Méthodes validées : saveFamilyMember()
+Tests : Tests unitaires Mockito validés.
+
 
 ### Propriétés retenues
 
