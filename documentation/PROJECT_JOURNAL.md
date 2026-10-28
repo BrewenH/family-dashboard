@@ -4690,3 +4690,69 @@ Le ticket suivant sera :
 
 ```text
 FM-006 - Créer FamilyMemberService
+
+## FM-006 - Créer FamilyMemberService
+
+### Branche
+
+`feature/family-member-service`
+
+### Objectif
+
+Créer la couche service pour le module FamilyMember afin d'isoler la logique métier de la couche de persistance.
+
+### Phase TDD
+
+- [x] RED
+- [x] GREEN
+- [x] REFACTOR
+
+### Réalisé
+
+- Création de `FamilyMemberServiceTest` avec Mockito.
+- Implémentation de la classe `FamilyMemberService`.
+- Mise en place de l'injection par constructeur via `@RequiredArgsConstructor`.
+- Implémentation de la méthode `saveFamilyMember`.
+- Validation du build global.
+
+### Résultat TDD
+
+#### RED
+Le test `shouldSaveFamilyMember` ne compilait pas car la classe `FamilyMemberService` était absente.
+
+#### GREEN
+Création du service et implémentation de la méthode `saveFamilyMember` appelant le repository. Le test passe désormais.
+
+#### REFACTOR
+Vérification de l'utilisation de `@Transactional` et de l'injection de dépendances. Le code est conforme aux standards du projet.
+
+### Test ajouté
+
+`shouldSaveFamilyMember`
+
+### Tests
+
+- [x] Sauvegarde d'un membre validée via mock du repository.
+- [x] Interaction avec le repository vérifiée via `verify`.
+- [x] Suite Maven complète réussie avec `.\mvnw clean test`.
+- [x] Aucun échec de test.
+- [x] Aucun erreur de test.
+- [x] Build Maven terminé avec `BUILD SUCCESS`.
+
+### Décisions techniques
+
+- Utilisation de `MockitoExtension` pour des tests unitaires rapides et isolés.
+- Injection par constructeur privilégiée pour faciliter la testabilité.
+- Utilisation de `@Transactional` pour sécuriser les écritures.
+
+### Fichiers modifiés
+
+- `src/main/java/com/brewen/familydashboard/familymember/service/FamilyMemberService.java`
+- `src/test/java/com/brewen/familydashboard/familymember/service/FamilyMemberServiceTest.java`
+- `documentation/PROJECT_JOURNAL.md`
+- `documentation/BACKLOG.md`
+
+### Commit
+
+`Implement FamilyMemberService with unit tests`
+
