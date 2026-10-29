@@ -2,6 +2,7 @@ package com.brewen.familydashboard.familymember.service;
 
 import com.brewen.familydashboard.familymember.dto.FamilyMemberRequest;
 import com.brewen.familydashboard.familymember.dto.FamilyMemberResponse;
+import com.brewen.familydashboard.familymember.exception.FamilyMemberNotFoundException;
 import com.brewen.familydashboard.familymember.mapper.FamilyMemberMapper;
 import com.brewen.familydashboard.familymember.model.FamilyMember;
 import com.brewen.familydashboard.familymember.repository.FamilyMemberRepository;
@@ -33,5 +34,13 @@ public class FamilyMemberService {
                 .map(FamilyMemberMapper::toResponse)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public FamilyMemberResponse getMemberById(Long id) {
+        return familyMemberRepository.findById(id)
+                .map(FamilyMemberMapper::toResponse)
+                .orElseThrow(() -> new FamilyMemberNotFoundException(id));
+    }
+
 
 }

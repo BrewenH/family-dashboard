@@ -27,4 +27,10 @@ public class FamilyMemberController {
         return ResponseEntity.ok(familyMemberService.getAllMembers());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<FamilyMemberResponse> getMemberById(@PathVariable Long id) {
+        return ResponseEntity.ok(familyMemberService.getMemberById(id));
+    }
+
+
 }
