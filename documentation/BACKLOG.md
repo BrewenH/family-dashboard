@@ -60,8 +60,8 @@ L'approche actuelle est le **"Thin Slice"** : priorité absolue au déploiement 
 - [x] FM-005 - Créer FamilyMemberRepository
 - [x] FM-006 - Créer FamilyMemberService
 - [x] FM-007 - Créer FamilyMemberController
-- [ ] FM-008 - Ajouter un membre de la famille
-- [ ] FM-009 - Consulter les membres de la famille
+- [x] FM-008 - Ajouter un membre de la famille
+- [x] FM-009 - Consulter les membres de la famille
 - [ ] FM-010 - Consulter un membre par identifiant
 - [ ] FM-011 - Ajouter les validations
 - [ ] FM-012 - Ajouter la gestion des erreurs

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -58,5 +59,25 @@ class FamilyMemberControllerTest {
                 .andExpect(jsonPath("$.displayName").value("Brewen"))
                 .andExpect(jsonPath("$.color").value("BLUE"));
     }
+
+    @Test
+    @DisplayName("Should return a list of all family members")
+    void shouldReturnAllFamilyMembers() throws Exception {
+        // GIVEN : On simule une liste de membres retournée par le service
+        FamilyMemberResponse member1 = new FamilyMemberResponse(
+                1L, "Jean", "BLUE", true, LocalDateTime.now(), LocalDateTime.now());
+        FamilyMemberResponse member2 = new FamilyMemberResponse(
+                2L, "Léa", "PINK", true, LocalDateTime.now(), LocalDateTime.now());
+
+        Mockito.when(service.getAllMembers()).thenReturn(java.util.List.of(member1, member2));
+
+        // WHEN & THEN : On appelle l'endpoint et on vérifie le résultat
+        mockMvc.perform(get("/api/family-members"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].displayName").value("Jean"))
+                .andExpect(jsonPath("$[1].displayName").value("Léa"));
+    }
+
 }
 

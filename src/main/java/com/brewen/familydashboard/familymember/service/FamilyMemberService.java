@@ -25,4 +25,13 @@ public class FamilyMemberService {
         FamilyMember savedMember = familyMemberRepository.save(member);
         return FamilyMemberMapper.toResponse(savedMember);
     }
+
+    @Transactional(readOnly = true)
+    public java.util.List<FamilyMemberResponse> getAllMembers() {
+        return familyMemberRepository.findAll()
+                .stream()
+                .map(FamilyMemberMapper::toResponse)
+                .toList();
+    }
+
 }

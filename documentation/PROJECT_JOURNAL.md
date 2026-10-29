@@ -75,3 +75,27 @@ Ce fichier conserve l'historique chronologique et technique du projet.
     - **API** : Mise en place de l'endpoint `POST /api/family-members` (Retourne 201 Created).
 - **Décisions** : Utilisation de `ZoneOffset.UTC` pour les timestamps afin d'assurer l'indépendance du fuseau horaire.
 - **Difficultés (Infra)** : Correction de la version Spring Boot (3.3.2), alignement des packages de test et résolution des conflits de classpath IDE lors de la migration PC.
+
+---
+
+## Jalon 8 : Socle Technique FamilyMember
+**Tickets** : FM-001 à FM-007
+- **Réalisé** :
+  - Conception du rôle et du modèle de `FamilyMember` (Identité stable, distinction Membre vs Utilisateur).
+  - Définition des relations futures avec les modules Task, Wishlist et FamilyEvent.
+  - Implémentation de l'entité `FamilyMember` avec gestion UTC des timestamps.
+  - Création du Repository, du Service et du Controller.
+  - Mise en place de l'endpoint `POST /api/family-members` retournant un statut `201 Created`.
+- **Décisions** : Utilisation de `ZoneOffset.UTC` pour l'indépendance du fuseau horaire.
+- **Difficultés (Infra)** : Correction de la version Spring Boot (3.3.2) et résolution des conflits de classpath IDE lors de la migration entre ordinateurs.
+
+### FM-009 - Consulter les membres de la famille
+**Branche** : `feature/family-member-list`
+**Objectif** : Implémenter la récupération de la liste complète des membres via `GET /api/family-members`.
+**Réalisé** :
+- Ajout de la méthode `getAllMembers` dans `FamilyMemberService` avec mapping via stream.
+- Création de l'endpoint `GET` dans `FamilyMemberController`.
+- Utilisation de `@Transactional(readOnly = true)` pour optimiser la lecture.
+  **Tests** : Tests MockMvc validant le statut `200 OK` et la structure du tableau JSON retourné.
+  **Décisions** : Retour d'une liste de `FamilyMemberResponse` pour maintenir le découplage API/Modèle.
+  **Commit** : `Implement family member listing endpoint`
