@@ -21,4 +21,10 @@ public class FamilyMemberController {
         FamilyMemberResponse response = familyMemberService.saveFamilyMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @GetMapping
+    public ResponseEntity<java.util.List<FamilyMemberResponse>> getAllMembers() {
+        return ResponseEntity.ok(familyMemberService.getAllMembers());
+    }
+
 }
