@@ -1,5 +1,6 @@
 package com.brewen.familydashboard.common.exception;
 
+import com.brewen.familydashboard.familymember.exception.FamilyMemberNotFoundException;
 import com.brewen.familydashboard.task.exception.TaskNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.ZoneOffset;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -109,6 +110,19 @@ public class GlobalExceptionHandler {
                 .status(status)
                 .body(response);
     }
+
+    @ExceptionHandler(FamilyMemberNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleFamilyMemberNotFound(FamilyMemberNotFoundException ex, HttpServletRequest request) {
+        ApiErrorResponse error = new ApiErrorResponse(
+                LocalDateTime.now(ZoneOffset.UTC),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
 
 
 }

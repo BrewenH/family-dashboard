@@ -79,5 +79,41 @@ class FamilyMemberControllerTest {
                 .andExpect(jsonPath("$[1].displayName").value("Léa"));
     }
 
+    @Test
+    @DisplayName("Should return a family member when ID exists")
+    void shouldReturnMemberWhenIdExists() throws Exception {
+        // GIVEN
+        Long memberId = 1L;
+        FamilyMemberResponse mockResponse = new FamilyMemberResponse(
+                memberId, "Brewen", "BLUE", true, LocalDateTime.now(), LocalDateTime.now());
+
+        Mockito.when(service.getMemberById(memberId)).thenReturn(mockResponse);
+
+        // WHEN & THEN
+        mockMvc.perform(get("/api/family-members/{id}", memberId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(memberId))
+                .andExpect(jsonPath("$.displayName").value("Brewen"));
+    }
+
+    @Test
+    @DisplayName("Should return 404 when family member does not exist")
+    void shouldReturnNotFoundWhenMemberDoesNotExist() throws Exception {
+        // GIVEN
+        Long memberId = 999L;
+
+        // Correction : On lève l'exception métier spécifique, pas une RuntimeException générique
+        Mockito.when(service.getMemberById(memberId))
+                .thenThrow(new com.brewen.familydashboard.familymember.exception.FamilyMemberNotFoundException(memberId));
+
+        // WHEN & THEN
+        mockMvc.perform(get("/api/family-members/{id}", memberId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"));
+    }
+
+
+
 }
 

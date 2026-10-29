@@ -99,3 +99,15 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Tests MockMvc validant le statut `200 OK` et la structure du tableau JSON retourné.
   **Décisions** : Retour d'une liste de `FamilyMemberResponse` pour maintenir le découplage API/Modèle.
   **Commit** : `Implement family member listing endpoint`
+
+### FM-010 - Consulter un membre par identifiant
+**Branche** : `feature/family-member-get-by-id`
+**Objectif** : Implémenter la récupération d'un membre spécifique via son ID avec gestion du cas "Not Found".
+**Réalisé** :
+- Création de l'exception métier `FamilyMemberNotFoundException`.
+- Ajout du handler correspondant dans `GlobalExceptionHandler` pour retourner un `404 Not Found`.
+- Implémentation de la logique `findById().orElseThrow()` dans `FamilyMemberService`.
+- Création de l'endpoint `GET /api/family-members/{id}` dans le controller.
+  **Tests** : Tests MockMvc validant le cas nominal (200 OK) et le cas d'absence (404 Not Found).
+  **Décisions** : Centralisation de la gestion d'erreur pour maintenir un format de réponse `ApiErrorResponse` uniforme.
+  **Commit** : `Implement get member by ID with 404 handling`
