@@ -1,17 +1,19 @@
 package com.brewen.familydashboard.familymember.controller;
 
-import com.brewen.familydashboard.familymember.model.FamilyMember;
+import com.brewen.familydashboard.familymember.dto.FamilyMemberResponse;
 import com.brewen.familydashboard.familymember.service.FamilyMemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -27,29 +29,34 @@ class FamilyMemberControllerTest {
     @Test
     @DisplayName("Should create a family member and return 201 Created")
     void shouldCreateFamilyMember() throws Exception {
-        // GIVEN : On prépare un JSON et on simule la réponse du service
+        // GIVEN
         String memberJson = """
-                {
-                    "displayName": "Jean",
-                    "color": "#FFFFFF",
-                    "active": true
-                }
-                """;
+            {
+                "displayName": "Brewen",
+                "color": "BLUE"
+            }
+            """;
 
-        FamilyMember savedMember = new FamilyMember();
-        savedMember.setId(1L);
-        savedMember.setDisplayName("Jean");
-        savedMember.setColor("#FFFFFF");
+        // Le service retourne maintenant un FamilyMemberResponse (DTO) et non plus l'entité
+        FamilyMemberResponse mockResponse = new FamilyMemberResponse(
+                1L,
+                "Brewen",
+                "BLUE",
+                true,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
 
-        when(service.saveFamilyMember(any(FamilyMember.class))).thenReturn(savedMember);
+        Mockito.when(service.saveFamilyMember(any())).thenReturn(mockResponse);
 
-        // WHEN : On effectue l'appel HTTP POST
+        // WHEN & THEN
         mockMvc.perform(post("/api/family-members")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(memberJson))
-                // THEN : On vérifie le statut HTTP et le contenu du JSON retourné
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.displayName").value("Jean"));
+                .andExpect(jsonPath("$.displayName").value("Brewen"))
+                .andExpect(jsonPath("$.color").value("BLUE"));
     }
 }
+

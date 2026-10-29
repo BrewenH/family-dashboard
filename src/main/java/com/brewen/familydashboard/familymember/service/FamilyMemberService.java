@@ -1,5 +1,8 @@
 package com.brewen.familydashboard.familymember.service;
 
+import com.brewen.familydashboard.familymember.dto.FamilyMemberRequest;
+import com.brewen.familydashboard.familymember.dto.FamilyMemberResponse;
+import com.brewen.familydashboard.familymember.mapper.FamilyMemberMapper;
 import com.brewen.familydashboard.familymember.model.FamilyMember;
 import com.brewen.familydashboard.familymember.repository.FamilyMemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FamilyMemberService {
 
-    private final FamilyMemberRepository repository;
+    private final FamilyMemberRepository familyMemberRepository;
 
     @Transactional
-    public FamilyMember saveFamilyMember(FamilyMember member) {
-        return repository.save(member);
+    public FamilyMemberResponse saveFamilyMember(FamilyMemberRequest request) {
+        FamilyMember member = new FamilyMember();
+        member.setDisplayName(request.displayName());
+        member.setColor(request.color());
+        // active est true par défaut dans l'entité
+
+        FamilyMember savedMember = familyMemberRepository.save(member);
+        return FamilyMemberMapper.toResponse(savedMember);
     }
 }
