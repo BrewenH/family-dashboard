@@ -1,5 +1,7 @@
 package com.brewen.familydashboard.familymember.service;
 
+import com.brewen.familydashboard.familymember.dto.FamilyMemberRequest;
+import com.brewen.familydashboard.familymember.dto.FamilyMemberResponse;
 import com.brewen.familydashboard.familymember.model.FamilyMember;
 import com.brewen.familydashboard.familymember.repository.FamilyMemberRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -17,34 +19,36 @@ import static org.mockito.Mockito.*;
 class FamilyMemberServiceTest {
 
     @Mock
-    private FamilyMemberRepository repository;
+    private FamilyMemberRepository familyMemberRepository;
 
     @InjectMocks
-    private FamilyMemberService service;
+    private FamilyMemberService familyMemberService;
 
     @Test
-    @DisplayName("Should save a family member successfully")
+    @DisplayName("Should save a family member and return a response DTO")
     void shouldSaveFamilyMember() {
-        // GIVEN : On prépare les données et on simule le comportement du repository
-        FamilyMember member = new FamilyMember();
-        member.setDisplayName("Jean");
-        member.setColor("#FFFFFF");
+        // GIVEN
+        FamilyMemberRequest request = new FamilyMemberRequest("Jean", "BLUE");
 
         FamilyMember savedMember = new FamilyMember();
         savedMember.setId(1L);
         savedMember.setDisplayName("Jean");
-        savedMember.setColor("#FFFFFF");
+        savedMember.setColor("BLUE");
+        savedMember.setActive(true);
 
-        // On dit à Mockito : "Quand le repository reçoit n'importe quel FamilyMember, retourne savedMember"
-        when(repository.save(any(FamilyMember.class))).thenReturn(savedMember);
+        // On simule le repository qui sauvegarde l'entité
+        when(familyMemberRepository.save(any(FamilyMember.class))).thenReturn(savedMember);
 
-        // WHEN : On appelle la méthode du service
-        FamilyMember result = service.saveFamilyMember(member);
+        // WHEN
+        FamilyMemberResponse result = familyMemberService.saveFamilyMember(request);
 
-        // THEN : On vérifie que le résultat est correct et que le repository a bien été appelé
+        // THEN
         assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Jean", result.getDisplayName());
-        verify(repository, times(1)).save(member);
+        assertEquals(1L, result.id());
+        assertEquals("Jean", result.displayName());
+        assertEquals("BLUE", result.color());
+        assertTrue(result.active());
+
+        verify(familyMemberRepository, times(1)).save(any(FamilyMember.class));
     }
 }
