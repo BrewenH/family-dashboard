@@ -67,7 +67,7 @@ L'approche actuelle est le **"Thin Slice"** : priorité absolue au déploiement 
 - [x] FM-012 - Ajouter la gestion des erreurs
 - [x] FM-013 - Ajouter les tests unitaires
 - [x] FM-014 - Ajouter les tests du controller
-- [ ] FM-015 - Ajouter les tests d’intégration
+- [x] FM-015 - Ajouter les tests d’intégration
 
 ### Liaison Task <-> FamilyMember (Priorité Haute)
 - [ ] FM-LNK-001 - Ajouter la relation @ManyToOne dans l'entité Task
