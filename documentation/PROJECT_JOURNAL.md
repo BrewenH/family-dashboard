@@ -121,3 +121,13 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Tests MockMvc confirmant le retour d'un `400 Bad Request` pour les données invalides.
   **Décisions** : Utilisation du `GlobalExceptionHandler` pour transformer les erreurs de validation en `ApiErrorResponse`.
   **Commit** : `Implement validation for family member creation`
+
+### FM-012 - Ajouter la gestion des erreurs
+**Branche** : `feature/family-member-error-handling`
+**Objectif** : Sécuriser l'API contre les erreurs imprévues pour éviter les réponses HTML par défaut.
+**Réalisé** :
+- Ajout d'un handler générique pour `Exception.class` dans `GlobalExceptionHandler`.
+- Garantie que toute erreur non gérée retourne un statut `500 Internal Server Error` via `ApiErrorResponse`.
+  **Tests** : Test MockMvc simulant un crash du service pour vérifier la réponse 500 JSON.
+  **Décisions** : Masquage des stacktraces techniques pour le client final tout en conservant le message d'erreur.
+  **Commit** : `Implement global exception fallback for 500 errors`
