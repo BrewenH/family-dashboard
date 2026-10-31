@@ -111,3 +111,13 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Tests MockMvc validant le cas nominal (200 OK) et le cas d'absence (404 Not Found).
   **Décisions** : Centralisation de la gestion d'erreur pour maintenir un format de réponse `ApiErrorResponse` uniforme.
   **Commit** : `Implement get member by ID with 404 handling`
+
+### FM-011 - Ajouter les validations
+**Branche** : `feature/family-member-validations`
+**Objectif** : Sécuriser la création des membres en interdisant les noms vides ou trop longs.
+**Réalisé** :
+- Application des contraintes `@NotBlank` et `@Size(max=50)` sur le DTO `FamilyMemberRequest`.
+- Activation de la validation dans le controller via l'annotation `@Valid`.
+  **Tests** : Tests MockMvc confirmant le retour d'un `400 Bad Request` pour les données invalides.
+  **Décisions** : Utilisation du `GlobalExceptionHandler` pour transformer les erreurs de validation en `ApiErrorResponse`.
+  **Commit** : `Implement validation for family member creation`
