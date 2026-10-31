@@ -142,3 +142,14 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Utilisation de Mockito pour simuler le repository. Build vert sur l'ensemble de la suite.
   **Décisions** : Tests unitaires purs (sans chargement du contexte Spring) pour garantir une exécution ultra-rapide.
   **Commit** : `Implement comprehensive unit tests for FamilyMemberService`
+
+### FM-014 - Ajouter les tests du controller
+**Branche** : `feature/family-member-controller-tests`
+**Objectif** : Valider le contrat d'API REST du module FamilyMember via MockMvc.
+**Réalisé** :
+- Implémentation d'une suite de tests exhaustive pour le `FamilyMemberController`.
+- Validation des statuts HTTP : 201 (Création), 200 (Lecture), 400 (Validation), 404 (Absence).
+- Vérification du formatage JSON des réponses et des erreurs.
+  **Tests** : Tests d'intégration de la couche Web avec simulation du service via `@MockBean`.
+  **Décisions** : Utilisation de `jsonPath` pour sécuriser précisément le contenu des réponses API.
+  **Commit** : `Implement comprehensive MockMvc tests for FamilyMemberController`
