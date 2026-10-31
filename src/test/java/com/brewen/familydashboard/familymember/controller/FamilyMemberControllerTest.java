@@ -113,7 +113,46 @@ class FamilyMemberControllerTest {
                 .andExpect(jsonPath("$.error").value("Not Found"));
     }
 
+    @Test
+    @DisplayName("Should return 400 when displayName is blank")
+    void shouldReturnBadRequestWhenDisplayNameIsBlank() throws Exception {
+        // GIVEN : Un JSON avec un nom vide
+        String invalidJson = """
+            {
+                "displayName": "",
+                "color": "BLUE"
+            }
+            """;
 
+        // WHEN & THEN
+        mockMvc.perform(post("/api/family-members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    @DisplayName("Should return 400 when displayName is too long")
+    void shouldReturnBadRequestWhenDisplayNameIsTooLong() throws Exception {
+        // GIVEN : Un nom de plus de 50 caractères
+        String longName = "a".repeat(51);
+        String invalidJson = String.format("""
+            {
+                "displayName": "%s",
+                "color": "BLUE"
+            }
+            """, longName);
+
+        // WHEN & THEN
+        mockMvc.perform(post("/api/family-members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").exists());
+    }
 
 }
 
