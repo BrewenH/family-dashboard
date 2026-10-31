@@ -164,3 +164,14 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Utilisation de `saveAndFlush()` pour forcer la synchronisation avec la base et valider les timestamps.
   **Décisions** : Utilisation de H2 pour garantir l'indépendance des tests d'intégration.
   **Commit** : `Implement FamilyMember integration tests with JPA lifecycle validation`
+
+### FM-LNK-001 - Ajouter la relation @ManyToOne dans l'entité Task
+**Branche** : `feature/task-familymember-relation`
+**Objectif** : Établir le lien technique entre une tâche et un membre de la famille.
+**Réalisé** :
+- Ajout de la relation `@ManyToOne` (Lazy) dans l'entité `Task` vers `FamilyMember`.
+- Création de la colonne `family_member_id` en base de données.
+- Conservation temporaire du champ `assignedTo` (String) pour assurer la rétrocompatibilité.
+  **Tests** : Test d'intégration validant la persistance d'une tâche avec son membre associé.
+  **Décisions** : Choix du `FetchType.LAZY` pour optimiser les performances de lecture des listes de tâches.
+  **Commit** : `feat(task): add ManyToOne relation to FamilyMember`

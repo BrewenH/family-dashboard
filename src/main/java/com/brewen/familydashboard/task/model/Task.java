@@ -1,5 +1,6 @@
 package com.brewen.familydashboard.task.model;
 
+import com.brewen.familydashboard.familymember.model.FamilyMember;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,13 @@ public class Task {
 
     private LocalDate dueDate;
 
+    // On conserve assignedTo temporairement pour la migration (Ticket FM-LNK-003)
     private String assignedTo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "family_member_id")
+    private FamilyMember assignedMember;
+
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;

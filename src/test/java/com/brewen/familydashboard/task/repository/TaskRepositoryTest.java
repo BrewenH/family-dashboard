@@ -1,8 +1,11 @@
 package com.brewen.familydashboard.task.repository;
 
+import com.brewen.familydashboard.familymember.model.FamilyMember;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskPriority;
 import com.brewen.familydashboard.task.model.TaskStatus;
+import com.brewen.familydashboard.familymember.repository.FamilyMemberRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,6 +23,9 @@ class TaskRepositoryTest {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private FamilyMemberRepository familyMemberRepository;
 
     @Test
     void shouldSaveAndFindTaskById() {
@@ -79,4 +86,33 @@ class TaskRepositoryTest {
 
         return task;
     }
+
+    @Test
+    @DisplayName("Should persist task with associated family member")
+    void shouldPersistTaskWithFamilyMember() {
+        // GIVEN
+        // 1. On crée et on sauvegarde un membre de la famille
+        FamilyMember member = new FamilyMember();
+        member.setDisplayName("Jean");
+        member.setColor("Blue");
+        member.setActive(true);
+        familyMemberRepository.save(member);
+
+        // 2. On crée une tâche
+        Task task = new Task();
+        task.setTitle("Test Task");
+        task.setPriority(TaskPriority.MEDIUM);
+        task.setStatus(TaskStatus.TODO);
+
+        // ❌ C'est ici que ça va planter : la méthode setAssignedMember n'existe pas encore
+        task.setAssignedMember(member);
+
+        // WHEN
+        Task savedTask = taskRepository.save(task);
+
+        // THEN
+        assertThat(savedTask.getId()).isNotNull();
+        assertThat(savedTask.getAssignedMember()).isEqualTo(member);
+    }
+
 }
