@@ -65,7 +65,7 @@ L'approche actuelle est le **"Thin Slice"** : priorité absolue au déploiement 
 - [x] FM-010 - Consulter un membre par identifiant
 - [x] FM-011 - Ajouter les validations
 - [x] FM-012 - Ajouter la gestion des erreurs
-- [ ] FM-013 - Ajouter les tests unitaires
+- [x] FM-013 - Ajouter les tests unitaires
 - [ ] FM-014 - Ajouter les tests du controller
 - [ ] FM-015 - Ajouter les tests d’intégration
 
