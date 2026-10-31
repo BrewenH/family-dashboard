@@ -154,5 +154,19 @@ class FamilyMemberControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    @Test
+    @DisplayName("Should return 500 when an unexpected error occurs")
+    void shouldReturn500WhenUnexpectedErrorOccurs() throws Exception {
+        // GIVEN : On simule une erreur totalement imprévue (ex: panne serveur)
+        Mockito.when(service.getAllMembers()).thenThrow(new RuntimeException("Database crash!"));
+
+        // WHEN & THEN
+        mockMvc.perform(get("/api/family-members"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.error").value("Internal Server Error"));
+    }
+
+
 }
 
