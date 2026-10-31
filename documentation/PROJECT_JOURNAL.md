@@ -131,3 +131,14 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Test MockMvc simulant un crash du service pour vérifier la réponse 500 JSON.
   **Décisions** : Masquage des stacktraces techniques pour le client final tout en conservant le message d'erreur.
   **Commit** : `Implement global exception fallback for 500 errors`
+
+### FM-013 - Ajouter les tests unitaires
+**Branche** : `feature/family-member-unit-tests`
+**Objectif** : Valider la logique métier du `FamilyMemberService` en isolation totale.
+**Réalisé** :
+- Mise à jour de `FamilyMemberServiceTest` pour couvrir 100% des méthodes du service.
+- Tests de succès pour la création, la récupération de la liste et la récupération par ID.
+- Test d'échec pour la récupération d'un membre inexistant (vérification de `FamilyMemberNotFoundException`).
+  **Tests** : Utilisation de Mockito pour simuler le repository. Build vert sur l'ensemble de la suite.
+  **Décisions** : Tests unitaires purs (sans chargement du contexte Spring) pour garantir une exécution ultra-rapide.
+  **Commit** : `Implement comprehensive unit tests for FamilyMemberService`
