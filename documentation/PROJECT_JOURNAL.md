@@ -153,3 +153,14 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Tests d'intégration de la couche Web avec simulation du service via `@MockBean`.
   **Décisions** : Utilisation de `jsonPath` pour sécuriser précisément le contenu des réponses API.
   **Commit** : `Implement comprehensive MockMvc tests for FamilyMemberController`
+
+### FM-015 - Ajouter les tests d’intégration
+**Branche** : `feature/family-member-integration-tests`
+**Objectif** : Valider le mapping JPA et le cycle de vie des entités avec une base de données réelle (H2).
+**Réalisé** :
+- Implémentation de `FamilyMemberRepositoryTest` avec `@DataJpaTest`.
+- Validation de la persistance et de la récupération des membres.
+- Vérification du fonctionnement réel des callbacks `@PrePersist` et `@PreUpdate`.
+  **Tests** : Utilisation de `saveAndFlush()` pour forcer la synchronisation avec la base et valider les timestamps.
+  **Décisions** : Utilisation de H2 pour garantir l'indépendance des tests d'intégration.
+  **Commit** : `Implement FamilyMember integration tests with JPA lifecycle validation`
