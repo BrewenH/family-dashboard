@@ -187,3 +187,15 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Validation via MockMvc que l'objet `assignedMember` est présent dans la réponse API.
   **Décisions** : Conservation temporaire de `assignedTo` (String) pour assurer la transition douce vers la V1.
   **Commit** : `feat(task): update DTOs to include family member link`
+
+### FM-LNK-003 - Migrer les données existantes de `assignedTo` (String) vers `assignedMember` (Entity)
+**Branche** : `feature/task-member-migration`
+**Objectif** : Convertir les assignations textuelles existantes en relations JPA fortes.
+**Réalisé** :
+- Ajout de `findByDisplayName` dans `FamilyMemberRepository`.
+- Implémentation de `migrateAssignedMembers()` dans `TaskService` : scan des tâches, recherche du membre correspondant, et mise à jour du lien.
+- Création de `TaskMigrationTest` pour valider la logique de migration en isolation.
+  **Tests** : Test d'intégration validant qu'une tâche avec `assignedTo = "Jean"` est correctement liée au membre "Jean".
+  **Décisions** : Choix d'une migration programmatique via le service plutôt qu'un script SQL pour garantir la testabilité.
+  **Commit** : `feat(task): implement migration from assignedTo string to member entity`
+
