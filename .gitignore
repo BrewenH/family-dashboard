@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# --- Angular / Node ---
+node_modules/
+dist/
+.angular/
+.vscode/
+.npm/
+npm-debug.log*
+yarn-error.log*
+.env
+
