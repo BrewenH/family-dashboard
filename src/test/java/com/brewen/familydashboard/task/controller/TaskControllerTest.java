@@ -2,6 +2,7 @@ package com.brewen.familydashboard.task.controller;
 
 import com.brewen.familydashboard.task.dto.TaskResponse;
 import com.brewen.familydashboard.task.dto.TaskStatusRequest;
+import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.exception.TaskNotFoundException;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskPriority;
@@ -10,10 +11,13 @@ import com.brewen.familydashboard.task.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.ArgumentCaptor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,15 +25,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import org.springframework.http.MediaType;
-
-import com.brewen.familydashboard.task.dto.TaskRequest;
-import org.mockito.ArgumentCaptor;
-
-import java.time.LocalDate;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(TaskController.class)
@@ -47,15 +43,10 @@ class TaskControllerTest {
     @Test
     void shouldReturnAllTasks() throws Exception {
         LocalDate dueDate = LocalDate.of(2026, 10, 15);
-
-        LocalDateTime createdAt =
-                LocalDateTime.of(2026, 10, 2, 12, 0);
-
-        LocalDateTime updatedAt =
-                LocalDateTime.of(2026, 10, 2, 12, 30);
+        LocalDateTime createdAt = LocalDateTime.of(2026, 10, 2, 12, 0);
+        LocalDateTime updatedAt = LocalDateTime.of(2026, 10, 2, 12, 30);
 
         Task task = new Task();
-
         task.setId(1L);
         task.setTitle("Faire les courses");
         task.setDescription("Acheter du lait et du pain");
@@ -66,57 +57,29 @@ class TaskControllerTest {
         task.setCreatedAt(createdAt);
         task.setUpdatedAt(updatedAt);
 
-        when(taskService.getTasks(null, false))
-                .thenReturn(List.of(task));
+        when(taskService.getTasks(null, false)).thenReturn(List.of(task));
 
         mockMvc.perform(get("/api/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].*").value(hasSize(9)))
+                .andExpect(jsonPath("$[0].*").value(hasSize(10))) // Mise à jour à 10
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(
-                        jsonPath("$[0].title")
-                                .value("Faire les courses")
-                )
-                .andExpect(
-                        jsonPath("$[0].description")
-                                .value("Acheter du lait et du pain")
-                )
-                .andExpect(
-                        jsonPath("$[0].dueDate")
-                                .value("2026-10-15")
-                )
-                .andExpect(
-                        jsonPath("$[0].assignedTo")
-                                .value("Brewen")
-                )
-                .andExpect(
-                        jsonPath("$[0].status")
-                                .value("TODO")
-                )
-                .andExpect(
-                        jsonPath("$[0].priority")
-                                .value("MEDIUM")
-                )
-                .andExpect(
-                        jsonPath("$[0].createdAt")
-                                .value("2026-10-02T12:00:00")
-                )
-                .andExpect(
-                        jsonPath("$[0].updatedAt")
-                                .value("2026-10-02T12:30:00")
-                );
+                .andExpect(jsonPath("$[0].title").value("Faire les courses"))
+                .andExpect(jsonPath("$[0].description").value("Acheter du lait et du pain"))
+                .andExpect(jsonPath("$[0].dueDate").value("2026-10-15"))
+                .andExpect(jsonPath("$[0].assignedTo").value("Brewen"))
+                .andExpect(jsonPath("$[0].status").value("TODO"))
+                .andExpect(jsonPath("$[0].priority").value("MEDIUM"))
+                .andExpect(jsonPath("$[0].createdAt").value("2026-10-02T12:00:00"))
+                .andExpect(jsonPath("$[0].updatedAt").value("2026-10-02T12:30:00"));
 
         verify(taskService).getTasks(null, false);
     }
 
     @Test
     void shouldCreateTask() throws Exception {
-        LocalDateTime createdAt =
-                LocalDateTime.of(2026, 10, 2, 12, 0);
-
-        LocalDateTime updatedAt =
-                LocalDateTime.of(2026, 10, 2, 12, 0);
+        LocalDateTime createdAt = LocalDateTime.of(2026, 10, 2, 12, 0);
+        LocalDateTime updatedAt = LocalDateTime.of(2026, 10, 2, 12, 0);
 
         String requestBody = """
             {
@@ -130,7 +93,6 @@ class TaskControllerTest {
             """;
 
         Task createdTask = new Task();
-
         createdTask.setId(1L);
         createdTask.setTitle("Faire les courses");
         createdTask.setDescription("Acheter du lait et du pain");
@@ -141,92 +103,51 @@ class TaskControllerTest {
         createdTask.setCreatedAt(createdAt);
         createdTask.setUpdatedAt(updatedAt);
 
-        when(taskService.createTask(any(TaskRequest.class)))
-                .thenReturn(createdTask);
+        when(taskService.createTask(any(TaskRequest.class))).thenReturn(createdTask);
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*").value(hasSize(9)))
+                .andExpect(jsonPath("$.*").value(hasSize(10))) // Mise à jour à 10
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(
-                        jsonPath("$.title")
-                                .value("Faire les courses")
-                )
-                .andExpect(
-                        jsonPath("$.description")
-                                .value("Acheter du lait et du pain")
-                )
-                .andExpect(
-                        jsonPath("$.dueDate")
-                                .value("2026-10-15")
-                )
-                .andExpect(
-                        jsonPath("$.assignedTo")
-                                .value("Brewen")
-                )
-                .andExpect(
-                        jsonPath("$.status")
-                                .value("TODO")
-                )
-                .andExpect(
-                        jsonPath("$.priority")
-                                .value("MEDIUM")
-                )
-                .andExpect(
-                        jsonPath("$.createdAt")
-                                .value("2026-10-02T12:00:00")
-                )
-                .andExpect(
-                        jsonPath("$.updatedAt")
-                                .value("2026-10-02T12:00:00")
-                );
+                .andExpect(jsonPath("$.title").value("Faire les courses"))
+                .andExpect(jsonPath("$.description").value("Acheter du lait et du pain"))
+                .andExpect(jsonPath("$.dueDate").value("2026-10-15"))
+                .andExpect(jsonPath("$.assignedTo").value("Brewen"))
+                .andExpect(jsonPath("$.status").value("TODO"))
+                .andExpect(jsonPath("$.priority").value("MEDIUM"))
+                .andExpect(jsonPath("$.createdAt").value("2026-10-02T12:00:00"))
+                .andExpect(jsonPath("$.updatedAt").value("2026-10-02T12:00:00"));
 
-        ArgumentCaptor<TaskRequest> requestCaptor =
-                ArgumentCaptor.forClass(TaskRequest.class);
-
+        ArgumentCaptor<TaskRequest> requestCaptor = ArgumentCaptor.forClass(TaskRequest.class);
         verify(taskService).createTask(requestCaptor.capture());
-
         TaskRequest capturedRequest = requestCaptor.getValue();
 
-        assertEquals(
-                "Faire les courses",
-                capturedRequest.getTitle()
-        );
-        assertEquals(
-                "Acheter du lait et du pain",
-                capturedRequest.getDescription()
-        );
-        assertEquals(
-                LocalDate.of(2026, 10, 15),
-                capturedRequest.getDueDate()
-        );
-        assertEquals(
-                "Brewen",
-                capturedRequest.getAssignedTo()
-        );
-        assertEquals(
-                TaskStatus.TODO,
-                capturedRequest.getStatus()
-        );
-        assertEquals(
-                TaskPriority.MEDIUM,
-                capturedRequest.getPriority()
-        );
+        assertEquals("Faire les courses", capturedRequest.getTitle());
+        assertEquals("Acheter du lait et du pain", capturedRequest.getDescription());
+        assertEquals(LocalDate.of(2026, 10, 15), capturedRequest.getDueDate());
+        assertEquals("Brewen", capturedRequest.getAssignedTo());
+        assertEquals(TaskStatus.TODO, capturedRequest.getStatus());
+        assertEquals(TaskPriority.MEDIUM, capturedRequest.getPriority());
     }
+
     @Test
     void shouldReturnTaskWhenIdExists() throws Exception {
         LocalDate dueDate = LocalDate.of(2026, 10, 15);
+        LocalDateTime createdAt = LocalDateTime.of(2026, 10, 2, 12, 0);
+        LocalDateTime updatedAt = LocalDateTime.of(2026, 10, 2, 12, 30);
 
-        LocalDateTime createdAt =
-                LocalDateTime.of(2026, 10, 2, 12, 0);
-
-        LocalDateTime updatedAt =
-                LocalDateTime.of(2026, 10, 2, 12, 30);
+        // 1. AJOUT : On crée un membre pour la tâche
+        com.brewen.familydashboard.familymember.model.FamilyMember member = new com.brewen.familydashboard.familymember.model.FamilyMember();
+        member.setId(1L);
+        member.setDisplayName("Brewen");
+        member.setColor("Blue");
+        member.setActive(true);
+        member.setCreatedAt(createdAt);
+        member.setUpdatedAt(updatedAt);
 
         Task task = new Task();
-
         task.setId(1L);
         task.setTitle("Sortir les poubelles");
         task.setDescription("Sortir les poubelles jaunes");
@@ -237,73 +158,45 @@ class TaskControllerTest {
         task.setCreatedAt(createdAt);
         task.setUpdatedAt(updatedAt);
 
-        when(taskService.getTaskById(1L))
-                .thenReturn(task);
+        // 2. AJOUT : On lie le membre à la tâche
+        task.setAssignedMember(member);
+
+        when(taskService.getTaskById(1L)).thenReturn(task);
 
         mockMvc.perform(get("/api/tasks/{id}", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*").value(hasSize(9)))
+                .andExpect(jsonPath("$.*").value(hasSize(10)))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(
-                        jsonPath("$.title")
-                                .value("Sortir les poubelles")
-                )
-                .andExpect(
-                        jsonPath("$.description")
-                                .value("Sortir les poubelles jaunes")
-                )
-                .andExpect(
-                        jsonPath("$.dueDate")
-                                .value("2026-10-15")
-                )
-                .andExpect(
-                        jsonPath("$.assignedTo")
-                                .value("Brewen")
-                )
-                .andExpect(
-                        jsonPath("$.status")
-                                .value("TODO")
-                )
-                .andExpect(
-                        jsonPath("$.priority")
-                                .value("HIGH")
-                )
-                .andExpect(
-                        jsonPath("$.createdAt")
-                                .value("2026-10-02T12:00:00")
-                )
-                .andExpect(
-                        jsonPath("$.updatedAt")
-                                .value("2026-10-02T12:30:00")
-                );
+                .andExpect(jsonPath("$.title").value("Sortir les poubelles"))
+                .andExpect(jsonPath("$.description").value("Sortir les poubelles jaunes"))
+                .andExpect(jsonPath("$.dueDate").value("2026-10-15"))
+                .andExpect(jsonPath("$.assignedTo").value("Brewen"))
+                .andExpect(jsonPath("$.status").value("TODO"))
+                .andExpect(jsonPath("$.priority").value("HIGH"))
+                .andExpect(jsonPath("$.createdAt").value("2026-10-02T12:00:00"))
+                .andExpect(jsonPath("$.updatedAt").value("2026-10-02T12:30:00"))
+                // Maintenant, ça va passer car le membre existe !
+                .andExpect(jsonPath("$.assignedMember.id").value(1))
+                .andExpect(jsonPath("$.assignedMember.displayName").value("Brewen"));
 
         verify(taskService).getTaskById(1L);
     }
+
 
     @Test
     void shouldDeleteTaskWhenIdExists() throws Exception {
         mockMvc.perform(delete("/api/tasks/{id}", 1L))
                 .andExpect(status().isNoContent());
-
         verify(taskService).deleteTaskById(1L);
     }
 
     @Test
     void shouldUpdateTaskStatusWhenTaskExists() throws Exception {
-        LocalDateTime createdAt =
-                LocalDateTime.of(2026, 10, 2, 12, 0);
-
-        LocalDateTime updatedAt =
-                LocalDateTime.of(2026, 10, 2, 12, 30);
-
-        String requestBody = """
-            {
-              "status": "IN_PROGRESS"
-            }
-            """;
+        LocalDateTime createdAt = LocalDateTime.of(2026, 10, 2, 12, 0);
+        LocalDateTime updatedAt = LocalDateTime.of(2026, 10, 2, 12, 30);
+        String requestBody = "{\"status\": \"IN_PROGRESS\"}";
 
         Task updatedTask = new Task();
-
         updatedTask.setId(1L);
         updatedTask.setTitle("Faire les courses");
         updatedTask.setDescription("Acheter du lait et du pain");
@@ -314,71 +207,37 @@ class TaskControllerTest {
         updatedTask.setCreatedAt(createdAt);
         updatedTask.setUpdatedAt(updatedAt);
 
-        when(taskService.updateTaskStatus(
-                1L,
-                TaskStatus.IN_PROGRESS
-        )).thenReturn(updatedTask);
+        when(taskService.updateTaskStatus(1L, TaskStatus.IN_PROGRESS)).thenReturn(updatedTask);
 
         mockMvc.perform(patch("/api/tasks/{id}/status", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*").value(hasSize(9)))
+                .andExpect(jsonPath("$.*").value(hasSize(10))) // Mise à jour à 10
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(
-                        jsonPath("$.title")
-                                .value("Faire les courses")
-                )
-                .andExpect(
-                        jsonPath("$.description")
-                                .value("Acheter du lait et du pain")
-                )
-                .andExpect(
-                        jsonPath("$.dueDate")
-                                .value("2026-10-15")
-                )
-                .andExpect(
-                        jsonPath("$.assignedTo")
-                                .value("Brewen")
-                )
-                .andExpect(
-                        jsonPath("$.status")
-                                .value("IN_PROGRESS")
-                )
-                .andExpect(
-                        jsonPath("$.priority")
-                                .value("MEDIUM")
-                )
-                .andExpect(
-                        jsonPath("$.createdAt")
-                                .value("2026-10-02T12:00:00")
-                )
-                .andExpect(
-                        jsonPath("$.updatedAt")
-                                .value("2026-10-02T12:30:00")
-                );
+                .andExpect(jsonPath("$.title").value("Faire les courses"))
+                .andExpect(jsonPath("$.description").value("Acheter du lait et du pain"))
+                .andExpect(jsonPath("$.dueDate").value("2026-10-15"))
+                .andExpect(jsonPath("$.assignedTo").value("Brewen"))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$.priority").value("MEDIUM"))
+                .andExpect(jsonPath("$.createdAt").value("2026-10-02T12:00:00"))
+                .andExpect(jsonPath("$.updatedAt").value("2026-10-02T12:30:00"));
 
-        verify(taskService).updateTaskStatus(
-                1L,
-                TaskStatus.IN_PROGRESS
-        );
+        verify(taskService).updateTaskStatus(1L, TaskStatus.IN_PROGRESS);
     }
 
     @Test
     void shouldReturnTaskResponsesWhenGettingAllTasks() {
         Task task = new Task();
-
         task.setId(1L);
         task.setTitle("Faire les courses");
         task.setStatus(TaskStatus.TODO);
         task.setPriority(TaskPriority.MEDIUM);
 
-        when(taskService.getTasks(null, false))
-                .thenReturn(List.of(task));
+        when(taskService.getTasks(null, false)).thenReturn(List.of(task));
 
-        ResponseEntity<List<TaskResponse>> result =
-                taskController.getTasks(null, false);
-
+        ResponseEntity<List<TaskResponse>> result = taskController.getTasks(null, false);
         List<TaskResponse> responseBody = result.getBody();
 
         assertNotNull(responseBody);
@@ -391,18 +250,14 @@ class TaskControllerTest {
     @Test
     void shouldReturnTaskResponseWhenGettingTaskById() {
         Task task = new Task();
-
         task.setId(1L);
         task.setTitle("Sortir les poubelles");
         task.setStatus(TaskStatus.TODO);
         task.setPriority(TaskPriority.HIGH);
 
-        when(taskService.getTaskById(1L))
-                .thenReturn(task);
+        when(taskService.getTaskById(1L)).thenReturn(task);
 
-        ResponseEntity<TaskResponse> result =
-                taskController.getTaskById(1L);
-
+        ResponseEntity<TaskResponse> result = taskController.getTaskById(1L);
         TaskResponse responseBody = result.getBody();
 
         assertNotNull(responseBody);
@@ -417,7 +272,6 @@ class TaskControllerTest {
     @Test
     void shouldReturnTaskResponseWhenCreatingTask() {
         TaskRequest request = new TaskRequest();
-
         request.setTitle("Faire les courses");
         request.setDescription("Acheter du lait et du pain");
         request.setDueDate(LocalDate.of(2026, 10, 15));
@@ -426,7 +280,6 @@ class TaskControllerTest {
         request.setPriority(TaskPriority.MEDIUM);
 
         Task createdTask = new Task();
-
         createdTask.setId(1L);
         createdTask.setTitle("Faire les courses");
         createdTask.setDescription("Acheter du lait et du pain");
@@ -435,25 +288,16 @@ class TaskControllerTest {
         createdTask.setStatus(TaskStatus.TODO);
         createdTask.setPriority(TaskPriority.MEDIUM);
 
-        when(taskService.createTask(any(TaskRequest.class)))
-                .thenReturn(createdTask);
+        when(taskService.createTask(any(TaskRequest.class))).thenReturn(createdTask);
 
-        ResponseEntity<TaskResponse> result =
-                taskController.createTask(request);
-
+        ResponseEntity<TaskResponse> result = taskController.createTask(request);
         TaskResponse responseBody = result.getBody();
 
         assertNotNull(responseBody);
         assertEquals(1L, responseBody.id());
         assertEquals("Faire les courses", responseBody.title());
-        assertEquals(
-                "Acheter du lait et du pain",
-                responseBody.description()
-        );
-        assertEquals(
-                LocalDate.of(2026, 10, 15),
-                responseBody.dueDate()
-        );
+        assertEquals("Acheter du lait et du pain", responseBody.description());
+        assertEquals(LocalDate.of(2026, 10, 15), responseBody.dueDate());
         assertEquals("Brewen", responseBody.assignedTo());
         assertEquals(TaskStatus.TODO, responseBody.status());
         assertEquals(TaskPriority.MEDIUM, responseBody.priority());
@@ -464,48 +308,31 @@ class TaskControllerTest {
     @Test
     void shouldReturnTaskResponseWhenUpdatingTaskStatus() {
         TaskStatusRequest request = new TaskStatusRequest();
-
         request.setStatus(TaskStatus.IN_PROGRESS);
 
         Task updatedTask = new Task();
-
         updatedTask.setId(1L);
         updatedTask.setTitle("Faire les courses");
         updatedTask.setStatus(TaskStatus.IN_PROGRESS);
         updatedTask.setPriority(TaskPriority.MEDIUM);
 
-        when(taskService.updateTaskStatus(
-                1L,
-                TaskStatus.IN_PROGRESS
-        )).thenReturn(updatedTask);
+        when(taskService.updateTaskStatus(1L, TaskStatus.IN_PROGRESS)).thenReturn(updatedTask);
 
-        ResponseEntity<TaskResponse> result =
-                taskController.updateTaskStatus(1L, request);
-
+        ResponseEntity<TaskResponse> result = taskController.updateTaskStatus(1L, request);
         TaskResponse responseBody = result.getBody();
 
         assertNotNull(responseBody);
         assertEquals(1L, responseBody.id());
         assertEquals("Faire les courses", responseBody.title());
-        assertEquals(
-                TaskStatus.IN_PROGRESS,
-                responseBody.status()
-        );
-        assertEquals(
-                TaskPriority.MEDIUM,
-                responseBody.priority()
-        );
+        assertEquals(TaskStatus.IN_PROGRESS, responseBody.status());
+        assertEquals(TaskPriority.MEDIUM, responseBody.priority());
 
-        verify(taskService).updateTaskStatus(
-                1L,
-                TaskStatus.IN_PROGRESS
-        );
+        verify(taskService).updateTaskStatus(1L, TaskStatus.IN_PROGRESS);
     }
 
     @Test
     void shouldReturnNotFoundWhenGettingMissingTask() throws Exception {
-        when(taskService.getTaskById(999L))
-                .thenThrow(new TaskNotFoundException(999L));
+        when(taskService.getTaskById(999L)).thenThrow(new TaskNotFoundException(999L));
 
         mockMvc.perform(get("/api/tasks/{id}", 999L))
                 .andExpect(status().isNotFound())
@@ -513,88 +340,49 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Task not found with id: 999")
-                )
-                .andExpect(
-                        jsonPath("$.path")
-                                .value("/api/tasks/999")
-                );
+                .andExpect(jsonPath("$.message").value("Task not found with id: 999"))
+                .andExpect(jsonPath("$.path").value("/api/tasks/999"));
 
         verify(taskService).getTaskById(999L);
     }
 
-
     @Test
     void shouldReturnNotFoundWhenDeletingMissingTask() throws Exception {
-        doThrow(new TaskNotFoundException(999L))
-                .when(taskService)
-                .deleteTaskById(999L);
-
-        mockMvc.perform(delete("/api/tasks/{id}", 999L))
-                .andExpect(status().isNotFound());
-
+        doThrow(new TaskNotFoundException(999L)).when(taskService).deleteTaskById(999L);
+        mockMvc.perform(delete("/api/tasks/{id}", 999L)).andExpect(status().isNotFound());
         verify(taskService).deleteTaskById(999L);
     }
 
     @Test
-    void shouldReturnNotFoundWhenUpdatingStatusOfMissingTask()
-            throws Exception {
-        String requestBody = """
-            {
-              "status": "IN_PROGRESS"
-            }
-            """;
-
-        when(taskService.updateTaskStatus(
-                999L,
-                TaskStatus.IN_PROGRESS
-        )).thenThrow(new TaskNotFoundException(999L));
+    void shouldReturnNotFoundWhenUpdatingStatusOfMissingTask() throws Exception {
+        String requestBody = "{\"status\": \"IN_PROGRESS\"}";
+        when(taskService.updateTaskStatus(999L, TaskStatus.IN_PROGRESS)).thenThrow(new TaskNotFoundException(999L));
 
         mockMvc.perform(patch("/api/tasks/{id}/status", 999L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isNotFound());
 
-        verify(taskService).updateTaskStatus(
-                999L,
-                TaskStatus.IN_PROGRESS
-        );
+        verify(taskService).updateTaskStatus(999L, TaskStatus.IN_PROGRESS);
     }
 
     @Test
-    void shouldReturnBadRequestWhenStatusParameterIsInvalid()
-            throws Exception {
-        mockMvc.perform(get("/api/tasks")
-                        .param("status", "UNKNOWN"))
+    void shouldReturnBadRequestWhenStatusParameterIsInvalid() throws Exception {
+        mockMvc.perform(get("/api/tasks").param("status", "UNKNOWN"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.*").value(hasSize(5)))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Bad Request"))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Invalid value 'UNKNOWN' for parameter 'status'")
-                )
-                .andExpect(
-                        jsonPath("$.path")
-                                .value("/api/tasks")
-                );
+                .andExpect(jsonPath("$.message").value("Invalid value 'UNKNOWN' for parameter 'status'"))
+                .andExpect(jsonPath("$.path").value("/api/tasks"));
 
         verifyNoInteractions(taskService);
     }
 
     @Test
-    void shouldReturnBadRequestWhenTaskJsonIsMalformed()
-            throws Exception {
-        String malformedJson = """
-            {
-              "title": "Faire les courses",
-              "status": "TODO",
-              "priority": "MEDIUM"
-            """;
-
+    void shouldReturnBadRequestWhenTaskJsonIsMalformed() throws Exception {
+        String malformedJson = "{\"title\": \"Faire les courses\", \"status\": \"TODO\", \"priority\": \"MEDIUM\"";
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(malformedJson))
@@ -603,21 +391,14 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Bad Request"))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Malformed or unreadable JSON request")
-                )
-                .andExpect(
-                        jsonPath("$.path")
-                                .value("/api/tasks")
-                );
+                .andExpect(jsonPath("$.message").value("Malformed or unreadable JSON request"))
+                .andExpect(jsonPath("$.path").value("/api/tasks"));
 
         verifyNoInteractions(taskService);
     }
 
     @Test
-    void shouldReturnBadRequestWhenCreatingTaskWithUnknownStatus()
-            throws Exception {
+    void shouldReturnBadRequestWhenCreatingTaskWithUnknownStatus() throws Exception {
         String requestBody = """
             {
               "title": "Faire les courses",
@@ -628,7 +409,6 @@ class TaskControllerTest {
               "priority": "MEDIUM"
             }
             """;
-
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -636,31 +416,16 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.*").value(hasSize(5)))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(
-                        jsonPath("$.error")
-                                .value("Bad Request")
-                )
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Malformed or unreadable JSON request")
-                )
-                .andExpect(
-                        jsonPath("$.path")
-                                .value("/api/tasks")
-                );
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Malformed or unreadable JSON request"))
+                .andExpect(jsonPath("$.path").value("/api/tasks"));
 
         verifyNoInteractions(taskService);
     }
 
     @Test
-    void shouldReturnBadRequestWhenUpdatingTaskWithUnknownStatus()
-            throws Exception {
-        String requestBody = """
-            {
-              "status": "UNKNOWN"
-            }
-            """;
-
+    void shouldReturnBadRequestWhenUpdatingTaskWithUnknownStatus() throws Exception {
+        String requestBody = "{\"status\": \"UNKNOWN\"}";
         mockMvc.perform(patch("/api/tasks/{id}/status", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -669,21 +434,14 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Bad Request"))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Malformed or unreadable JSON request")
-                )
-                .andExpect(
-                        jsonPath("$.path")
-                                .value("/api/tasks/1/status")
-                );
+                .andExpect(jsonPath("$.message").value("Malformed or unreadable JSON request"))
+                .andExpect(jsonPath("$.path").value("/api/tasks/1/status"));
 
         verifyNoInteractions(taskService);
     }
 
     @Test
-    void shouldReturnCommonErrorResponseWhenTaskTitleIsBlank()
-            throws Exception {
+    void shouldReturnCommonErrorResponseWhenTaskTitleIsBlank() throws Exception {
         String requestBody = """
             {
               "title": "",
@@ -694,7 +452,6 @@ class TaskControllerTest {
               "priority": "MEDIUM"
             }
             """;
-
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -702,25 +459,15 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.*").value(hasSize(5)))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(
-                        jsonPath("$.error")
-                                .value("Bad Request")
-                )
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Le titre est obligatoire")
-                )
-                .andExpect(
-                        jsonPath("$.path")
-                                .value("/api/tasks")
-                );
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Le titre est obligatoire"))
+                .andExpect(jsonPath("$.path").value("/api/tasks"));
 
         verifyNoInteractions(taskService);
     }
 
     @Test
-    void shouldReturnAllValidationMessagesWhenTaskIsInvalid()
-            throws Exception {
+    void shouldReturnAllValidationMessagesWhenTaskIsInvalid() throws Exception {
         String requestBody = """
             {
               "title": "",
@@ -731,7 +478,6 @@ class TaskControllerTest {
               "priority": null
             }
             """;
-
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
@@ -739,28 +485,13 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.*").value(hasSize(5)))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(
-                        jsonPath("$.error")
-                                .value("Bad Request")
-                )
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(allOf(
-                                        containsString(
-                                                "Le titre est obligatoire"
-                                        ),
-                                        containsString(
-                                                "Le statut est obligatoire"
-                                        ),
-                                        containsString(
-                                                "La priorité est obligatoire"
-                                        )
-                                ))
-                )
-                .andExpect(
-                        jsonPath("$.path")
-                                .value("/api/tasks")
-                );
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value(allOf(
+                        containsString("Le titre est obligatoire"),
+                        containsString("Le statut est obligatoire"),
+                        containsString("La priorité est obligatoire")
+                )))
+                .andExpect(jsonPath("$.path").value("/api/tasks"));
 
         verifyNoInteractions(taskService);
     }
