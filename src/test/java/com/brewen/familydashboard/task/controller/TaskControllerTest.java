@@ -495,4 +495,47 @@ class TaskControllerTest {
 
         verifyNoInteractions(taskService);
     }
+
+    @Test
+    void shouldAssignMemberWhenCreatingTaskWithMemberId() throws Exception {
+        // GIVEN
+        String requestBody = """
+            {
+              "title": "Tâche avec membre",
+              "description": "Description test",
+              "dueDate": "2026-10-15",
+              "assignedMemberId": 1,
+              "status": "TODO",
+              "priority": "MEDIUM"
+            }
+            """;
+
+        // 1. On crée un membre simulé
+        com.brewen.familydashboard.familymember.model.FamilyMember member = new com.brewen.familydashboard.familymember.model.FamilyMember();
+        member.setId(1L);
+        member.setDisplayName("Brewen");
+
+        // 2. On crée la tâche et ON LUI ASSIGNE LE MEMBRE
+        Task createdTask = new Task();
+        createdTask.setId(1L);
+        createdTask.setTitle("Tâche avec membre");
+        createdTask.setStatus(TaskStatus.TODO);
+        createdTask.setPriority(TaskPriority.MEDIUM);
+        createdTask.setAssignedMember(member); // <--- IMPORTANT : Le mock doit retourner un membre
+
+        when(taskService.createTask(any(TaskRequest.class))).thenReturn(createdTask);
+
+        // WHEN
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.assignedMember").exists())
+                .andExpect(jsonPath("$.assignedMember.id").value(1))
+                .andExpect(jsonPath("$.assignedMember.displayName").value("Brewen"));
+
+        verify(taskService).createTask(any(TaskRequest.class));
+    }
+
+
 }
