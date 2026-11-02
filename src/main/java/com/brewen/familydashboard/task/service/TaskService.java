@@ -1,11 +1,14 @@
 package com.brewen.familydashboard.task.service;
 
+import com.brewen.familydashboard.familymember.repository.FamilyMemberRepository;
 import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.exception.TaskNotFoundException;
 import com.brewen.familydashboard.task.model.Task;
 import com.brewen.familydashboard.task.model.TaskStatus;
 import com.brewen.familydashboard.task.repository.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,6 +16,10 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+
+    @Autowired
+    private FamilyMemberRepository familyMemberRepository;
+
 
 
     public TaskService(TaskRepository taskRepository) {
@@ -91,4 +98,24 @@ public class TaskService {
 
         taskRepository.deleteById(id);
     }
+
+    @Transactional
+    public void migrateAssignedMembers() {
+        // 1. On récupère toutes les tâches
+        List<Task> allTasks = taskRepository.findAll();
+
+        for (Task task : allTasks) {
+            // 2. On ne traite que les tâches qui ont un nom (assignedTo) mais pas encore de membre lié
+            if (task.getAssignedTo() != null && !task.getAssignedTo().isBlank()
+                    && task.getAssignedMember() == null) {
+
+                // 3. On cherche un membre dont le displayName correspond exactement au texte assigné
+                familyMemberRepository.findByDisplayName(task.getAssignedTo())
+                        .ifPresent(task::setAssignedMember);
+            }
+        }
+        // 4. On sauvegarde toutes les modifications
+        taskRepository.saveAll(allTasks);
+    }
+
 }
