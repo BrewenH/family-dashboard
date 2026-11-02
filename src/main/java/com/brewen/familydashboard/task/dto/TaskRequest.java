@@ -20,6 +20,7 @@ public class TaskRequest {
     private String description;
     private LocalDate dueDate;
     private String assignedTo;
+    private Long assignedMemberId;
 
     @NotNull(message = "Le statut est obligatoire")
     private TaskStatus status;

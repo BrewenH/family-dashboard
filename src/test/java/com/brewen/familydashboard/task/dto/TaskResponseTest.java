@@ -27,11 +27,13 @@ class TaskResponseTest {
                 "Acheter du lait et du pain",
                 dueDate,
                 "Brewen",
+                null, // <--- AJOUT : l'argument pour FamilyMemberResponse
                 TaskStatus.TODO,
                 TaskPriority.MEDIUM,
                 createdAt,
                 updatedAt
         );
+
 
         assertEquals(1L, response.id());
         assertEquals("Faire les courses", response.title());

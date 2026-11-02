@@ -1,5 +1,6 @@
 package com.brewen.familydashboard.task.dto;
 
+import com.brewen.familydashboard.familymember.dto.FamilyMemberResponse;
 import com.brewen.familydashboard.task.model.TaskPriority;
 import com.brewen.familydashboard.task.model.TaskStatus;
 
@@ -12,6 +13,7 @@ public record TaskResponse(
         String description,
         LocalDate dueDate,
         String assignedTo,
+        FamilyMemberResponse assignedMember,
         TaskStatus status,
         TaskPriority priority,
         LocalDateTime createdAt,

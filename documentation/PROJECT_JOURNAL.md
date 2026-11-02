@@ -175,3 +175,15 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Tests** : Test d'intégration validant la persistance d'une tâche avec son membre associé.
   **Décisions** : Choix du `FetchType.LAZY` pour optimiser les performances de lecture des listes de tâches.
   **Commit** : `feat(task): add ManyToOne relation to FamilyMember`
+
+### FM-LNK-002 - Adapter TaskRequest et TaskResponse pour inclure le membre
+**Branche** : `feature/task-dto-member-link`
+**Objectif** : Mettre à jour le contrat d'API pour supporter la liaison technique avec FamilyMember.
+**Réalisé** :
+- Modification de `TaskResponse` (Record) : Ajout du champ `FamilyMemberResponse assignedMember`.
+- Modification de `TaskRequest` : Ajout du champ `Long assignedMemberId`.
+- Mise à jour de `TaskMapper` : Implémentation de la conversion `FamilyMember` $\rightarrow$ `FamilyMemberResponse`.
+- Mise à jour exhaustive de `TaskControllerTest` pour valider le nouveau format JSON (10 champs).
+  **Tests** : Validation via MockMvc que l'objet `assignedMember` est présent dans la réponse API.
+  **Décisions** : Conservation temporaire de `assignedTo` (String) pour assurer la transition douce vers la V1.
+  **Commit** : `feat(task): update DTOs to include family member link`
