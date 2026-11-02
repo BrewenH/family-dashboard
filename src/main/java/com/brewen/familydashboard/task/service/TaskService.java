@@ -1,5 +1,7 @@
 package com.brewen.familydashboard.task.service;
 
+import com.brewen.familydashboard.familymember.exception.FamilyMemberNotFoundException;
+import com.brewen.familydashboard.familymember.model.FamilyMember;
 import com.brewen.familydashboard.familymember.repository.FamilyMemberRepository;
 import com.brewen.familydashboard.task.dto.TaskRequest;
 import com.brewen.familydashboard.task.exception.TaskNotFoundException;
@@ -78,18 +80,28 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public Task createTask(TaskRequest taskRequest) {
+    public Task createTask(TaskRequest request) {
         Task task = new Task();
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setDueDate(request.getDueDate());
+        task.setStatus(request.getStatus());
+        task.setPriority(request.getPriority());
 
-        task.setTitle(taskRequest.getTitle());
-        task.setDescription(taskRequest.getDescription());
-        task.setDueDate(taskRequest.getDueDate());
-        task.setAssignedTo(taskRequest.getAssignedTo());
-        task.setStatus(taskRequest.getStatus());
-        task.setPriority(taskRequest.getPriority());
+        // On garde la compatibilité avec l'ancien champ String
+        task.setAssignedTo(request.getAssignedTo());
+
+        // --- AJOUT DE LA LOGIQUE DE LIAISON DU MEMBRE ---
+        if (request.getAssignedMemberId() != null) {
+            FamilyMember member = familyMemberRepository.findById(request.getAssignedMemberId())
+                    .orElseThrow(() -> new FamilyMemberNotFoundException(request.getAssignedMemberId()));
+            task.setAssignedMember(member);
+        }
+        // ------------------------------------------------
 
         return taskRepository.save(task);
     }
+
 
     public void deleteTaskById(Long id) {
         if (!taskRepository.existsById(id)) {

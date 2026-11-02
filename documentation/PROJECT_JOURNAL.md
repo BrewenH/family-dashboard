@@ -199,3 +199,15 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Décisions** : Choix d'une migration programmatique via le service plutôt qu'un script SQL pour garantir la testabilité.
   **Commit** : `feat(task): implement migration from assignedTo string to member entity`
 
+### FM-LNK-004 - Adapter TaskService et TaskController pour gérer le membre
+**Branche** : `feature/task-controller-member-logic`
+**Objectif** : Rendre l'assignation d'un membre fonctionnelle via l'API.
+**Réalisé** :
+- Modification de `TaskService.createTask` : Intégration de la recherche du membre via `assignedMemberId` et liaison avec l'entité `Task`.
+- Gestion d'erreur : Levée de `FamilyMemberNotFoundException` si l'ID du membre est invalide (retour 404 via GlobalExceptionHandler).
+- Mise à jour de `TaskControllerTest` : Validation du flux complet (Requête JSON avec ID $\rightarrow$ Service $\rightarrow$ Réponse JSON avec objet membre).
+  **Tests** : Test MockMvc validant que l'envoi d'un `assignedMemberId` produit bien une tâche liée au membre correspondant.
+  **Décisions** : Priorité à l'ID technique (`Long`) pour l'assignation API afin d'éviter les erreurs liées aux changements de noms d'affichage.
+  **Commit** : `feat(task): enable member assignment in task creation`
+
+

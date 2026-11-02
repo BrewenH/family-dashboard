@@ -73,7 +73,7 @@ L'approche actuelle est le **"Thin Slice"** : priorité absolue au déploiement 
 - [x] FM-LNK-001 - Ajouter la relation @ManyToOne dans l'entité Task
 - [x] FM-LNK-002 - Adapter TaskRequest et TaskResponse pour inclure le membre
 - [x] FM-LNK-003 - Migrer les données existantes de `assignedTo` (String) vers `assignedMember` (Entity)
-- [ ] FM-LNK-004 - Adapter TaskService et TaskController pour gérer le membre
+- [x] FM-LNK-004 - Adapter TaskService et TaskController pour gérer le membre
 
 ### Frontend Angular (V1)
 - [ ] FE-001 - Initialisation du projet Angular et configuration environnement
