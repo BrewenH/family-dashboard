@@ -76,7 +76,7 @@ L'approche actuelle est le **"Thin Slice"** : priorité absolue au déploiement 
 - [x] FM-LNK-004 - Adapter TaskService et TaskController pour gérer le membre
 
 ### Frontend Angular (V1)
-- [ ] FE-001 - Initialisation du projet Angular et configuration environnement
+- [x] FE-001 - Initialisation du projet Angular et configuration environnement
 - [ ] FE-002 - Création du layout Dashboard (Mode Kiosque)
 - [ ] FE-003 - Implémentation du module Tâches (Liste, Création, Statut)
 - [ ] FE-004 - Implémentation du module Membres (Liste, Création)

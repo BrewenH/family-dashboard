@@ -210,4 +210,18 @@ Ce fichier conserve l'historique chronologique et technique du projet.
   **Décisions** : Priorité à l'ID technique (`Long`) pour l'assignation API afin d'éviter les erreurs liées aux changements de noms d'affichage.
   **Commit** : `feat(task): enable member assignment in task creation`
 
+## Jalon 9 : Initialisation et Connexion Frontend
+**Ticket** : FE-001
+- **Réalisé** :
+  - Initialisation du projet Angular (v19) en mode standalone.
+  - Mise en place d'une architecture modulaire (`core/`, `shared/`, `features/`).
+  - Configuration des environnements (Dev/Prod) pour l'apiUrl.
+  - Implémentation d'un `HealthService` pour valider la liaison Backend $\rightarrow$ Frontend.
+  - Résolution des problèmes de CORS via une `WebConfig` globale dans le Backend.
+  - Utilisation des Angular Signals pour garantir la réactivité de l'UI.
+- **Décisions** : Adoption des Signals pour la gestion d'état simple. Structure mono-repo pour synchroniser les commits Back/Front.
+- **Validation** : Test visuel réussi : "Backend : CONNECTÉ ✅".
+- **Commit** : `feat(fe): initialize angular project and validate api connection`
+
+
 
