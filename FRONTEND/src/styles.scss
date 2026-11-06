@@ -1,1 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+$bg-dark: #121212;
+$bg-card: #1e1e1e;
+$text-main: #e0e0e0;
+$accent-color: #bb86fc;
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: $bg-dark;
+  color: $text-main;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  overflow: hidden; // Empêche le scroll pour le mode kiosque
+}

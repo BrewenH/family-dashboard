@@ -223,5 +223,18 @@ Ce fichier conserve l'historique chronologique et technique du projet.
 - **Validation** : Test visuel réussi : "Backend : CONNECTÉ ✅".
 - **Commit** : `feat(fe): initialize angular project and validate api connection`
 
+## Jalon 10 : Architecture Visuelle du Dashboard
+**Ticket** : FE-002
+- **Réalisé** :
+    - Implémentation d'un layout global en mode "Kiosque" (plein écran, sans scroll).
+    - Utilisation de CSS Grid pour créer une structure à 3 zones (Tâches, Membres, Infos).
+    - Mise en place d'un thème Dark Mode via des variables SCSS pour faciliter la maintenance.
+    - Création du `LayoutComponent` en mode Standalone.
+- **Décisions** :
+    - Choix de `grid-template-columns: 2fr 1fr` pour prioriser l'affichage des tâches.
+    - Utilisation de `overflow: hidden` sur le body pour simuler une application native.
+- **Validation** : Test visuel réussi sur navigateur (structure stable et responsive).
+- **Commit** : `feat(fe): implement dashboard kiosk layout with CSS grid`
+
 
 

@@ -77,7 +77,7 @@ L'approche actuelle est le **"Thin Slice"** : priorité absolue au déploiement 
 
 ### Frontend Angular (V1)
 - [x] FE-001 - Initialisation du projet Angular et configuration environnement
-- [ ] FE-002 - Création du layout Dashboard (Mode Kiosque)
+- [x] FE-002 - Création du layout Dashboard (Mode Kiosque)
 - [ ] FE-003 - Implémentation du module Tâches (Liste, Création, Statut)
 - [ ] FE-004 - Implémentation du module Membres (Liste, Création)
 - [ ] FE-005 - Intégration API Backend (Tasks & Members)
