@@ -1,17 +1,17 @@
-import { Component, OnInit, signal } from '@angular/core'; // <--- On ajoute 'signal'
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HealthService } from './core/services/health.service';
+import { LayoutComponent } from './features/dashboard/layout/layout.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, LayoutComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
-  // On transforme les variables en SIGNALS
   healthStatus = signal('Chargement...');
   isBackendOk = signal<boolean | null>(null);
 
@@ -20,7 +20,6 @@ export class App implements OnInit {
   ngOnInit(): void {
     this.healthService.getHealth().subscribe({
       next: () => {
-        // Pour modifier un signal, on utilise .set()
         this.healthStatus.set('Backend : CONNECTÉ ✅');
         this.isBackendOk.set(true);
       },
