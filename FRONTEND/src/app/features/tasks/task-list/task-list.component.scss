@@ -1,0 +1,78 @@
+.task-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; // Prend 100% de la widget-zone
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden; // Empêche le container lui-même de scroller
+}
+
+h2 {
+  color: #bb86fc;
+  margin-bottom: 20px;
+  flex-shrink: 0; // Le titre ne doit jamais rétrécir
+}
+
+.task-grid {
+  flex: 1; // Prend TOUT l'espace restant
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto; // ACTIVE LE SCROLL ICI
+  padding-right: 10px;
+  min-height: 0; // Force le calcul de la hauteur
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #1e1e1e;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+    &:hover { background: #444; }
+  }
+}
+
+.task-card {
+  background-color: #252525;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 15px;
+  transition: transform 0.2s;
+  flex-shrink: 0; // Empêche les cartes de s'écraser pour tenir dans la page
+
+  &:hover { transform: translateY(-2px); border-color: #444; }
+
+  .task-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+
+    .priority-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .task-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+  }
+
+  .task-body {
+    p { color: #aaa; font-size: 0.9rem; margin-bottom: 15px; }
+
+    .task-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #777;
+      
+      .member { font-weight: bold; color: #bbb; }
+    }
+  }
+}
