@@ -1,8 +1,9 @@
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh; 
   width: 100vw;
+  overflow: hidden;
 }
 
 .dashboard-header {
@@ -13,6 +14,7 @@
   align-items: center;
   padding: 0 30px;
   border-bottom: 2px solid #333;
+  flex-shrink: 0;
 
   .logo {
     font-size: 1.8rem;
@@ -28,13 +30,15 @@
 }
 
 .dashboard-grid {
-  flex: 1;
+  flex: 1; 
   display: grid;
   grid-template-columns: 2fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 20px;
   padding: 20px;
   box-sizing: border-box;
+  min-height: 0; // CRUCIAL pour permettre le scroll des enfants
+  overflow: hidden;
 }
 
 .widget-zone {
@@ -42,13 +46,15 @@
   border: 1px solid #333;
   border-radius: 15px;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column; 
+  overflow: hidden; // Verrouille le contenu dans le cadre
+  height: 100%;    // Force la zone à prendre la taille de la cellule de grille
   
   .placeholder {
     color: #555;
     font-size: 1.5rem;
     font-style: italic;
+    margin: auto;
   }
 }
 
